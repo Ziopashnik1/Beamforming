@@ -18,10 +18,10 @@ namespace BeamService
             return new Matrix(result);
         }
 
-        private int f_N;
-        private int f_M;
+        private readonly int f_N;
+        private readonly int f_M;
 
-        private double[,] f_Data;
+        private readonly double[,] f_Data;
 
         /// <summary>Число строк</summary>
         public int N => f_N;
@@ -166,8 +166,17 @@ namespace BeamService
         {
             var result = new double[A.N, A.M];
             for (var i = 0; i < A.N; i++)
-                for (int j = 0; j < A.M; j++)
+                for (var j = 0; j < A.M; j++)
                     result[i, j] = A.f_Data[i, j] + B;
+            return new Matrix(result);
+        }
+
+        public static Matrix operator /(Matrix A, double B)
+        {
+            var result = new double[A.N, A.M];
+            for (var i = 0; i < A.N; i++)
+            for (var j = 0; j < A.M; j++)
+                result[i, j] = A.f_Data[i, j] / B;
             return new Matrix(result);
         }
 
@@ -209,13 +218,13 @@ namespace BeamService
             var b = B.Data;
             for (var i = 0; i < A.N; i++)
                 for (var j = 0; j < B.M; j++)
-                    for (int k = 0; k < B.M; k++)
+                    for (var k = 0; k < B.M; k++)
                         result[i, j] += a[i, k] * b[k, j];
             return new Matrix(result);
         }
 
 
-        static public Matrix GetStolb(Matrix A, int k)
+        public static Matrix GetStolb(Matrix A, int k)
         {
             var result = new double[A.N, 1];
             var a = A.Data;
@@ -223,7 +232,7 @@ namespace BeamService
             return new Matrix(result);
         }
 
-        static public Matrix GetStrok(Matrix A, int k)
+        public static Matrix GetStrok(Matrix A, int k)
         {
             var result = new double[1, A.M];
             var a = A.Data;
@@ -238,7 +247,12 @@ namespace BeamService
     {
         private readonly Complex[,] f_Data;
 
-        static public MatrixComplex Create(int N, int M, Func<int, int, Complex> create)
+        /// <summary>Создать матрицу</summary>
+        /// <param name="N">Число строк</param>
+        /// <param name="M">Число столбцов</param>
+        /// <param name="create">Порождающая функция</param>
+        /// <returns>Матрица с указанным числом строк и столбцов, заполненная указанным методом</returns>
+        public static MatrixComplex Create(int N, int M, Func<int, int, Complex> create)
         {
             var result = new Complex[N, M];
              for (var i = 0; i < N; i++)
@@ -247,8 +261,8 @@ namespace BeamService
             return new MatrixComplex(result);
         }
 
-        private int f_N;
-        private int f_M;
+        private readonly int f_N;
+        private readonly int f_M;
 
         //private Complex[,] f_Data;
 
@@ -380,8 +394,8 @@ namespace BeamService
         public MatrixComplex GetComplexConj()
         {
             var result = new Complex[f_N, f_M];
-            for (int i = 0; i < f_N; i++)
-                for (int j = 0; j < f_M; j++)
+            for (var i = 0; i < f_N; i++)
+                for (var j = 0; j < f_M; j++)
                     result[i, j] = new Complex(f_Data[i, j].Real, -f_Data[i, j].Imaginary);
             return new MatrixComplex(result);
         }
@@ -471,7 +485,7 @@ namespace BeamService
             var b = B.Data;
             for (var i = 0; i < A.N; i++)
                 for (var j = 0; j < B.M; j++)
-                    for (int k = 0; k < B.M; k++)
+                    for (var k = 0; k < B.M; k++)
                         result[i, j] += a[i, k] * b[k, j];
             return new MatrixComplex(result);
         }
@@ -485,7 +499,7 @@ namespace BeamService
             var b = B.Data;
             for (var i = 0; i < A.N; i++)
                 for (var j = 0; j < B.M; j++)
-                    for (int k = 0; k < B.M; k++)
+                    for (var k = 0; k < B.M; k++)
                         result[i, j] += a[i, k] * b[k, j];
             return new MatrixComplex(result);
         }
@@ -499,12 +513,12 @@ namespace BeamService
             var b = B.Data;
             for (var i = 0; i < A.N; i++)
                 for (var j = 0; j < B.M; j++)
-                    for (int k = 0; k < B.M; k++)
+                    for (var k = 0; k < B.M; k++)
                         result[i, j] += a[i, k] * b[k, j];
             return new MatrixComplex(result);
         }
 
-        static public MatrixComplex GetStolb(MatrixComplex A, int k)
+        public static MatrixComplex GetStolb(MatrixComplex A, int k)
         {
             var result = new Complex[A.N, 1];
             var a = A.Data;
@@ -512,7 +526,7 @@ namespace BeamService
             return new MatrixComplex(result);
         }
 
-        static public MatrixComplex GetStrok(MatrixComplex A, int k)
+        public static MatrixComplex GetStrok(MatrixComplex A, int k)
         {
             var result = new Complex[1, A.M];
             var a = A.Data;
@@ -520,42 +534,42 @@ namespace BeamService
             return new MatrixComplex(result);
         }
 
-        static public MatrixComplex GetReal(MatrixComplex A)
+        public Matrix GetReal()
         {
-            var result = new Complex[A.N, A.M];
-            for (int i = 0; i < A.N ; i++)
-                for (int j = 0; j < A.M ; j++)
-                    result[i, j] = new Complex(A[i, j].Real, 0);
-            return new MatrixComplex(result);
+            var result = new double[N, M];
+            for (var i = 0; i < N ; i++)
+                for (var j = 0; j < M ; j++)
+                    result[i, j] = f_Data[i, j].Real;
+            return new Matrix(result);
         }
 
-        static public MatrixComplex GetIm(MatrixComplex A)
+        public Matrix GetIm()
         {
-            var result = new Complex[A.N, A.M];
-            for (int i = 0; i < A.N; i++)
-                for (int j = 0; j < A.M; j++)
-                    result[i, j] = new Complex(0, A[i, j].Imaginary);
-            return new MatrixComplex(result);
+            var result = new double[N, M];
+            for (var i = 0; i < N; i++)
+                for (var j = 0; j < M; j++)
+                    result[i, j] = f_Data[i, j].Imaginary;
+            return new Matrix(result);
         }
 
-        static public MatrixComplex GetMod(MatrixComplex A)
+        public Matrix GetMod()
         {
-            var result = new Complex[A.N, A.M];
-            var a = A.Data; 
-            for (int i = 0; i < A.M; i++)
-                for (int j = 0; j < A.M; j++)
+            var result = new double[N, M];
+            var a = Data; 
+            for (var i = 0; i < M; i++)
+                for (var j = 0; j < M; j++)
                     result[i, j] = Math.Sqrt(Math.Pow(a[i, j].Real, 2) + Math.Pow(a[i, j].Imaginary, 2)) ;
-            return new MatrixComplex(result);
+            return new Matrix(result);
         }
 
-        static public MatrixComplex GetArg(MatrixComplex A)
+        public Matrix GetArg()
         {
-            var result = new Complex[A.N, A.M];
-            var a = A.Data;
-            for (int i = 0; i < A.M; i++)
-                for (int j = 0; j < A.M; j++)
+            var result = new double[N, M];
+            var a = Data;
+            for (var i = 0; i < M; i++)
+                for (var j = 0; j < M; j++)
                      result[i, j] = a[i, j].Phase;
-             return new MatrixComplex(result);
+             return new Matrix(result);
         }
 
     }
