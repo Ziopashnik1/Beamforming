@@ -60,7 +60,7 @@ namespace BeamTest
 
             var Nf = Nt;
             Console.WriteLine("Число спектральных компонент {0}", Nf);
-            var df = 1 / dt;
+            var df = 1 / (dt * Nt);
             Console.WriteLine("Дискрет частоты в матрице W {0}", df);
             var W = MatrixComplex.Create(Nt, Nf, (i, j) => Complex.Exp(-2 * Math.PI * Complex.ImaginaryOne * i * j / Nf));
 
@@ -79,17 +79,19 @@ namespace BeamTest
 
             //var uth = Th.Select(t => Math.Sin(t * toRad)).ToArray();
 
-            var th0 = 30 * toRad;
+            var th0 = 15 * toRad;
             var Wth0 = MatrixComplex.Create(8, 8, (i, j) => Complex.Exp(-Complex.ImaginaryOne * 2 * Math.PI * df / c * Math.Sin(th0) * i * j));
             Console.Write("Wth0({0}) = ", th0 / toRad);
             Console.WriteLine((Wth0.GetArg() / toRad).ToString("000.0"));
 
             var QQ = SS * Wth0;
-            Console.Write("QQ = SS * Wth0 =");
-            Console.WriteLine(Wth0.ToString("f3"));
+            Console.Write("|QQ| = |SS*Wth| = ");
+            Console.WriteLine(QQ.GetMod().ToString("0.##"));
+
+            Console.Write("arg(QQ) = ");
+            Console.WriteLine((QQ.GetArg() / toRad).ToString("000.0"));
 
             Console.ReadLine();
-            //var qq = QQ * W.GetComplexConj();
 
             Console.ReadLine();
         }
