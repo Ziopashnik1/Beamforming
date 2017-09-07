@@ -84,7 +84,7 @@ namespace BeamTest
             Console.Write("Wth0({0}) = ", th0 / toRad);
             Console.WriteLine((Wth0.GetArg() / toRad).ToString("000.0"));
 
-            var QQ = SS * Wth0;
+            var QQ = MultyplyDiagonal(SS, Wth0);
             Console.Write("|QQ| = |SS*Wth| = ");
             Console.WriteLine(QQ.GetMod().ToString("0.##"));
 
@@ -94,6 +94,21 @@ namespace BeamTest
             Console.ReadLine();
 
             Console.ReadLine();
+        }
+
+        private static MatrixComplex MultyplyDiagonal(MatrixComplex A, MatrixComplex B)
+        {
+            var result = new MatrixComplex(A.M, 1);
+            for (int i = 0; i < result.N; i++)
+            {
+                var s = new Complex();
+                for (int j = 0; j < B.N; j++)
+                {
+                    s += A[i, j] * B[j, i];
+                }
+                result[i, 0] = s;
+            }
+            return result;
         }
 
         private static double Function(double t)
