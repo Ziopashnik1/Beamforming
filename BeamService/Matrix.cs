@@ -123,7 +123,7 @@ namespace BeamService
                 }
                 if (result[result.Length - 1] != '}')
                     result.Length--;
-                result.AppendLine(" }"); 
+                result.AppendLine(" }");
             }
             result.AppendLine("}");
             return result.ToString();
@@ -175,15 +175,15 @@ namespace BeamService
         {
             var result = new double[A.N, A.M];
             for (var i = 0; i < A.N; i++)
-            for (var j = 0; j < A.M; j++)
-                result[i, j] = A.f_Data[i, j] / B;
+                for (var j = 0; j < A.M; j++)
+                    result[i, j] = A.f_Data[i, j] / B;
             return new Matrix(result);
         }
 
         public static Matrix operator +(double A, Matrix B)
         {
             return B + A;
-        }        
+        }
 
         public static Matrix operator -(Matrix A, Matrix B)
         {
@@ -241,7 +241,7 @@ namespace BeamService
         }
 
     }
-    
+
 
     public class MatrixComplex
     {
@@ -255,7 +255,7 @@ namespace BeamService
         public static MatrixComplex Create(int N, int M, Func<int, int, Complex> create)
         {
             var result = new Complex[N, M];
-             for (var i = 0; i < N; i++)
+            for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
                     result[i, j] = create(i, j);
             return new MatrixComplex(result);
@@ -518,6 +518,15 @@ namespace BeamService
             return new MatrixComplex(result);
         }
 
+        public static MatrixComplex operator *(MatrixComplex A, double b)
+        {
+            var result = new MatrixComplex(A.N, A.M);
+            for (var i = 0; i < A.N; i++)
+                for (var j = 0; j < A.M; j++)
+                    result[i, j] = A[i, j] * b;
+            return result;
+        }
+
         public static MatrixComplex GetStolb(MatrixComplex A, int k)
         {
             var result = new Complex[A.N, 1];
@@ -537,8 +546,8 @@ namespace BeamService
         public Matrix GetReal()
         {
             var result = new double[N, M];
-            for (var i = 0; i < N ; i++)
-                for (var j = 0; j < M ; j++)
+            for (var i = 0; i < N; i++)
+                for (var j = 0; j < M; j++)
                     result[i, j] = f_Data[i, j].Real;
             return new Matrix(result);
         }
@@ -555,10 +564,10 @@ namespace BeamService
         public Matrix GetMod()
         {
             var result = new double[N, M];
-            var a = Data; 
-            for (var i = 0; i < M; i++)
+            var a = Data;
+            for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
-                    result[i, j] = Math.Sqrt(Math.Pow(a[i, j].Real, 2) + Math.Pow(a[i, j].Imaginary, 2)) ;
+                    result[i, j] = Math.Sqrt(Math.Pow(a[i, j].Real, 2) + Math.Pow(a[i, j].Imaginary, 2));
             return new Matrix(result);
         }
 
@@ -566,10 +575,10 @@ namespace BeamService
         {
             var result = new double[N, M];
             var a = Data;
-            for (var i = 0; i < M; i++)
+            for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
-                     result[i, j] = a[i, j].Phase;
-             return new Matrix(result);
+                    result[i, j] = a[i, j].Phase;
+            return new Matrix(result);
         }
 
     }
