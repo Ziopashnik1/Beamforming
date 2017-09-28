@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Blend for Visual Studio 14
+# Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeamForming", "BeamForming\BeamForming.csproj", "{2B6BD465-F62A-4053-983A-034B9FC07284}"
