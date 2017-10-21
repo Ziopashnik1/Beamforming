@@ -40,6 +40,8 @@ namespace BeamService
         /// <summary>Число разрядов в кода</summary> 
         public int n { get; }
 
+        public Func<double, double> ElementPattern { get; set; } = th => Math.Cos(th);
+
         public PatternValue[] ComputePattern(double f_f0, double f_th1, double f_th2, object f_dth)
         {
             throw new NotImplementedException();
@@ -77,19 +79,19 @@ namespace BeamService
             for (var i = 0; i < N; i++)
                 f_ADC[i] = new ADC(n, fd, MaxValue);
         }
-         /// <summary>
-         /// Формирование падающей волны
-         /// </summary>
-         /// <param name="th">Угол падения волны</param>
-         /// <param name="signal"></param>
-         /// <returns></returns>
+        /// <summary>
+        /// Формирование падающей волны
+        /// </summary>
+        /// <param name="th">Угол падения волны</param>
+        /// <param name="signal"></param>
+        /// <returns></returns>
         private Source[] GetSources(double th, Func<double, double> signal)
         {
             var sources = new Source[N];
             for (var i = 0; i < N; i++)
             {
                 var dt = i * d / c * Math.Sin(th);
-                sources[i] = new Source(t => signal(t - dt));
+                sources[i] = new Source(t => signal(t - dt) * ElementPattern(th));
             }
             return sources;
         }
@@ -196,7 +198,7 @@ namespace BeamService
         /// <returns></returns>
         private MatrixComplex ComputeResultSignal(MatrixComplex SpectralMatrix)
         {
-            var result = SpectralMatrix * Get_W_inv();   // а тут не ошибка ли?????????
+            var result = SpectralMatrix * Get_W_inv();
             if (result.N != 1) throw new InvalidOperationException("В результате вычислений получено более одной строки в выходной сигнальной матрице");
             return result;
         }
@@ -247,6 +249,7 @@ namespace BeamService
         {
             var A0 = 1;                                                       // Амплитуда сигнала
             Func<double, double> signal = t => A0 * Math.Sin(pi2 * f0 * t);   // Определяем сигнал
+            Func<double, double> signal1 = t => signal(t) + A0 * Math.Sin(pi2 * 2 * f0 * t);
             var sources = GetSources(th, signal);                             // Определяем массив источников для элементов решётки
             var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
             var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
@@ -255,7 +258,7 @@ namespace BeamService
             var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
             return GetPower(q);                                               // Вычисляем мощность выходного сигнала
         }
-         
+
         /// <summary>
         /// процесс диаграммообразования по мощности
         /// </summary>
@@ -268,21 +271,13 @@ namespace BeamService
         {
             var result = new List<PatternValue>(1000);
             var th = th1;
-            while(th <= th2)
+            while (th <= th2)
             {
                 var value = ComputePatternValue(th, f0);
                 result.Add(new PatternValue { Angle = th, Value = value });
                 th += dth;
             }
             return result.ToArray();
-        }         
-    }
-
-    public class PatternValue
-    {
-        public double Angle { get; set; }
-        public double Angle_deg => Angle / Math.PI * 180;
-        public double Value { get; set; }
-        public double Value_db => 10 * Math.Log10(Math.Abs(Value));
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ namespace BeamForming
         public ReadOnlyCollection<PatternValue> BeamNorm => new ReadOnlyCollection<PatternValue>(f_Beam_Norm);
 
         /// <summary>
-        /// Угол фазирования антенноё решёётки  
+        /// Угол фазирования антенноё решётки  
         /// </summary>
         public double Th0
         {
@@ -60,11 +61,28 @@ namespace BeamForming
         /// <summary>
         /// Коэффициент усиления решётки
         /// </summary>
-        public double Max { get; private set; }
+        public double Max { get; private set; } = double.NaN;
+
+        public double MaxPos { get; private set; } = double.NaN;
+
+        public double BeamWidth07 { get; private set; } = double.NaN;
+
+        public double BeamWidth0 { get; private set; } = double.NaN;
+
+        public double LeftBeamEdge_07 { get; private set; }  = double.NaN;
+
+        public double RightBeamEdge_07 { get; private set; }  = double.NaN;
+
+        public double UBL { get; private set; } = double.NaN;
+
+        public double MeanUBL { get; private set; } = double.NaN;
+
+        public PatternValue[] SideLobes { get; private set; }
 
         public MainViewModel()
         {
             f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue);
+            f_Antenna.ElementPattern = Math.Cos;
             CalculatePattern();
         }
 
@@ -76,6 +94,34 @@ namespace BeamForming
             OnPropertyChanged(nameof(Max));
             f_Beam_Norm = f_Beam.Select(v => new PatternValue { Angle = v.Angle, Value = v.Value / Max }).ToArray();
             OnPropertyChanged(nameof(BeamNorm));
+
+            Func<double, Complex> F = th => f_Antenna.ComputePatternValue(th, f_f0);
+            var max = F.GetMaximum(out var max_pos);                                    
+            MaxPos = max_pos / toRad;
+            OnPropertyChanged(nameof(MaxPos));
+
+            F.GetPatternWidth(max_pos, out var left_07, out var right_07, out var left_0, out var right_0);
+            LeftBeamEdge_07 = left_07 / toRad;
+            RightBeamEdge_07 = right_07 / toRad;
+            OnPropertyChanged(nameof(LeftBeamEdge_07));
+            OnPropertyChanged(nameof(RightBeamEdge_07));
+
+            BeamWidth07 = (right_07 - left_07) / toRad;
+            OnPropertyChanged(nameof(BeamWidth07));
+            BeamWidth0 = (right_0 - left_0) / toRad;
+            OnPropertyChanged(nameof(BeamWidth0));
+
+            var left_maximums = F.GetMaximums(th2: left_0).ToArray();
+            var right_maximums = F.GetMaximums(th1: right_0).ToArray();
+
+            SideLobes = left_maximums.Concat(right_maximums).ToArray();
+            OnPropertyChanged(nameof(SideLobes));
+
+            UBL = -SideLobes.Max(v => v.Value_db);
+            OnPropertyChanged(nameof(UBL));
+
+            MeanUBL = 10 * Math.Log10(f_Beam_Norm.Where(v => !(v.Angle > left_0 && v.Angle < right_0)).Sum(v => v.Value) * f_dth / (180 - BeamWidth0));
+            OnPropertyChanged(nameof(MeanUBL));
         }
     }
 }
