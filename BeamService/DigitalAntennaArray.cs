@@ -15,6 +15,10 @@ namespace BeamService
         private const double toRad = Math.PI / 180;
 
         private readonly ADC[] f_ADC;
+        private MatrixComplex f_Wt;
+        private double f_th0;
+        private MatrixComplex f_Wth0;
+        private MatrixComplex f_W_inv;
 
         /// <summary>Число элементов реешётки</summary>
         public int N { get; }
@@ -26,7 +30,16 @@ namespace BeamService
         public double AperturaLength => d * (N - 1);
 
         /// <summary> Угол фазирования</summary>
-        public double th0 { get; set; }
+        public double th0
+        {
+            get => f_th0;
+            set
+            {
+                if(Equals(f_th0, value)) return;
+                f_th0 = value;
+                f_Wth0 = Get_Wth0(value);
+            }
+        }
 
         /// <summary> размер выборки цифрового сигнала </summary>
         public int Nd { get; }
@@ -41,11 +54,6 @@ namespace BeamService
         public int n { get; }
 
         public Func<double, double> ElementPattern { get; set; } = th => Math.Cos(th);
-
-        public PatternValue[] ComputePattern(double f_f0, double f_th1, double f_th2, object f_dth)
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>Максимальная амплитуда сигнала</summary>  
         public double MaxValue { get; }
@@ -76,8 +84,11 @@ namespace BeamService
             this.MaxValue = MaxValue;
 
             f_ADC = new ADC[N];
-            for (var i = 0; i < N; i++)
-                f_ADC[i] = new ADC(n, fd, MaxValue);
+            for (var i = 0; i < N; i++) f_ADC[i] = new ADC(n, fd, MaxValue);
+
+            f_Wt = MatrixComplex.Create(Nd, Nd, (nn, mm) => Complex.Exp(-i1 * pi2 * nn * mm / Nd) / Nd);
+            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
+            f_Wth0 = Get_Wth0(0);
         }
         /// <summary>
         /// Формирование падающей волны
@@ -108,47 +119,27 @@ namespace BeamService
             for (var i = 0; i < N; i++)
             {
                 var signal = f_ADC[i].GetDiscretSignal(sources[i], Nd);
-                for (var n = 0; n < Nd; n++)
-                    s_data[i, n] = signal[n];
+                for (var j = 0; j < Nd; j++) s_data[i, j] = signal[j];
             }
             return new Matrix(s_data);
         }
-
-        /// <summary>
-        /// Метод возвращает комплексную матрицу преобразования Фурье (время -&gt; частота) 
-        /// </summary> 
-        /// <returns></returns>
-        public MatrixComplex Get_Wt() => MatrixComplex.Create(Nd, Nd, (n, m) => Complex.Exp(-i1 * pi2 * n * m / Nd) / Nd);
-
 
         /// <summary>
         /// Метод получения матрицы спектров
         /// </summary>
         /// <param name="SignalMatrix"></param>
         /// <returns></returns>
-        private MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * Get_Wt();
-
+        private MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * f_Wt;
 
         /// <summary>
         /// Создание фазирующей матрицы
         /// </summary>
-        /// <param name="th0"> угол фазирования</param>
         /// <returns></returns>
-        private MatrixComplex Get_Wth0(double th0) => MatrixComplex.Create(N, Nd, w_funct);
-
-
-        /// <summary>
-        /// элементы фазирующей матрицы
-        /// </summary>
-        /// <param name="i"></param>
-        /// <param name="m"></param>
-        /// <returns></returns>
-        private Complex w_funct(int i, int m)
+        private MatrixComplex Get_Wth0(double t0) => MatrixComplex.Create(N, Nd, (i, m) =>
         {
             var fm = m_correction(m, Nd) * df;
-            return Complex.Exp(i1 * pi2 / c * fm * i * d * Math.Sin(th0));
-        }
-
+            return Complex.Exp(i1 * pi2 / c * fm * i * d * Math.Sin(t0));
+        });
 
         /// <summary>
         /// корректирующая функция
@@ -157,7 +148,6 @@ namespace BeamService
         /// <param name="M"></param>
         /// <returns></returns>
         private static int m_correction(int m, int M) => m <= M / 2 ? m : m - M;
-
 
         /// <summary>
         /// поэлементное умножение матрицы на матрицу, используется при фазировании
@@ -170,26 +160,22 @@ namespace BeamService
             if (A.M != B.M) throw new InvalidOperationException("Число столбцов матриц не совпадает");
             if (A.N != B.N) throw new InvalidOperationException("Число строк матриц не совпадает");
 
-            var result = new MatrixComplex(A.N, A.M);
-            for (var i = 0; i < A.N; i++)
-                for (var j = 0; j < B.M; j++)
-                    result[i, j] = A[i, j] * B[i, j];
-            return result;
-        }
+            var N = A.N;
+            var M = B.M;
 
+            var result = new Complex[N,M];
+            for (var i = 0; i < N; i++)
+                for (var j = 0; j < M; j++)
+                    result[i, j] = A[i, j] * B[i, j];
+            return new MatrixComplex(result);
+        }
 
         /// <summary>
         /// фазирование и получение матрицы сфазированных спектров
         /// </summary>
         /// <param name="SpectralMatrix"></param>
         /// <returns></returns>
-        private MatrixComplex ComputeResultMatrix(MatrixComplex SpectralMatrix) => ElementMultiply(SpectralMatrix, Get_Wth0(th0));
-        /// <summary>
-        /// обратное преобразование Фурье, для получение матрицы сигналов в каждом антенном элементе
-        /// </summary>
-        /// <returns></returns>
-        private MatrixComplex Get_W_inv() => MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
-
+        private MatrixComplex ComputeResultMatrix(MatrixComplex SpectralMatrix) => ElementMultiply(SpectralMatrix, f_Wth0);
 
         /// <summary>
         /// сигналы с одинаков ВОЗМОЖНО ОШИБКА!!!!!!!!!!!!!!!!!
@@ -198,11 +184,10 @@ namespace BeamService
         /// <returns></returns>
         private MatrixComplex ComputeResultSignal(MatrixComplex SpectralMatrix)
         {
-            var result = SpectralMatrix * Get_W_inv();
+            var result = SpectralMatrix * f_W_inv;
             if (result.N != 1) throw new InvalidOperationException("В результате вычислений получено более одной строки в выходной сигнальной матрице");
             return result;
         }
-
 
         /// <summary>
         /// Получение строки усиленного сигнала 
@@ -211,16 +196,15 @@ namespace BeamService
         /// <returns></returns>
         private static MatrixComplex SumRows(MatrixComplex A)
         {
-            var result = new MatrixComplex(1, A.M);
+            var result = new Complex[1, A.M];
             for (var j = 0; j < A.M; j++)
             {
                 var summ = new Complex();
                 for (var i = 0; i < A.N; i++) summ += A[i, j];
                 result[0, j] = summ;
             }
-            return result;
+            return new MatrixComplex(result);
         }
-
 
         /// <summary>
         /// Получение мощности усиленного сигнала
@@ -237,7 +221,6 @@ namespace BeamService
             }
             return P / q.M;
         }
-
 
         /// <summary>
         /// Процесс диаграммообразования и усиления сигнала

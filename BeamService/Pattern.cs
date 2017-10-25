@@ -37,7 +37,7 @@ namespace BeamService
         public static void GetPatternWidth(this Func<double, Complex> F, double th0, out double Left07, out double Right07, out double Left0, out double Right0, double dth = 0.1 * toRad)
         {
             var max = F(th0).Magnitude;
-            var max07 = max / Math.Sqrt(2);
+            var max07 = max / 2;
 
             var th = th0;
             var f = max;
@@ -59,7 +59,7 @@ namespace BeamService
             Right07 = th;
 
             f1 = Math.Abs(f);
-            while (f1 < f)
+            while (f1 <= f)
             {
                 th += dth;
                 f = f1;
