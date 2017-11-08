@@ -23,17 +23,21 @@ namespace BeamForming
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private Func<double, double> f_Signal;
         private DigitalAntennaArray f_Antenna;
 
         private int f_N = 8;
         private double f_d = 0.15;
-        private double f_fd = 8e9;
+        private double f_fd = 2e9;
         private int f_n = 8;
-        private int f_Nd = 8;
+        private int f_Nd = 16;
         private double f_MaxValue = 2;
 
         private PatternValue[] f_Beam;
         private PatternValue[] f_Beam_Norm;
+        private PatternValue[] f_Beam1 = new PatternValue[0];
+        private PatternValue[] f_Beam1_Norm = new PatternValue[0];
+        private double f_A0 = 1;
         private double f_f0 = 1e9;
         private const double toRad = Math.PI / 180;
         private double f_th1 = -90;
@@ -42,6 +46,11 @@ namespace BeamForming
 
         public ReadOnlyCollection<PatternValue> Beam => new ReadOnlyCollection<PatternValue>(f_Beam);
         public ReadOnlyCollection<PatternValue> BeamNorm => new ReadOnlyCollection<PatternValue>(f_Beam_Norm);
+
+        public ReadOnlyCollection<PatternValue> Beam1 => new ReadOnlyCollection<PatternValue>(f_Beam1);
+        public ReadOnlyCollection<PatternValue> BeamNorm1 => new ReadOnlyCollection<PatternValue>(f_Beam1_Norm);
+
+        public SignalValue[] SignalIn { get; private set; }
 
         /// <summary>
         /// Угол фазирования антенноё решётки  
@@ -83,23 +92,31 @@ namespace BeamForming
 
         public MainViewModel()
         {
-            f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue);
-            f_Antenna.ElementPattern = Math.Cos;
+            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t) + f_A0 * Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал
+
+            f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 1e-10);
+            Func<double, double> f1 = th => Math.Cos(th);
+            f_Antenna.ElementPattern = f1;
             CalculatePattern();
             CalculateKND_from_th0_Async();
         }
 
         private void CalculatePattern()
         {
-            f_Beam = f_Antenna.ComputePattern(f_f0, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
+            f_Beam = f_Antenna.ComputePattern(f_Signal, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
             OnPropertyChanged(nameof(Beam));
             f_Beam_Norm = GetBeamNorm(f_Beam, out var max);
+            OnPropertyChanged(nameof(BeamNorm));
+            f_Beam1 = ComputePattern(f_Antenna.ElementPattern, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
+            OnPropertyChanged(nameof(Beam1));
+            f_Beam1_Norm = GetBeamNorm(f_Beam1, out var _);
+            OnPropertyChanged(nameof(BeamNorm1));
             Max = max;
             OnPropertyChanged(nameof(Max));
             OnPropertyChanged(nameof(Max_db));
             OnPropertyChanged(nameof(BeamNorm));
 
-            Func<double, Complex> F = th => f_Antenna.ComputePatternValue(th, f_f0);
+            Func<double, Complex> F = th => f_Antenna.ComputePatternValue(th, f_Signal);
             F.GetMaximum(out var max_pos);
             MaxPos = max_pos / toRad;
             OnPropertyChanged(nameof(MaxPos));
@@ -120,6 +137,22 @@ namespace BeamForming
 
             MeanUBL = 10 * Math.Log10(f_Beam_Norm.Where(v => !(v.Angle > left_0 && v.Angle < right_0)).Sum(v => v.Value) * f_dth / (180 - BeamWidth0));
             OnPropertyChanged(nameof(MeanUBL));
+
+            SignalIn = f_Antenna.ADC[0].GetDiscretSignal(new Source(f_Signal), f_Antenna.Nd);
+            OnPropertyChanged(nameof(SignalIn));
+        }
+
+        private PatternValue[] ComputePattern(Func<double, double> F, double th1, double th2, double dth)
+        {
+            var th = th1;
+            var count = (int)((th2 - th1) / dth) + 1;
+            var result = new List<PatternValue>(count);
+            while(th < th2)
+            {
+                result.Add(new PatternValue { Angle = th, Value = F(th) });
+                th += dth;
+            }
+            return result.ToArray();
         }
 
         private static PatternValue[] GetBeamNorm(PatternValue[] pattern, out double Max)
@@ -144,7 +177,7 @@ namespace BeamForming
             for (var th0 = 0d; th0 < 45; th0 += 0.5)
             {
                 array.th0 = th0 * toRad;
-                var pattern = array.ComputePattern(1e9, -90 * toRad, 90 * toRad, 0.5 * toRad);
+                var pattern = array.ComputePattern(f_Signal, -90 * toRad, 90 * toRad, 0.5 * toRad);
                 var max = pattern.Max(v => v.Value);
                 result.Add(new DataPoint { X = th0, Y = max });
             }

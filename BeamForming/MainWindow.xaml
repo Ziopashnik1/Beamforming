@@ -59,27 +59,41 @@
                         </Border>
                     </StackPanel>
                 </GroupBox>
-                <oxy:Plot Title="ДН ЦАР" TitleFontSize="14" MouseRightButtonDown="OnPlotMouseUp">
-                    <oxy:Plot.Axes>
-                        <!-- PositionAtZeroCrossing="True" TitlePosition="0.05" AxisTitleDistance="-45" FractionUnit="0.0175" FractionUnitSymbol="deg" FormatAsFractions="True" -->
-                        <oxy:LinearAxis Position="Bottom"  Title="Угол"
+                <TabControl>
+                    <TabItem Header="Сигнал">
+                        <oxy:Plot Title="Сигнал на выходе АЦП" TitleFontSize="14" MouseRightButtonDown="OnPlotMouseUp">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Bottom" Title="Время" MajorGridlineStyle="Solid" MinorGridlineStyle="Dash" Unit="нс" />
+                                <oxy:LinearAxis Position="Left" Title="Амплитуда" MajorGridlineStyle="Solid" MinorGridlineStyle="Dash" Unit="В"/>
+                            </oxy:Plot.Axes>
+                            <oxy:LineSeries StrokeThickness="2" Color="Red" ItemsSource="{Binding SignalIn}" DataFieldX="t" DataFieldY="V" />
+                        </oxy:Plot>
+                    </TabItem>
+                    <TabItem Header="ДН">
+                        <oxy:Plot Title="ДН ЦАР" TitleFontSize="14" MouseRightButtonDown="OnPlotMouseUp">
+                            <oxy:Plot.Axes>
+                                <!-- PositionAtZeroCrossing="True" TitlePosition="0.05" AxisTitleDistance="-45" FractionUnit="0.0175" FractionUnitSymbol="deg" FormatAsFractions="True" -->
+                                <oxy:LinearAxis Position="Bottom"  Title="Угол"
                                 MajorGridlineColor="Gray" MinorGridlineColor="LightGray" MajorGridlineStyle="Solid" MinorGridlineStyle="Dash"
                                 AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="2" Unit="deg"/>
-                        <oxy:LinearAxis Position="Left" Title="ДН" AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="2"
+                                <oxy:LinearAxis Position="Left" Title="ДН" AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="2"
                                 MajorGridlineColor="Gray" MinorGridlineColor="LightGray" Minimum="-40"/>
-                    </oxy:Plot.Axes>
-                    <oxy:Plot.Series>
-                        <oxy:LineSeries StrokeThickness="2" Color="Red" ItemsSource="{Binding BeamNorm}" DataFieldX="Angle_deg" DataFieldY="Value_db"/>
-                    </oxy:Plot.Series>
-                    <oxy:Plot.Annotations>
-                        <oxy:LineAnnotation X="{Binding LeftBeamEdge_07}" Type="Vertical" />
-                        <oxy:LineAnnotation X="{Binding RightBeamEdge_07}" Type="Vertical" />
-                        <oxy:LineAnnotation Y="-3" Type="Horizontal" MinimumX="{Binding LeftBeamEdge_07}" MaximumX="{Binding RightBeamEdge_07}" />
-                        <oxy:LineAnnotation Y="{Binding UBL}" Type="Horizontal" Color="Red" Text="{Binding UBL, StringFormat='УБЛ={0:f1}дБ'}"/>
-                        <oxy:LineAnnotation Y="{Binding MeanUBL}" Type="Horizontal" Color="Red" Text="{Binding MeanUBL, StringFormat='Средний УБЛ={0:f1}дБ'}" LineStyle="Dot"/>
-                        <oxy:LineAnnotation Y="0" Type="Horizontal" Color="Black" LineStyle="Solid" />
-                    </oxy:Plot.Annotations>
-                </oxy:Plot>
+                            </oxy:Plot.Axes>
+                            <oxy:Plot.Series>
+                                <oxy:LineSeries StrokeThickness="2" Color="Red" ItemsSource="{Binding BeamNorm}" DataFieldX="Angle_deg" DataFieldY="Value_db"/>
+                                <oxy:LineSeries StrokeThickness="1" Color="Black" ItemsSource="{Binding BeamNorm1}" DataFieldX="Angle_deg" DataFieldY="Value_db"/>
+                            </oxy:Plot.Series>
+                            <oxy:Plot.Annotations>
+                                <oxy:LineAnnotation X="{Binding LeftBeamEdge_07}" Type="Vertical" />
+                                <oxy:LineAnnotation X="{Binding RightBeamEdge_07}" Type="Vertical" />
+                                <oxy:LineAnnotation Y="-3" Type="Horizontal" MinimumX="{Binding LeftBeamEdge_07}" MaximumX="{Binding RightBeamEdge_07}" />
+                                <oxy:LineAnnotation Y="{Binding UBL}" Type="Horizontal" Color="Red" Text="{Binding UBL, StringFormat='УБЛ={0:f1}дБ'}"/>
+                                <oxy:LineAnnotation Y="{Binding MeanUBL}" Type="Horizontal" Color="Red" Text="{Binding MeanUBL, StringFormat='Средний УБЛ={0:f1}дБ'}" LineStyle="Dot"/>
+                                <oxy:LineAnnotation Y="0" Type="Horizontal" Color="Black" LineStyle="Solid" />
+                            </oxy:Plot.Annotations>
+                        </oxy:Plot>
+                    </TabItem>
+                </TabControl>
             </DockPanel>
         </TabItem>
         <TabItem Header="Зависимости">

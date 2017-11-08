@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -41,11 +42,13 @@ namespace BeamService
             }
         }
 
+        public ReadOnlyCollection<ADC> ADC => new ReadOnlyCollection<ADC>(f_ADC);
+
         /// <summary> размер выборки цифрового сигнала </summary>
         public int Nd { get; }
 
         /// <summary>Шаг спектральных компонент в спектре</summary>
-        public double df => fd / Nd;
+        public double df => fd / Nd;   /// дискрет частоты ведь будет всегда несущая !!!!
 
         /// <summary>Частота дискретизации</summary>
         public double fd { get; }
@@ -67,7 +70,7 @@ namespace BeamService
         /// <param name="n">Чмсло разрядов в коде</param>
         /// <param name="Nd">Размер выборки цифрового сигнала</param>
         /// <param name="MaxValue"></param>
-        public DigitalAntennaArray(int N, double d, double fd, int n, int Nd, double MaxValue)
+        public DigitalAntennaArray(int N, double d, double fd, int n, int Nd, double MaxValue, double tj = 0)
         {
             if (N <= 0) throw new ArgumentOutOfRangeException(nameof(N), "Число элементов рештки должно быть неотрицательным значением");
             if (d <= 0) throw new ArgumentOutOfRangeException(nameof(d), "Шаг между элементами решётки не может быть меньше, либо равен нулю");
@@ -84,7 +87,7 @@ namespace BeamService
             this.MaxValue = MaxValue;
 
             f_ADC = new ADC[N];
-            for (var i = 0; i < N; i++) f_ADC[i] = new ADC(n, fd, MaxValue);
+            for (var i = 0; i < N; i++) f_ADC[i] = new ADC(n, fd, MaxValue, tj);
 
             f_Wt = MatrixComplex.Create(Nd, Nd, (nn, mm) => Complex.Exp(-i1 * pi2 * nn * mm / Nd) / Nd);
             f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
@@ -118,7 +121,7 @@ namespace BeamService
             var s_data = new double[N, Nd];
             for (var i = 0; i < N; i++)
             {
-                var signal = f_ADC[i].GetDiscretSignal(sources[i], Nd);
+                var signal = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
                 for (var j = 0; j < Nd; j++) s_data[i, j] = signal[j];
             }
             return new Matrix(s_data);
@@ -226,13 +229,9 @@ namespace BeamService
         /// Процесс диаграммообразования и усиления сигнала
         /// </summary>
         /// <param name="th">угол падения</param>
-        /// <param name="f0">частота сигнала</param>
         /// <returns></returns>
-        public double ComputePatternValue(double th, double f0 = 1e9)
-        {
-            var A0 = 1;                                                       // Амплитуда сигнала
-            Func<double, double> signal = t => A0 * Math.Sin(pi2 * f0 * t);   // Определяем сигнал
-            Func<double, double> signal1 = t => signal(t) + A0 * Math.Sin(pi2 * 2 * f0 * t);
+        public double ComputePatternValue(double th, Func<double, double> signal)
+        {            
             var sources = GetSources(th, signal);                             // Определяем массив источников для элементов решётки
             var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
             var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
@@ -250,13 +249,13 @@ namespace BeamService
         /// <param name="th2">правый предел</param>
         /// <param name="dth">угловой шаг</param>
         /// <returns></returns>
-        public PatternValue[] ComputePattern(double f0 = 1e9, double th1 = -90 * toRad, double th2 = 90 * toRad, double dth = pi2 / 360 / 2)
+        public PatternValue[] ComputePattern(Func<double, double> signal, double th1 = -90 * toRad, double th2 = 90 * toRad, double dth = pi2 / 360 / 2)
         {
             var result = new List<PatternValue>(1000);
             var th = th1;
             while (th <= th2)
             {
-                var value = ComputePatternValue(th, f0);
+                var value = ComputePatternValue(th, signal);
                 result.Add(new PatternValue { Angle = th, Value = value });
                 th += dth;
             }
