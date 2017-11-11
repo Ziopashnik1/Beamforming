@@ -4,13 +4,88 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" mc:Ignorable="d"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BeamForming"
+        xmlns:a="clr-namespace:BeamService;assembly=BeamService"
         xmlns:oxy="http://oxyplot.org/wpf"
-        Height="429" Width="739"
+        Height="600" Width="800"
         Title="---">
     <Window.DataContext>
         <local:MainViewModel/>
     </Window.DataContext>
     <TabControl TabStripPlacement="Bottom">
+        <TabItem Header="Сигналы">
+            <TabControl>
+                <TabItem Header="Сигнал на выходе ЦДО">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel>
+                                    <TextBlock Text="Угол падения"/>
+                                    <TextBlock Text="Угол фазирования"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBox Text="{Binding ThSignal}"/>
+                                    <TextBox Text="{Binding Th0, StringFormat={}{0:f2}}"/>
+                                </StackPanel>
+                                <StackPanel Margin="3,0,0,0">
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding ThSignal}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding Th0}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Top" Margin="3,0">
+                                    <TextBlock Text="Амплитуда" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="Мощность" HorizontalAlignment="Right"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding OutSignalP.Max, StringFormat={}{0:0.##}}"/>
+                                    <TextBlock Text="{Binding OutSignalP.Power, StringFormat={}{0:0.##}}"/>
+                                </StackPanel>
+                            </StackPanel>                            
+                        </Grid>
+                        <oxy:Plot Grid.Row="1">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" MinorStep="1" MajorStep="2" MajorGridlineThickness="2" MinorTickSize="2" MajorTickSize="4" />
+                                <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
+                                                MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
+                            </oxy:Plot.Axes>
+                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignalP}" DataFieldX="Time_ns" DataFieldY="Value"/>
+                            <oxy:LineSeries Color="Blue" ItemsSource="{Binding OutSignalQ}" DataFieldX="Time_ns" DataFieldY="Value"/>
+                        </oxy:Plot>
+                        <oxy:Plot Grid.Row="2">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"/>
+                                <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
+                                                    MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                        AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
+                            </oxy:Plot.Axes>
+                        </oxy:Plot>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Сигналы на входе решётки">
+                    <Grid>
+                        <ListView ItemsSource="{Binding InputSignals}" HorizontalContentAlignment="Stretch">
+                            <ListView.ItemTemplate>
+                                <DataTemplate DataType="{x:Type a:DigitalSignal}">
+                                    <oxy:Plot Height="100" Padding="0" PlotMargins="0">
+                                        <oxy:Plot.Axes>
+                                            <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"/>
+                                            <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
+                                                    MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                        AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
+                                        </oxy:Plot.Axes>
+                                        <oxy:LineSeries ItemsSource="{Binding}" Color="Red" DataFieldX="Time_ns" DataFieldY="Value"/>
+                                    </oxy:Plot>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </TabItem>
         <TabItem Header="Диаграмма направленности ЦАР">
             <DockPanel>
                 <Menu DockPanel.Dock="Top">
@@ -96,7 +171,7 @@
                 </TabControl>
             </DockPanel>
         </TabItem>
-        <TabItem Header="Зависимости">
+        <TabItem Header="Зависимости" Visibility="Collapsed">
             <TabControl>
                 <TabItem Header="КНД от отклонения луча">
                     <oxy:Plot Title="Зависимость КНД от угла отклонения луча" TitleFontSize="14" MouseRightButtonDown="OnPlotMouseUp">
@@ -112,7 +187,7 @@
                     </oxy:Plot>
                 </TabItem>
                 <TabItem Header="УБЛ от ..."></TabItem>
-            </TabControl>  
+            </TabControl>
         </TabItem>
     </TabControl>
 </Window>

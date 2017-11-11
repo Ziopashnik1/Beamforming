@@ -18,9 +18,14 @@ namespace BeamForming
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        protected virtual bool Set<T>(ref T field, T value, [CallerMemberName] string property = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            if (Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(property);
+            return true;
         }
 
         private Func<double, double> f_Signal;
@@ -28,7 +33,7 @@ namespace BeamForming
 
         private int f_N = 8;
         private double f_d = 0.15;
-        private double f_fd = 2e9;
+        private double f_fd = 8e9;
         private int f_n = 8;
         private int f_Nd = 16;
         private double f_MaxValue = 2;
@@ -64,7 +69,39 @@ namespace BeamForming
                 f_Antenna.th0 = value * toRad;
                 OnPropertyChanged(nameof(Th0));
                 CalculatePattern();
+                ComputeOutSignal();
             }
+        }
+
+        private double f_th_signal = 5;
+        public double ThSignal
+        {
+            get => f_th_signal;
+            set
+            {
+                if (!Set(ref f_th_signal, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
+        private void ComputeOutSignal()
+        {
+            var signals = f_Antenna.GetOutSignal(f_th_signal * toRad, f_Signal);
+            OutSignalP = signals[0];
+            OutSignalQ = signals[1];      
+        }
+
+        private DigitalSignal f_OutSignalP;
+        private DigitalSignal f_OutSignalQ;
+        public DigitalSignal OutSignalP
+        {
+            get => f_OutSignalP;
+            set => Set(ref f_OutSignalP, value);
+        }
+        public DigitalSignal OutSignalQ
+        {
+            get => f_OutSignalQ;
+            set => Set(ref f_OutSignalQ, value);
         }
 
         /// <summary>
@@ -90,15 +127,24 @@ namespace BeamForming
 
         public DataPoint[] KND_th0 { get; private set; }
 
+
+        private DigitalSignal[] f_InputSignals;
+        public DigitalSignal[] InputSignals
+        {
+            get => f_InputSignals;
+            set => Set(ref f_InputSignals, value);
+        }
+
         public MainViewModel()
         {
-            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t) + f_A0 * Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал
+            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t);// + f_A0 * Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал
 
-            f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 1e-10);
+            f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 0e-10);
             Func<double, double> f1 = th => Math.Cos(th);
             f_Antenna.ElementPattern = f1;
             CalculatePattern();
             CalculateKND_from_th0_Async();
+            ComputeOutSignal();
         }
 
         private void CalculatePattern()
@@ -140,6 +186,8 @@ namespace BeamForming
 
             SignalIn = f_Antenna.ADC[0].GetDiscretSignal(new Source(f_Signal), f_Antenna.Nd);
             OnPropertyChanged(nameof(SignalIn));
+
+            InputSignals = f_Antenna.GetInputDigitalSignals(Th0, f_Signal);
         }
 
         private PatternValue[] ComputePattern(Func<double, double> F, double th1, double th2, double dth)

@@ -31,6 +31,10 @@ namespace BeamService
         public int N { get; }
         /// <summary>Частота дискретизации данного АЦП</summary>
         public double Fd { get; }
+        /// <summary>
+        /// Период дискретизации
+        /// </summary>
+        public double dt => 1 / Fd;
         /// <summary>Максимальная амплитуда аналогового сигнала, которую способен обработать АЦП</summary>
         public double MaxValue { get; }
         /// <summary>Величина джиттера в секкундах</summary>

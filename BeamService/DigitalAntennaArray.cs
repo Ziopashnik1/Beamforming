@@ -89,8 +89,8 @@ namespace BeamService
             f_ADC = new ADC[N];
             for (var i = 0; i < N; i++) f_ADC[i] = new ADC(n, fd, MaxValue, tj);
 
-            f_Wt = MatrixComplex.Create(Nd, Nd, (nn, mm) => Complex.Exp(-i1 * pi2 * nn * mm / Nd) / Nd);
-            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
+            f_Wt = new FourierMatrix(Nd);
+            f_W_inv = new FourierMatrix(Nd, true);
             f_Wth0 = Get_Wth0(0);
         }
         /// <summary>
@@ -99,7 +99,7 @@ namespace BeamService
         /// <param name="th">Угол падения волны</param>
         /// <param name="signal"></param>
         /// <returns></returns>
-        private Source[] GetSources(double th, Func<double, double> signal)
+        public Source[] GetSources(double th, Func<double, double> signal)
         {
             var sources = new Source[N];
             for (var i = 0; i < N; i++)
@@ -127,12 +127,26 @@ namespace BeamService
             return new Matrix(s_data);
         }
 
+        public DigitalSignal[] GetInputDigitalSignals(double th, Func<double, double> signal)
+        {
+            var sources = GetSources(th, signal);
+            var signals = new DigitalSignal[N];
+
+            for (var i = 0; i < N; i++)
+            {
+                var s = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
+                signals[i] = new DigitalSignal(s, f_ADC[i].dt);
+            }
+
+            return signals;
+        }
+
         /// <summary>
         /// Метод получения матрицы спектров
         /// </summary>
         /// <param name="SignalMatrix"></param>
         /// <returns></returns>
-        private MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * f_Wt;
+        public MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * f_Wt;
 
         /// <summary>
         /// Создание фазирующей матрицы
@@ -239,6 +253,32 @@ namespace BeamService
             var Q = SumRows(QQ);                                              // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
             var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
             return GetPower(q);                                               // Вычисляем мощность выходного сигнала
+        }
+
+        public DigitalSignal[] GetOutSignal(double th, Func<double, double> signal)
+        {
+            var sources = GetSources(th, signal);                             // Определяем массив источников для элементов решётки
+            var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
+            var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
+            var QQ = ComputeResultMatrix(SS);                                 // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
+            var Q = SumRows(QQ);                                              // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
+            var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
+
+            var samples_p = new double[q.M];
+            var samples_q = new double[q.M];
+
+            for (var i = 0; i < samples_p.Length; i++)
+            {
+                samples_p[i] = q[0, i].Real;
+                samples_q[i] = q[0, i].Imaginary;
+            }
+
+            var dt = f_ADC[0].dt;
+            return new[]
+            {
+                new DigitalSignal(samples_p, dt),
+                new DigitalSignal(samples_q, dt)
+            };
         }
 
         /// <summary>
