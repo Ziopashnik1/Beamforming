@@ -52,16 +52,26 @@
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
                             </oxy:Plot.Axes>
-                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignalP}" DataFieldX="Time_ns" DataFieldY="Value"/>
+                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignalP}" DataFieldX="Time_ns" DataFieldY="Value" CanTrackerInterpolatePoints="False" LineLegendPosition="Start" MarkerType="Circle"/>
                             <oxy:LineSeries Color="Blue" ItemsSource="{Binding OutSignalQ}" DataFieldX="Time_ns" DataFieldY="Value"/>
                         </oxy:Plot>
                         <oxy:Plot Grid.Row="2">
                             <oxy:Plot.Axes>
-                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"/>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" Key="Amplitude"/>
                                 <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
-                                                    MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
-                                                        AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
+                                                MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="ГГц" />
+                                <oxy:LinearAxis Position="Right" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" Key="Phase"
+                                                Unit="°" FractionUnitSymbol="°" FractionUnit="0.01745" FormatAsFractions="True" />
                             </oxy:Plot.Axes>
+                            <oxy:LinearBarSeries ItemsSource="{Binding OutSignalP.Spectrum}" DataFieldX="Frequency" DataFieldY="Abs" YAxisKey="Amplitude"
+                                                 StrokeColor="Red" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>
+                            <oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Circle" MarkerFill="Red" MarkerSize="4"
+                                            YAxisKey="Amplitude" DataFieldX="Frequency" DataFieldY="Abs"/>
+                            <oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Diamond" MarkerFill="Blue" MarkerSize="4"
+                                            YAxisKey="Phase" DataFieldX="Frequency" DataFieldY="Arg"/>
+                            <oxy:LinearBarSeries ItemsSource="{Binding OutSignalP.Spectrum}" DataFieldX="Frequency" DataFieldY="Arg" YAxisKey="Phase"
+                                                 StrokeColor="Blue" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>
                         </oxy:Plot>
                     </Grid>
                 </TabItem>
@@ -132,6 +142,8 @@
                                 </TextBlock>
                             </StackPanel>
                         </Border>
+
+                        <Button Command="{Binding CalculatePatternCommand}">Расчитать ДН</Button>
                     </StackPanel>
                 </GroupBox>
                 <TabControl>

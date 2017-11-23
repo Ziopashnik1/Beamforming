@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace BeamForming
 {
@@ -33,16 +34,19 @@ namespace BeamForming
 
         private int f_N = 8;
         private double f_d = 0.15;
-        private double f_fd = 8e9;
+        private double f_fd = 16e9;
         private int f_n = 8;
-        private int f_Nd = 16;
+        /// <summary>
+        /// Размер выборки
+        /// </summary>
+        private int f_Nd = 64;
         private double f_MaxValue = 2;
 
         private PatternValue[] f_Beam;
         private PatternValue[] f_Beam_Norm;
         private PatternValue[] f_Beam1 = new PatternValue[0];
         private PatternValue[] f_Beam1_Norm = new PatternValue[0];
-        private double f_A0 = 1;
+        private double f_A0 = 0.2;
         private double f_f0 = 1e9;
         private const double toRad = Math.PI / 180;
         private double f_th1 = -90;
@@ -68,7 +72,7 @@ namespace BeamForming
                 if (f_Antenna.th0 == value) return;
                 f_Antenna.th0 = value * toRad;
                 OnPropertyChanged(nameof(Th0));
-                CalculatePattern();
+                //CalculatePattern();
                 ComputeOutSignal();
             }
         }
@@ -135,19 +139,22 @@ namespace BeamForming
             set => Set(ref f_InputSignals, value);
         }
 
+        public ICommand CalculatePatternCommand { get; }
+
         public MainViewModel()
         {
-            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t);// + f_A0 * Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал
+            CalculatePatternCommand = new LamdaCommand(p => CalculatePattern(), p => true);
+
+            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t) + f_A0 * Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал
 
             f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 0e-10);
-            Func<double, double> f1 = th => Math.Cos(th);
-            f_Antenna.ElementPattern = f1;
+            f_Antenna.ElementPattern = th => Math.Cos(th);
             CalculatePattern();
             CalculateKND_from_th0_Async();
             ComputeOutSignal();
         }
 
-        private void CalculatePattern()
+        private async void CalculatePattern()
         {
             f_Beam = f_Antenna.ComputePattern(f_Signal, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
             OnPropertyChanged(nameof(Beam));
