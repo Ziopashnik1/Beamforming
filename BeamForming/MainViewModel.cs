@@ -46,12 +46,14 @@ namespace BeamForming
         private PatternValue[] f_Beam_Norm;
         private PatternValue[] f_Beam1 = new PatternValue[0];
         private PatternValue[] f_Beam1_Norm = new PatternValue[0];
-        private double f_A0 = 0.2;
+        private double f_A0 = 1;
         private double f_f0 = 1e9;
         private const double toRad = Math.PI / 180;
         private double f_th1 = -90;
         private double f_th2 = 90;
         private double f_dth = 0.5;
+
+
 
         public ReadOnlyCollection<PatternValue> Beam => new ReadOnlyCollection<PatternValue>(f_Beam);
         public ReadOnlyCollection<PatternValue> BeamNorm => new ReadOnlyCollection<PatternValue>(f_Beam_Norm);
@@ -88,11 +90,86 @@ namespace BeamForming
             }
         }
 
+        private double f_th_signal1 = 5;
+        public double ThSignal1
+        {
+            get => f_th_signal1;
+            set
+            {
+                if (!Set(ref f_th_signal1, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
+        private double f_th_signal2 = 10;
+        public double ThSignal2
+        {
+            get => f_th_signal2;
+            set
+            {
+                if (!Set(ref f_th_signal2, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
+        private double f_f01 = 1e9;
+        public double f01
+        {
+            get => f_f01;
+            set
+            {
+                if (!Set(ref f_f01, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
+        private double f_f02 = 2e9;
+        public double f02
+        {
+            get => f_f02;
+            set
+            {
+                if (!Set(ref f_f02, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
+        private double f_A01 = 1;
+        public double A01
+        {
+            get => f_A01;
+            set
+            {
+                if (!Set(ref f_A01, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
+        private double f_A02 = 2;
+        public double A02
+        {
+            get => f_A02;
+            set
+            {
+                if (!Set(ref f_A02, value)) return;
+                ComputeOutSignal();
+            }
+        }
+
         private void ComputeOutSignal()
         {
-            var signals = f_Antenna.GetOutSignal(f_th_signal * toRad, f_Signal);
+            Func<double, double> s1 = t => f_A01 * Math.Sin(Math.PI * 2 * t * f_f01);
+            Func<double, double> s2 = t => f_A02 * Math.Sin(Math.PI * 2 * t * f_f02);
+
+            var scene = new RadioScene
+            {
+                new SpaceSignal{ Thetta = f_th_signal1 * toRad, Signal = s1 },
+                new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = s2 }
+            };
+
+            var signals = f_Antenna.GetOutSignal(scene);
             OutSignalP = signals[0];
-            OutSignalQ = signals[1];      
+            OutSignalQ = signals[1];
         }
 
         private DigitalSignal f_OutSignalP;
@@ -202,7 +279,7 @@ namespace BeamForming
             var th = th1;
             var count = (int)((th2 - th1) / dth) + 1;
             var result = new List<PatternValue>(count);
-            while(th < th2)
+            while (th < th2)
             {
                 result.Add(new PatternValue { Angle = th, Value = F(th) });
                 th += dth;

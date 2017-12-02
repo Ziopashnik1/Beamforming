@@ -281,6 +281,38 @@ namespace BeamService
             };
         }
 
+        public DigitalSignal[] GetOutSignal(RadioScene scene)
+        {
+            var sources = new Source[N];
+            for (var i = 0; i < scene.Count; i++)
+            {
+                var sources_i = GetSources(scene[i].Thetta, scene[i].Signal);
+                for (var j = 0; j < N; j++)
+                    sources[j] += sources_i[j];
+            }
+            var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
+            var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
+            var QQ = ComputeResultMatrix(SS);                                 // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
+            var Q = SumRows(QQ);                                              // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
+            var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
+
+            var samples_p = new double[q.M];
+            var samples_q = new double[q.M];
+
+            for (var i = 0; i < samples_p.Length; i++)
+            {
+                samples_p[i] = q[0, i].Real;
+                samples_q[i] = q[0, i].Imaginary;
+            }
+
+            var dt = f_ADC[0].dt;
+            return new[]
+            {
+                new DigitalSignal(samples_p, dt),
+                new DigitalSignal(samples_q, dt)
+            };
+        }
+
         /// <summary>
         /// процесс диаграммообразования по мощности
         /// </summary>
@@ -302,4 +334,12 @@ namespace BeamService
             return result.ToArray();
         }
     }
+
+    public class SpaceSignal
+    {
+        public double Thetta { get; set; }
+        public Func<double,double> Signal { get; set; }
+    }
+
+    public class RadioScene : List<SpaceSignal>  { }
 }

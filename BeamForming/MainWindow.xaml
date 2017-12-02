@@ -24,12 +24,44 @@
                         <Grid>
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel>
-                                    <TextBlock Text="Угол падения"/>
+                                    <TextBlock Text="Угол падения 1"/>
+                                    <TextBlock Text="Угол падения 2"/>
                                     <TextBlock Text="Угол фазирования"/>
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBox Text="{Binding ThSignal}"/>
+                                    <TextBox Text="{Binding ThSignal1}"/>
+                                    <TextBox Text="{Binding ThSignal2}"/>
                                     <TextBox Text="{Binding Th0, StringFormat={}{0:f2}}"/>
+                                </StackPanel>
+                                <StackPanel Margin="3,0,0,0">
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding ThSignal1}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding ThSignal2}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding Th0}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Частота 1"/>
+                                    <TextBlock Text="Частота 2"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBox Text="{Binding f01}"/>
+                                    <TextBox Text="{Binding f02}"/>
+                                </StackPanel>
+                                <StackPanel Margin="3,0,0,0">
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding f01}" Minimum="1e6" Maximum="10e9" SmallChange="100e6"/>
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding f02}" Minimum="1e6" Maximum="10e9" SmallChange="100e6"/>
+                                </StackPanel>
+
+                                <StackPanel>
+                                    <TextBlock Text="Амплитуда 1"/>
+                                    <TextBlock Text="Амплитуда 2"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBox Text="{Binding A01}"/>
+                                    <TextBox Text="{Binding A02}"/>
+                                </StackPanel>
+                                <StackPanel Margin="3,0,0,0">
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding A01}" Minimum="0" Maximum="100" SmallChange="0.1"/>
+                                    <ScrollBar Orientation="Horizontal" Value="{Binding A02}" Minimum="0" Maximum="100" SmallChange="0.1"/>
                                 </StackPanel>
                                 <StackPanel Margin="3,0,0,0">
                                     <ScrollBar Orientation="Horizontal" Value="{Binding ThSignal}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
@@ -61,17 +93,17 @@
                                 <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="ГГц" />
-                                <oxy:LinearAxis Position="Right" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" Key="Phase"
-                                                Unit="°" FractionUnitSymbol="°" FractionUnit="0.01745" FormatAsFractions="True" />
+                                <!--<oxy:LinearAxis Position="Right" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" Key="Phase"
+                                                Unit="°" FractionUnitSymbol="°" FractionUnit="0.01745" FormatAsFractions="True" />-->
                             </oxy:Plot.Axes>
                             <oxy:LinearBarSeries ItemsSource="{Binding OutSignalP.Spectrum}" DataFieldX="Frequency" DataFieldY="Abs" YAxisKey="Amplitude"
                                                  StrokeColor="Red" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>
                             <oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Circle" MarkerFill="Red" MarkerSize="4"
                                             YAxisKey="Amplitude" DataFieldX="Frequency" DataFieldY="Abs"/>
-                            <oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Diamond" MarkerFill="Blue" MarkerSize="4"
+                            <!--<oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Diamond" MarkerFill="Blue" MarkerSize="4"
                                             YAxisKey="Phase" DataFieldX="Frequency" DataFieldY="Arg"/>
                             <oxy:LinearBarSeries ItemsSource="{Binding OutSignalP.Spectrum}" DataFieldX="Frequency" DataFieldY="Arg" YAxisKey="Phase"
-                                                 StrokeColor="Blue" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>
+                                                 StrokeColor="Blue" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>-->
                         </oxy:Plot>
                     </Grid>
                 </TabItem>
