@@ -1,8 +1,8 @@
 ﻿<Application x:Class="BeamForming.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:BeamForming"
-             StartupUri="MainWindow.xaml">
+             xmlns:l="clr-namespace:BeamForming"
+             StartupUri="MainWindow2.xaml">
     <Application.Resources>
          
     </Application.Resources>

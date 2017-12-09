@@ -25,5 +25,10 @@ namespace BeamForming
             if(dialog.ShowDialog() != true) return;
             plot.SaveBitmap(dialog.FileName);
         }
+
+        private void ListView_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

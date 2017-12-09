@@ -15,28 +15,47 @@ namespace BeamService
         private const double pi2 = Math.PI * 2;
         private const double toRad = Math.PI / 180;
 
-        private readonly ADC[] f_ADC;
+        private ADC[] f_ADC;
         private MatrixComplex f_Wt;
         private double f_th0;
         private MatrixComplex f_Wth0;
         private MatrixComplex f_W_inv;
+        private int f_N;
+        private double f_tj;
+        private double f_d;
+        private double f_fd;
+        private int f_n;
+        private double f_MaxValue;
+        private int f_Nd;
 
         /// <summary>Число элементов реешётки</summary>
-        public int N { get; }
+        public int N
+        {
+            get => f_N;
+            set
+            {
+                if (f_N == value) return;
+                f_N = value;
+                f_ADC = new ADC[value];
+                for (var i = 0; i < value; i++)
+                    f_ADC[i] = new ADC(n, fd, MaxValue, f_tj);
+                f_Wth0 = Get_Wth0(f_th0);
+            }
+        }
 
         /// <summary>Шаг решетки</summary>
-        public double d { get; }
+        public double d { get => f_d; set => f_d = value; }
 
         /// <summary>размер апертуры</summary>
         public double AperturaLength => d * (N - 1);
 
-        /// <summary> Угол фазирования</summary>
+        /// <summary>Угол фазирования</summary>
         public double th0
         {
             get => f_th0;
             set
             {
-                if(Equals(f_th0, value)) return;
+                if (Equals(f_th0, value)) return;
                 f_th0 = value;
                 f_Wth0 = Get_Wth0(value);
             }
@@ -44,32 +63,83 @@ namespace BeamService
 
         public ReadOnlyCollection<ADC> ADC => new ReadOnlyCollection<ADC>(f_ADC);
 
-        /// <summary> размер выборки цифрового сигнала </summary>
-        public int Nd { get; }
+        /// <summary>Размер выборки цифрового сигнала </summary>
+        public int Nd
+        {
+            get => f_Nd;
+            set
+            {
+                if (value < N) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть больше числа элементов");
+                if (f_Nd == value) return;
+                f_Nd = value;
+            }
+        }
 
         /// <summary>Шаг спектральных компонент в спектре</summary>
-        public double df => fd / Nd;   /// дискрет частоты ведь будет всегда несущая !!!!
+        public double df => fd / Nd;   /// дискрет частоты ведь будет всегда несущая !!!!  
 
         /// <summary>Частота дискретизации</summary>
-        public double fd { get; }
+        public double fd
+        {
+            get => f_fd;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), "Частота дискретизации должна быть больше 0");
+                if (f_fd == value) return;
+                f_fd = value;
+                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].Fd = value;
+            }
+        }
+
+        /// <summary>Величина джиттера</summary>
+        public double tj
+        {
+            get => f_tj;
+            set
+            {
+                if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), "Величина джиттера не должна быть меньше 0");
+                if (f_tj == value) return;
+                f_tj = value;
+                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].tj = value;
+            }
+        }
 
         /// <summary>Число разрядов в кода</summary> 
-        public int n { get; }
+        public int n
+        {
+            get => f_n;
+            set
+            {
+                if (value < 1) throw new ArgumentOutOfRangeException(nameof(n), "Число разрядов кода АЦП должно быть больше 0");
+                if (f_n == value) return;
+                f_n = value;
+                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].N = value;
+            }
+        }
+
+
 
         public Func<double, double> ElementPattern { get; set; } = th => Math.Cos(th);
 
         /// <summary>Максимальная амплитуда сигнала</summary>  
-        public double MaxValue { get; }
-
-        /// <summary>
-        /// Инициализация новой цифровой антенной решётки
-        /// </summary>
+        public double MaxValue
+        {
+            get => f_MaxValue;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(n), "Амплитуда ограничителя АЦП должна быть больше 0");
+                if (f_MaxValue == value) return;
+                f_MaxValue = value;
+                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].MaxValue = value;
+            }
+        }
+        /// <summary>Инициализация новой цифровой антенной решётки</summary>
         /// <param name="N">Число пространственных каналов</param>
         /// <param name="d">Шаг элементов в решетке</param>
         /// <param name="fd">Частота дискретизации</param>
         /// <param name="n">Чмсло разрядов в коде</param>
         /// <param name="Nd">Размер выборки цифрового сигнала</param>
-        /// <param name="MaxValue"></param>
+        /// <param name="MaxValue">Динамический диапазон АЦП (амплитуда входного ограниччителя)</param>
         public DigitalAntennaArray(int N, double d, double fd, int n, int Nd, double MaxValue, double tj = 0)
         {
             if (N <= 0) throw new ArgumentOutOfRangeException(nameof(N), "Число элементов рештки должно быть неотрицательным значением");
@@ -79,19 +149,17 @@ namespace BeamService
             if (Nd <= 0) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть положительным числом");
             if (MaxValue <= 0) throw new ArgumentOutOfRangeException(nameof(MaxValue), "Максимальая амплитуда АЦП не может быть меньше, либо равна нулю");
 
-            this.N = N;
-            this.d = d;
-            this.fd = fd;
-            this.n = n;
-            this.Nd = Nd;
-            this.MaxValue = MaxValue;
+            f_d = d;
+            f_fd = fd;
+            f_n = n;
+            f_Nd = Nd;
+            f_MaxValue = MaxValue;
+            f_tj = tj;
+            this.N = N; // Нужно установить именно через свойство, что бы создать новый массив АЦП
 
-            f_ADC = new ADC[N];
-            for (var i = 0; i < N; i++) f_ADC[i] = new ADC(n, fd, MaxValue, tj);
-
-            f_Wt = new FourierMatrix(Nd);
-            f_W_inv = new FourierMatrix(Nd, true);
-            f_Wth0 = Get_Wth0(0);
+            f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * (j) / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd)); //new FourierMatrix(Nd, true);  //не понимаю 
+            
         }
         /// <summary>
         /// Формирование падающей волны
@@ -180,7 +248,7 @@ namespace BeamService
             var N = A.N;
             var M = B.M;
 
-            var result = new Complex[N,M];
+            var result = new Complex[N, M];
             for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
                     result[i, j] = A[i, j] * B[i, j];
@@ -245,7 +313,7 @@ namespace BeamService
         /// <param name="th">угол падения</param>
         /// <returns></returns>
         public double ComputePatternValue(double th, Func<double, double> signal)
-        {            
+        {
             var sources = GetSources(th, signal);                             // Определяем массив источников для элементов решётки
             var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
             var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
@@ -338,8 +406,8 @@ namespace BeamService
     public class SpaceSignal
     {
         public double Thetta { get; set; }
-        public Func<double,double> Signal { get; set; }
+        public Func<double, double> Signal { get; set; }
     }
 
-    public class RadioScene : List<SpaceSignal>  { }
+    public class RadioScene : List<SpaceSignal> { }
 }

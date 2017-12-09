@@ -63,10 +63,6 @@
                                     <ScrollBar Orientation="Horizontal" Value="{Binding A01}" Minimum="0" Maximum="100" SmallChange="0.1"/>
                                     <ScrollBar Orientation="Horizontal" Value="{Binding A02}" Minimum="0" Maximum="100" SmallChange="0.1"/>
                                 </StackPanel>
-                                <StackPanel Margin="3,0,0,0">
-                                    <ScrollBar Orientation="Horizontal" Value="{Binding ThSignal}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
-                                    <ScrollBar Orientation="Horizontal" Value="{Binding Th0}" Minimum="-90" Maximum="90" SmallChange="0.5"/>
-                                </StackPanel>
                                 <StackPanel VerticalAlignment="Top" Margin="3,0">
                                     <TextBlock Text="Амплитуда" HorizontalAlignment="Right"/>
                                     <TextBlock Text="Мощность" HorizontalAlignment="Right"/>
@@ -84,7 +80,7 @@
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
                             </oxy:Plot.Axes>
-                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignalP}" DataFieldX="Time_ns" DataFieldY="Value" CanTrackerInterpolatePoints="False" LineLegendPosition="Start" MarkerType="Circle"/>
+                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignalI}" DataFieldX="Time_ns" DataFieldY="Value" CanTrackerInterpolatePoints="False" LineLegendPosition="Start" MarkerType="Circle"/>
                             <oxy:LineSeries Color="Blue" ItemsSource="{Binding OutSignalQ}" DataFieldX="Time_ns" DataFieldY="Value"/>
                         </oxy:Plot>
                         <oxy:Plot Grid.Row="2">
@@ -96,13 +92,13 @@
                                 <!--<oxy:LinearAxis Position="Right" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" Key="Phase"
                                                 Unit="°" FractionUnitSymbol="°" FractionUnit="0.01745" FormatAsFractions="True" />-->
                             </oxy:Plot.Axes>
-                            <oxy:LinearBarSeries ItemsSource="{Binding OutSignalP.Spectrum}" DataFieldX="Frequency" DataFieldY="Abs" YAxisKey="Amplitude"
+                            <oxy:LinearBarSeries ItemsSource="{Binding OutSignalI.Spectrum}" DataFieldX="Frequency" DataFieldY="Abs" YAxisKey="Amplitude"
                                                  StrokeColor="Red" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>
-                            <oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Circle" MarkerFill="Red" MarkerSize="4"
+                            <oxy:LineSeries ItemsSource="{Binding OutSignalI.Spectrum}" Color="Transparent" MarkerType="Circle" MarkerFill="Red" MarkerSize="4"
                                             YAxisKey="Amplitude" DataFieldX="Frequency" DataFieldY="Abs"/>
-                            <!--<oxy:LineSeries ItemsSource="{Binding OutSignalP.Spectrum}" Color="Transparent" MarkerType="Diamond" MarkerFill="Blue" MarkerSize="4"
+                            <!--<oxy:LineSeries ItemsSource="{Binding OutSignalI.Spectrum}" Color="Transparent" MarkerType="Diamond" MarkerFill="Blue" MarkerSize="4"
                                             YAxisKey="Phase" DataFieldX="Frequency" DataFieldY="Arg"/>
-                            <oxy:LinearBarSeries ItemsSource="{Binding OutSignalP.Spectrum}" DataFieldX="Frequency" DataFieldY="Arg" YAxisKey="Phase"
+                            <oxy:LinearBarSeries ItemsSource="{Binding OutSignalI.Spectrum}" DataFieldX="Frequency" DataFieldY="Arg" YAxisKey="Phase"
                                                  StrokeColor="Blue" StrokeThickness="1" CanTrackerInterpolatePoints="True" BarWidth="1"/>-->
                         </oxy:Plot>
                     </Grid>

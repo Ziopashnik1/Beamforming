@@ -12,15 +12,24 @@ using System.Windows.Input;
 
 namespace BeamForming
 {
-    /// <summary>
-    /// Класс логики представления интерфейса
-    /// </summary>
+    /// <summary>Класс логики представления интерфейса</summary>
     public class MainViewModel : INotifyPropertyChanged
     {
+        #region InotifyPropertyChanged
+
+        /// <summary>Событие возникает, когда модель меняет значение своего свойства</summary>
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>Генерация события изменения значения свойства модели</summary>
+        /// <param name="propertyName">Имя изменившегося свойства (оставить = null для автоматического выбора)</param>
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        /// <summary>Установка значения поля данных свойства</summary>
+        /// <typeparam name="T">Тип значения свойства</typeparam>
+        /// <param name="field">Ссылка на поле данных свойства</param>
+        /// <param name="value">новое значение свойства</param>
+        /// <param name="property">Имя изменяемого свойства (оставить = null для автоматического выбора)</param>
+        /// <returns>Истина, если значение свойства было изменено</returns>
         protected virtual bool Set<T>(ref T field, T value, [CallerMemberName] string property = null)
         {
             if (Equals(field, value)) return false;
@@ -29,57 +38,179 @@ namespace BeamForming
             return true;
         }
 
+        #endregion
+
+        /// <summary>Функция сигнала падающей волны</summary>
         private Func<double, double> f_Signal;
+
+        /// <summary>Исследуемая антенная решётка</summary>
         private DigitalAntennaArray f_Antenna;
 
+        /// <summary>Число элементов решётки</summary>
         private int f_N = 8;
+
+        /// <summary>Шаг между элементами решётки</summary>
         private double f_d = 0.15;
+
+        /// <summary>Частота дискретизации сигнала в Гц</summary>
         private double f_fd = 16e9;
+
+        /// <summary>Число разрядов кода АЦП</summary>
         private int f_n = 8;
-        /// <summary>
-        /// Размер выборки
-        /// </summary>
+
+        /// <summary>Размер выборки цифрового сигнала</summary>
         private int f_Nd = 64;
+
+        /// <summary>Динамический диапазон АЦП (максимальное значение амплитуды входного ограничителя)</summary>
         private double f_MaxValue = 2;
 
+        /// <summary>Массив отсчётов ДН решётки (не нормированный)</summary>
         private PatternValue[] f_Beam;
+
+        /// <summary>Массив отсчётов ДН решётки (нормированный)</summary>
         private PatternValue[] f_Beam_Norm;
+
+        /// <summary>Массив отсчётов ДН единичного излучателя (не нормированный)</summary>
         private PatternValue[] f_Beam1 = new PatternValue[0];
+
+        /// <summary>Массив отсчётов ДН единичного излучателя (нормированный)</summary>
         private PatternValue[] f_Beam1_Norm = new PatternValue[0];
+
+        /// <summary>Амплитуда сигнала</summary>
         private double f_A0 = 1;
+
+        /// <summary>Частота сигнала</summary>
         private double f_f0 = 1e9;
+
+        /// <summary>Константа преобразования градусов в радианы</summary>
         private const double toRad = Math.PI / 180;
+
+        /// <summary>Начало сектора углов расчёта ДН (градусы)</summary>
         private double f_th1 = -90;
+
+        /// <summary>Конец сектора углов расчёта ДН (градусы)</summary>
         private double f_th2 = 90;
-        private double f_dth = 0.5;
 
+        /// <summary>Шаг расчёта ДН</summary>
+        private double f_dth = 0.5;    
 
-
+        /// <summary>Массив отсчётов ДН решётки (не нормированный)</summary>
         public ReadOnlyCollection<PatternValue> Beam => new ReadOnlyCollection<PatternValue>(f_Beam);
+
+        /// <summary>Массив отсчётов ДН решётки (нормированный)</summary>
         public ReadOnlyCollection<PatternValue> BeamNorm => new ReadOnlyCollection<PatternValue>(f_Beam_Norm);
 
+        /// <summary>Массив отсчётов ДН единичного излучателя (не нормированный)</summary>
         public ReadOnlyCollection<PatternValue> Beam1 => new ReadOnlyCollection<PatternValue>(f_Beam1);
+
+        /// <summary>Массив отсчётов ДН единичного излучателя (нормированный)</summary>
         public ReadOnlyCollection<PatternValue> BeamNorm1 => new ReadOnlyCollection<PatternValue>(f_Beam1_Norm);
 
+        /// <summary>Сигнал на выходе АЦП</summary>
         public SignalValue[] SignalIn { get; private set; }
 
-        /// <summary>
-        /// Угол фазирования антенноё решётки  
-        /// </summary>
+        /// <summary>Число элементов решётки</summary>
+        public int N
+        {
+            get => f_Antenna.N;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(N), "Число элементов решётки должно быть больше 0");
+                if (N == value) return;
+                f_Antenna.N = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
+        /// <summary>Шаг элементов</summary>
+        public double d
+        {
+            get => f_Antenna.d;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(d), "Шаг между элементами решётки должен быть больше 0");
+                if (d == value) return;
+                f_Antenna.d = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
+        /// <summary>Разрядность кода АЦП</summary>
+        public int n
+        {
+            get => f_Antenna.n;
+            set
+            {
+                if (value < 1) throw new ArgumentOutOfRangeException(nameof(n), "Разрядность кода АЦП должна быть больше 0");
+                if (n == value) return;
+                f_Antenna.n = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
+        /// <summary>Частота дискретизации</summary>
+        public double fd
+        {
+            get => f_Antenna.fd;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(fd), "Частота дискретизации должна быть больше 0");
+                if (fd == value) return;
+                f_Antenna.fd = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
+        /// <summary>Динамический диапазон входа АЦП</summary>
+        public double MaxValue
+        {
+            get => f_Antenna.MaxValue;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(MaxValue), "Динамический диапазон входа АЦП должен быть больше 0");
+                if (MaxValue == value) return;
+                f_Antenna.MaxValue = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
+        /// <summary>Динамический диапазон входа АЦП</summary>
+        public double tj
+        {
+            get => f_Antenna.tj;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(tj), "Динамический диапазон входа АЦП должен быть больше 0");
+                if (tj == value) return;
+                f_Antenna.tj = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
+        /// <summary>Положение луча антенной решётки</summary>
         public double Th0
         {
             get => f_Antenna.th0 / toRad;
             set
             {
+                value *= toRad;
                 if (f_Antenna.th0 == value) return;
-                f_Antenna.th0 = value * toRad;
+                f_Antenna.th0 = value;
                 OnPropertyChanged(nameof(Th0));
                 //CalculatePattern();
                 ComputeOutSignal();
             }
         }
 
+        /// <summary>Угол мадения волны на решётку</summary>
         private double f_th_signal = 5;
+        /// <summary>Угол мадения волны на решётку</summary>
         public double ThSignal
         {
             get => f_th_signal;
@@ -90,7 +221,9 @@ namespace BeamForming
             }
         }
 
-        private double f_th_signal1 = 5;
+        /// <summary>Угол мадения волны 1 на решётку</summary>
+        private double f_th_signal1 = 0;
+        /// <summary>Угол мадения волны 1 на решётку</summary>
         public double ThSignal1
         {
             get => f_th_signal1;
@@ -101,7 +234,9 @@ namespace BeamForming
             }
         }
 
+        /// <summary>Угол мадения волны 2 на решётку</summary>
         private double f_th_signal2 = 10;
+        /// <summary>Угол мадения волны 2 на решётку</summary>
         public double ThSignal2
         {
             get => f_th_signal2;
@@ -112,7 +247,9 @@ namespace BeamForming
             }
         }
 
+        /// <summary>Частота сигнала 1 падаюющей волны</summary>
         private double f_f01 = 1e9;
+        /// <summary>Частота сигнала 1 падаюющей волны</summary>
         public double f01
         {
             get => f_f01;
@@ -123,7 +260,9 @@ namespace BeamForming
             }
         }
 
+        /// <summary>Частота сигнала 2 падаюющей волны</summary>
         private double f_f02 = 2e9;
+        /// <summary>Частота сигнала 2 падаюющей волны</summary>
         public double f02
         {
             get => f_f02;
@@ -134,7 +273,9 @@ namespace BeamForming
             }
         }
 
-        private double f_A01 = 1;
+        /// <summary>Амплитуда сигнала 1 падаюющей волны</summary>
+        private double f_A01 = 0.5;
+        /// <summary>Амплитуда сигнала 1 падаюющей волны</summary>
         public double A01
         {
             get => f_A01;
@@ -145,7 +286,9 @@ namespace BeamForming
             }
         }
 
-        private double f_A02 = 2;
+        /// <summary>Амплитуда сигнала 2 падаюющей волны</summary>
+        private double f_A02 = 0.25;
+        /// <summary>Амплитуда сигнала 2 падаюющей волны</summary>
         public double A02
         {
             get => f_A02;
@@ -155,11 +298,26 @@ namespace BeamForming
                 ComputeOutSignal();
             }
         }
+        
+        /// <summary>Функция сигнала - периодического парямоугольного испульса (единичной амплитуды)</summary>
+        /// <param name="t">Текущее время</param>
+        /// <param name="tau">Длительность импульса</param>
+        /// <param name="T">Период повторения</param>
+        /// <returns>Амплитуда сигнала</returns>
+        private static double Rect(double t, double tau, double T)
+        {
+            t = t % T + (t < 0 ? T : 0); // t = t % T;
+           // t = Math.Abs(t);
+            if (t == tau / 2) return 0.5;
+            if (-tau / 2 < t && t < tau / 2) return 1;
+            return 0;
+        }
 
+        /// <summary>Вычислить сигнал на выходе антенной решётки</summary>
         private void ComputeOutSignal()
         {
-            Func<double, double> s1 = t => f_A01 * Math.Sin(Math.PI * 2 * t * f_f01);
-            Func<double, double> s2 = t => f_A02 * Math.Sin(Math.PI * 2 * t * f_f02);
+            Func<double, double> s1 = t => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01); 
+            Func<double, double> s2 = t => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
 
             var scene = new RadioScene
             {
@@ -168,61 +326,69 @@ namespace BeamForming
             };
 
             var signals = f_Antenna.GetOutSignal(scene);
-            OutSignalP = signals[0];
+            OutSignalI = signals[0];
             OutSignalQ = signals[1];
         }
 
-        private DigitalSignal f_OutSignalP;
-        private DigitalSignal f_OutSignalQ;
-        public DigitalSignal OutSignalP
-        {
-            get => f_OutSignalP;
-            set => Set(ref f_OutSignalP, value);
-        }
-        public DigitalSignal OutSignalQ
-        {
-            get => f_OutSignalQ;
-            set => Set(ref f_OutSignalQ, value);
-        }
+        /// <summary>Синфазная составляющая выходного сигнала</summary>
+        private DigitalSignal f_OutSignalI;
+        /// <summary>Синфазная составляющая выходного сигнала</summary>
+        public DigitalSignal OutSignalI { get => f_OutSignalI; set => Set(ref f_OutSignalI, value); }
 
-        /// <summary>
-        /// Коэффициент усиления решётки
-        /// </summary>
+        /// <summary>Квадратурная составляющая выходного сигнала</summary>
+        private DigitalSignal f_OutSignalQ;
+        /// <summary>Квадратурная составляющая выходного сигнала</summary>
+        public DigitalSignal OutSignalQ { get => f_OutSignalQ; set => Set(ref f_OutSignalQ, value); }
+
+        /// <summary>Коэффициент усиления решётки (максимум не нормированной ДН)</summary>
         public double Max { get; private set; } = double.NaN;
 
+        /// <summary>Коэффициент усиления решётки в дБ (максимум не нормированной ДН)</summary>
         public double Max_db => 10 * Math.Log10(Max);
 
+        /// <summary>Положение максимума ДН (градусы)</summary>
         public double MaxPos { get; private set; } = double.NaN;
 
+        /// <summary>Ширина луча по уровню 0.7 ДН (градусы)</summary>
         public double BeamWidth07 { get; private set; } = double.NaN;
 
+        /// <summary>Ширина луча по уровню 0 ДН (градусы)</summary>
         public double BeamWidth0 { get; private set; } = double.NaN;
 
+        /// <summary>Левая граница луча по уровню 0.7 (градусы)</summary>
         public double LeftBeamEdge_07 { get; private set; } = double.NaN;
 
+        /// <summary>Правая граница луча по уровню 0.7 (градусы)</summary>
         public double RightBeamEdge_07 { get; private set; } = double.NaN;
 
+        /// <summary>УБЛ</summary>
         public double UBL { get; private set; } = double.NaN;
 
+        /// <summary>Средний УБЛ</summary>
         public double MeanUBL { get; private set; } = double.NaN;
 
+        /// <summary>КНД в угломестной плоскости</summary>
         public DataPoint[] KND_th0 { get; private set; }
 
 
+        /// <summary>Массив входных сигналов</summary>
         private DigitalSignal[] f_InputSignals;
+        /// <summary>Массив входных сигналов</summary>
         public DigitalSignal[] InputSignals
         {
             get => f_InputSignals;
             set => Set(ref f_InputSignals, value);
         }
 
+        /// <summary>Рассчитать ДН решётки</summary>
         public ICommand CalculatePatternCommand { get; }
 
+        /// <summary>Инициализация новой модели представления пользовательского интерфейса</summary>
         public MainViewModel()
         {
             CalculatePatternCommand = new LamdaCommand(p => CalculatePattern(), p => true);
 
-            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t) + f_A0 * Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал
+            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t);//+ f_A0* Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал // ЭТО ВООБЩЕ НУЖНО?
 
             f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 0e-10);
             f_Antenna.ElementPattern = th => Math.Cos(th);
@@ -231,6 +397,7 @@ namespace BeamForming
             ComputeOutSignal();
         }
 
+        /// <summary>Рассчитать ДН решётки</summary>
         private async void CalculatePattern()
         {
             f_Beam = f_Antenna.ComputePattern(f_Signal, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
@@ -274,6 +441,12 @@ namespace BeamForming
             InputSignals = f_Antenna.GetInputDigitalSignals(Th0, f_Signal);
         }
 
+        /// <summary>Рассчитать ДН решётки</summary>
+        /// <param name="F">Сигнал падающей волны</param>
+        /// <param name="th1">Начало сектора расчёта</param>
+        /// <param name="th2">Конец сектора расчёта</param>
+        /// <param name="dth">Шаг расчёта ДН</param>
+        /// <returns>Массив значений ДН</returns>
         private PatternValue[] ComputePattern(Func<double, double> F, double th1, double th2, double dth)
         {
             var th = th1;
@@ -287,6 +460,10 @@ namespace BeamForming
             return result.ToArray();
         }
 
+        /// <summary>Вычислить нгормированную ДН по отсчётам ненормированной ДН</summary>
+        /// <param name="pattern">Массив отсчётов ненормированной ДН</param>
+        /// <param name="Max">Найденное значение максимума ДН (усиление)</param>
+        /// <returns>Массив отсчётов нормированной ДН</returns>
         private static PatternValue[] GetBeamNorm(PatternValue[] pattern, out double Max)
         {
             var max = pattern.Max(v => v.Value);
@@ -294,12 +471,14 @@ namespace BeamForming
             return pattern.Select(v => new PatternValue { Angle = v.Angle, Value = v.Value / max }).ToArray();
         }
 
+        /// <summary>Асинхронно рассчитать КНД решётки в угломестной плоскости</summary>
         public async void CalculateKND_from_th0_Async()
         {
             await Task.Run((Action)CalculateKND_from_th0).ConfigureAwait(true);
             OnPropertyChanged(nameof(KND_th0));
         }
 
+        /// <summary>Рассчитать КНД решётки в угломестной плоскости</summary>
         private void CalculateKND_from_th0()
         {
             var array = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue);
@@ -317,11 +496,18 @@ namespace BeamForming
         }
     }
 
+    /// <summary>Точка данных</summary>
     public class DataPoint
     {
+        /// <summary>Значение аргумента</summary>
         public double X { get; set; }
+        /// <summary>Значение функции</summary>
         public double Y { get; set; }
-        public double Ydb => 20 * Math.Log10(Y);
-        public double YdbP => 10 * Math.Log10(Y);
+        /// <summary>Модуль значения функции</summary>
+        public double Yabs => Math.Abs(Y);
+        /// <summary>Значение функции в дБ (по амплитуде)</summary>
+        public double Ydb => 20 * Math.Log10(Yabs);
+        /// <summary>Значение функции в дБВт (по мощности)</summary>
+        public double YdbP => 10 * Math.Log10(Yabs);
     }
 }
