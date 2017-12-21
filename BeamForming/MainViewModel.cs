@@ -3,12 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+// ReSharper disable InconsistentNaming
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 
 namespace BeamForming
 {
@@ -35,6 +39,7 @@ namespace BeamForming
             if (Equals(field, value)) return false;
             field = value;
             OnPropertyChanged(property);
+            Debug.WriteLine($"View model set property {property}");
             return true;
         }
 
@@ -76,6 +81,8 @@ namespace BeamForming
         /// <summary>Массив отсчётов ДН единичного излучателя (нормированный)</summary>
         private PatternValue[] f_Beam1_Norm = new PatternValue[0];
 
+        private PatternValue[] f_RadioSceneBeamPattern = new PatternValue[0];
+
         /// <summary>Амплитуда сигнала</summary>
         private double f_A0 = 1;
 
@@ -92,7 +99,7 @@ namespace BeamForming
         private double f_th2 = 90;
 
         /// <summary>Шаг расчёта ДН</summary>
-        private double f_dth = 0.5;    
+        private double f_dth = 0.5;
 
         /// <summary>Массив отсчётов ДН решётки (не нормированный)</summary>
         public ReadOnlyCollection<PatternValue> Beam => new ReadOnlyCollection<PatternValue>(f_Beam);
@@ -105,6 +112,8 @@ namespace BeamForming
 
         /// <summary>Массив отсчётов ДН единичного излучателя (нормированный)</summary>
         public ReadOnlyCollection<PatternValue> BeamNorm1 => new ReadOnlyCollection<PatternValue>(f_Beam1_Norm);
+
+        public ReadOnlyCollection<PatternValue> RadioSceneBeamPattern => f_RadioSceneBeamPattern.ToList().AsReadOnly();
 
         /// <summary>Сигнал на выходе АЦП</summary>
         public SignalValue[] SignalIn { get; private set; }
@@ -298,7 +307,7 @@ namespace BeamForming
                 ComputeOutSignal();
             }
         }
-        
+
         /// <summary>Функция сигнала - периодического парямоугольного испульса (единичной амплитуды)</summary>
         /// <param name="t">Текущее время</param>
         /// <param name="tau">Длительность импульса</param>
@@ -307,7 +316,7 @@ namespace BeamForming
         private static double Rect(double t, double tau, double T)
         {
             t = t % T + (t < 0 ? T : 0); // t = t % T;
-           // t = Math.Abs(t);
+                                         // t = Math.Abs(t);
             if (t == tau / 2) return 0.5;
             if (-tau / 2 < t && t < tau / 2) return 1;
             return 0;
@@ -316,18 +325,19 @@ namespace BeamForming
         /// <summary>Вычислить сигнал на выходе антенной решётки</summary>
         private void ComputeOutSignal()
         {
-            Func<double, double> s1 = t => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01); 
-            Func<double, double> s2 = t => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
+            double SignalFunction1(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);
+            double SignalFunction2(double t) => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
 
             var scene = new RadioScene
             {
-                new SpaceSignal{ Thetta = f_th_signal1 * toRad, Signal = s1 },
-                new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = s2 }
+                new SpaceSignal{ Thetta = f_th_signal1 * toRad, Signal = SignalFunction1 },
+                new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = SignalFunction2 }
             };
 
             var signals = f_Antenna.GetOutSignal(scene);
             OutSignalI = signals[0];
             OutSignalQ = signals[1];
+            CalculatePatternAsync();
         }
 
         /// <summary>Синфазная составляющая выходного сигнала</summary>
@@ -369,7 +379,6 @@ namespace BeamForming
 
         /// <summary>КНД в угломестной плоскости</summary>
         public DataPoint[] KND_th0 { get; private set; }
-
 
         /// <summary>Массив входных сигналов</summary>
         private DigitalSignal[] f_InputSignals;
@@ -439,6 +448,55 @@ namespace BeamForming
             OnPropertyChanged(nameof(SignalIn));
 
             InputSignals = f_Antenna.GetInputDigitalSignals(Th0, f_Signal);
+        }
+
+        private CancellationTokenSource f_CalculatePatternAsync_CancelationTokenSource = new CancellationTokenSource();
+
+        private async void CalculatePatternAsync()
+        {
+            f_CalculatePatternAsync_CancelationTokenSource.Cancel();
+            f_CalculatePatternAsync_CancelationTokenSource = new CancellationTokenSource();
+            var token = f_CalculatePatternAsync_CancelationTokenSource.Token;
+
+            // ReSharper disable once MethodSupportsCancellation
+            await Task.Delay(5);
+            if (token.IsCancellationRequested) return;
+
+            try
+            {
+                f_RadioSceneBeamPattern = await Task.Run(() => CalculatePattern2(token), token);
+                OnPropertyChanged(nameof(RadioSceneBeamPattern));
+            }
+            catch(OperationCanceledException)
+            {
+
+            }
+        }
+
+        /// <summary>Расчёт ДН с учётом радиосцены</summary>
+        private PatternValue[] CalculatePattern2(CancellationToken cancel)
+        {
+            double SignalFunction(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);
+            double NoiseFunction(double t) => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
+
+            var pattern_values = new PatternValue[181];
+            var d_th = 90d / (pattern_values.Length - 1);
+
+            for (var i = 0; i < pattern_values.Length; i++)
+            {
+                cancel.ThrowIfCancellationRequested();
+                var th = i * d_th;
+                var scene = new RadioScene
+                {
+                    new SpaceSignal{ Thetta = th * toRad, Signal = SignalFunction },
+                    new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = NoiseFunction }
+                };
+                var signals = f_Antenna.GetOutSignal(scene);
+
+                pattern_values[i] = new PatternValue { Angle = th * toRad, Value = Math.Sqrt(signals[0].Power + signals[1].Power) };
+            }
+            cancel.ThrowIfCancellationRequested();
+            return pattern_values;
         }
 
         /// <summary>Рассчитать ДН решётки</summary>
