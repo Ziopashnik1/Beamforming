@@ -132,6 +132,20 @@ namespace BeamForming
             }
         }
 
+        /// <summary>Размер выборки цифрового сигнала </summary>  сам ДЕЛАЛ!!!!!!!
+        public int Nd
+        {
+            get => f_Antenna.Nd;
+            set
+            {
+                if (value < 2) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть больше числа элементов");
+                if (Nd == value) return;
+                f_Antenna.Nd = value;
+                OnPropertyChanged();
+                ComputeOutSignal();
+            }
+        }
+
         /// <summary>Шаг элементов</summary>
         public double d
         {
@@ -188,7 +202,7 @@ namespace BeamForming
             }
         }
 
-        /// <summary>Динамический диапазон входа АЦП</summary>
+        /// <summary>Джиттер АЦП</summary>
         public double tj
         {
             get => f_Antenna.tj;
@@ -315,17 +329,16 @@ namespace BeamForming
         /// <returns>Амплитуда сигнала</returns>
         private static double Rect(double t, double tau, double T)
         {
-            t = t % T + (t < 0 ? T : 0); // t = t % T;
-                                         // t = Math.Abs(t);
+            t = t % T + (t < 0 ? T : 0);
             if (t == tau / 2) return 0.5;
-            if (-tau / 2 < t && t < tau / 2) return 1;
+            if (0 < t && t < tau ) return 1;
             return 0;
         }
 
         /// <summary>Вычислить сигнал на выходе антенной решётки</summary>
         private void ComputeOutSignal()
         {
-            double SignalFunction1(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);
+            double SignalFunction1(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);   //          * Rect(t, 1e-9, 2e-9)
             double SignalFunction2(double t) => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
 
             var scene = new RadioScene
@@ -354,7 +367,7 @@ namespace BeamForming
         public double Max { get; private set; } = double.NaN;
 
         /// <summary>Коэффициент усиления решётки в дБ (максимум не нормированной ДН)</summary>
-        public double Max_db => 10 * Math.Log10(Max);
+        public double Max_db => 20 * Math.Log10(Max);
 
         /// <summary>Положение максимума ДН (градусы)</summary>
         public double MaxPos { get; private set; } = double.NaN;
@@ -476,16 +489,16 @@ namespace BeamForming
         /// <summary>Расчёт ДН с учётом радиосцены</summary>
         private PatternValue[] CalculatePattern2(CancellationToken cancel)
         {
-            double SignalFunction(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);
+            double SignalFunction(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);    //    * Rect(t, 1e-9, 2e-9)       
             double NoiseFunction(double t) => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
 
-            var pattern_values = new PatternValue[181];
-            var d_th = 90d / (pattern_values.Length - 1);
+            var pattern_values = new PatternValue[361];
+            var d_th = 180d / (pattern_values.Length - 1);
 
             for (var i = 0; i < pattern_values.Length; i++)
             {
                 cancel.ThrowIfCancellationRequested();
-                var th = i * d_th;
+                var th = i * d_th - 90;
                 var scene = new RadioScene
                 {
                     new SpaceSignal{ Thetta = th * toRad, Signal = SignalFunction },
@@ -496,6 +509,7 @@ namespace BeamForming
                 pattern_values[i] = new PatternValue { Angle = th * toRad, Value = Math.Sqrt(signals[0].Power + signals[1].Power) };
             }
             cancel.ThrowIfCancellationRequested();
+            var max = pattern_values.Max(v => v.Value); foreach (var v in pattern_values) v.Value /= max;
             return pattern_values;
         }
 
@@ -542,8 +556,8 @@ namespace BeamForming
             var array = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue);
             array.ElementPattern = Math.Cos;
 
-            var result = new List<DataPoint>(90);
-            for (var th0 = 0d; th0 < 45; th0 += 0.5)
+            var result = new List<DataPoint>(90);       
+            for (var th0 = 0d; th0 < 45; th0 += 0.5)                     
             {
                 array.th0 = th0 * toRad;
                 var pattern = array.ComputePattern(f_Signal, -90 * toRad, 90 * toRad, 0.5 * toRad);

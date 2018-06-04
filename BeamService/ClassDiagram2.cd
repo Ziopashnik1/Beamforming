@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="BeamService.DigitalAntennaArray">
+    <Position X="0.75" Y="0.5" Width="4.75" />
+    <Members>
+      <Method Name="ComputePatternValue" Hidden="true" />
+      <Method Name="ComputeResultMatrix" Hidden="true" />
+      <Method Name="DigitalAntennaArray" Hidden="true" />
+      <Method Name="ElementMultiply" Hidden="true" />
+      <Method Name="Get_Wth0" Hidden="true" />
+      <Method Name="GetInputDigitalSignals" Hidden="true" />
+      <Method Name="GetSources" Hidden="true" />
+      <Method Name="GetSpectralMatrix" Hidden="true" />
+      <Method Name="m_correction" Hidden="true" />
+      <Method Name="SumRows" Hidden="true" />
+      <Property Name="tj" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>iAShADCAAEAAkocAAAAAEABBAEgCAQSEGgAhABEBGAE=</HashCode>
+      <FileName>DigitalAntennaArray.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.ADC">
+    <Position X="8" Y="0.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAFAAAAABAAAAAAAAAAAEAAAAAAAACAAAAQgBBQAAAE=</HashCode>
+      <FileName>ADC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.Source">
+    <Position X="7.5" Y="4.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAASAAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Source.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.Matrix">
+    <Position X="3.75" Y="5.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAEgQAAAAAAAAAAEaAUAAIAAAAgAAFAAAAAAADIAAAA=</HashCode>
+      <FileName>Matrix.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.MatrixComplex">
+    <Position X="12" Y="0.75" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAEgQAAAIAAAAAAEaAEAAMAAACgAEFACAAAAADIAAAA=</HashCode>
+      <FileName>MatrixComplex.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

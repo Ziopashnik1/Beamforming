@@ -26,7 +26,7 @@ namespace BeamService
         private double f_fd;
         private int f_n;
         private double f_MaxValue;
-        private int f_Nd;
+        private int f_Nd;   //нужно сдлеать матрицы ПФ саморасчитываемыми, без инициализации новой ЦАР
 
         /// <summary>Число элементов реешётки</summary>
         public int N
@@ -69,14 +69,17 @@ namespace BeamService
             get => f_Nd;
             set
             {
-                if (value < N) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть больше числа элементов");
+                if (value < 2) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть больше числа элементов");
                 if (f_Nd == value) return;
                 f_Nd = value;
+                f_Wth0 = Get_Wth0(f_th0);
+                f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * (j) / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+                f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
             }
         }
 
         /// <summary>Шаг спектральных компонент в спектре</summary>
-        public double df => fd / Nd;   /// дискрет частоты ведь будет всегда несущая !!!!  
+        public double df => fd / Nd;    
 
         /// <summary>Частота дискретизации</summary>
         public double fd
@@ -117,9 +120,7 @@ namespace BeamService
             }
         }
 
-
-
-        public Func<double, double> ElementPattern { get; set; } = th => Math.Cos(th);
+        public Func<double, double> ElementPattern { get; set; } = th => Math.Cos(5 * th);
 
         /// <summary>Максимальная амплитуда сигнала</summary>  
         public double MaxValue
@@ -158,8 +159,8 @@ namespace BeamService
             this.N = N; // Нужно установить именно через свойство, что бы создать новый массив АЦП
 
             f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * (j) / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
-            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd)); //new FourierMatrix(Nd, true);  //не понимаю 
-            
+            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd)); //new FourierMatrix(Nd, true);  
+
         }
         /// <summary>
         /// Формирование падающей волны
@@ -177,8 +178,7 @@ namespace BeamService
             }
             return sources;
         }
-
-
+        
         /// <summary>
         /// Формирование матрицы продескретизированных сигналов в каждом элементе решетки 
         /// </summary>

@@ -17,8 +17,8 @@ namespace BeamService
 
         public static Source operator +(Source a, Source b)
         {
-            if (a == null) return b;
-            if (b == null) return a;
+            if (a is null) return b;
+            if (b is null) return a;
             return new Source(t => a.f_F(t) + b.f_F(t));
         }
     }
