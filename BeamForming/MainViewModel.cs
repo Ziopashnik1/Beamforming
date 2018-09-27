@@ -17,34 +17,8 @@ using System.Windows.Input;
 namespace BeamForming
 {
     /// <summary>Класс логики представления интерфейса</summary>
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : ViewModel
     {
-        #region InotifyPropertyChanged
-
-        /// <summary>Событие возникает, когда модель меняет значение своего свойства</summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>Генерация события изменения значения свойства модели</summary>
-        /// <param name="propertyName">Имя изменившегося свойства (оставить = null для автоматического выбора)</param>
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        /// <summary>Установка значения поля данных свойства</summary>
-        /// <typeparam name="T">Тип значения свойства</typeparam>
-        /// <param name="field">Ссылка на поле данных свойства</param>
-        /// <param name="value">новое значение свойства</param>
-        /// <param name="property">Имя изменяемого свойства (оставить = null для автоматического выбора)</param>
-        /// <returns>Истина, если значение свойства было изменено</returns>
-        protected virtual bool Set<T>(ref T field, T value, [CallerMemberName] string property = null)
-        {
-            if (Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(property);
-            Debug.WriteLine($"View model set property {property}");
-            return true;
-        }
-
-        #endregion
-
         /// <summary>Функция сигнала падающей волны</summary>
         private Func<double, double> f_Signal;
 
@@ -226,7 +200,7 @@ namespace BeamForming
                 if (f_Antenna.th0 == value) return;
                 f_Antenna.th0 = value;
                 OnPropertyChanged(nameof(Th0));
-                //CalculatePattern();
+                CalculatePattern();
                 ComputeOutSignal();
             }
         }
@@ -254,6 +228,7 @@ namespace BeamForming
             {
                 if (!Set(ref f_th_signal1, value)) return;
                 ComputeOutSignal();
+                CalculatePattern();
             }
         }
 
@@ -310,7 +285,7 @@ namespace BeamForming
         }
 
         /// <summary>Амплитуда сигнала 2 падаюющей волны</summary>
-        private double f_A02 = 0.25;
+        private double f_A02 = 0.00;
         /// <summary>Амплитуда сигнала 2 падаюющей волны</summary>
         public double A02
         {
@@ -322,6 +297,7 @@ namespace BeamForming
             }
         }
 
+
         /// <summary>Функция сигнала - периодического парямоугольного испульса (единичной амплитуды)</summary>
         /// <param name="t">Текущее время</param>
         /// <param name="tau">Длительность импульса</param>
@@ -330,21 +306,21 @@ namespace BeamForming
         private static double Rect(double t, double tau, double T)
         {
             t = t % T + (t < 0 ? T : 0);
-            if (t == tau / 2) return 0.5;
-            if (0 < t && t < tau ) return 1;
+            if (t.Equals(tau) || t.Equals(0d)) return 0.5;
+            if (0 < t && t < tau) return 1;
             return 0;
         }
 
         /// <summary>Вычислить сигнал на выходе антенной решётки</summary>
         private void ComputeOutSignal()
         {
-            double SignalFunction1(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);   //          * Rect(t, 1e-9, 2e-9)
+            double SignalFunction1(double t) => f_A01 * Rect(t, 1e-9, 4e-9) * Math.Cos(Math.PI * 2 * t * f_f01);   //          * Rect(t, 1e-9, 2e-9)
             double SignalFunction2(double t) => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
 
             var scene = new RadioScene
             {
-                new SpaceSignal{ Thetta = f_th_signal1 * toRad, Signal = SignalFunction1 },
-                new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = SignalFunction2 }
+                new SpaceSignal{ Thetta = f_th_signal1 * toRad, Signal = new LamdaSignalFunction(SignalFunction1) },
+                new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = new LamdaSignalFunction(SignalFunction2) }
             };
 
             var signals = f_Antenna.GetOutSignal(scene);
@@ -410,10 +386,12 @@ namespace BeamForming
         {
             CalculatePatternCommand = new LamdaCommand(p => CalculatePattern(), p => true);
 
-            f_Signal = t => f_A0 * Math.Sin(2 * Math.PI * f_f0 * t);//+ f_A0* Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал // ЭТО ВООБЩЕ НУЖНО?
+            f_Signal = t => f_A0 * Math.Cos(2 * Math.PI * f_f0 * t);//+ f_A0* Math.Sin(2 * Math.PI * 2 * f_f0 * t);   // Определяем сигнал // ЭТО ВООБЩЕ НУЖНО?
 
-            f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 0e-10);
-            f_Antenna.ElementPattern = th => Math.Cos(th);
+            f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 0e-10)
+            {
+                ElementPattern = Math.Cos
+            };
             CalculatePattern();
             CalculateKND_from_th0_Async();
             ComputeOutSignal();
@@ -480,7 +458,7 @@ namespace BeamForming
                 f_RadioSceneBeamPattern = await Task.Run(() => CalculatePattern2(token), token);
                 OnPropertyChanged(nameof(RadioSceneBeamPattern));
             }
-            catch(OperationCanceledException)
+            catch (OperationCanceledException)
             {
 
             }
@@ -489,7 +467,7 @@ namespace BeamForming
         /// <summary>Расчёт ДН с учётом радиосцены</summary>
         private PatternValue[] CalculatePattern2(CancellationToken cancel)
         {
-            double SignalFunction(double t) => f_A01 * Rect(t, 1e-9, 2e-9) * Math.Sin(Math.PI * 2 * t * f_f01);    //    * Rect(t, 1e-9, 2e-9)       
+            double SignalFunction(double t) => f_A01 * Rect(t, 1e-9, 5e-9) * Math.Cos(Math.PI * 2 * t * f_f01);    //    * Rect(t, 1e-9, 2e-9)       
             double NoiseFunction(double t) => f_A02 * Math.Cos(Math.PI * 2 * t * f_f02);
 
             var pattern_values = new PatternValue[361];
@@ -501,8 +479,8 @@ namespace BeamForming
                 var th = i * d_th - 90;
                 var scene = new RadioScene
                 {
-                    new SpaceSignal{ Thetta = th * toRad, Signal = SignalFunction },
-                    new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = NoiseFunction }
+                    new SpaceSignal{ Thetta = th * toRad, Signal = new LamdaSignalFunction(SignalFunction) },
+                    new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = new LamdaSignalFunction(NoiseFunction) }
                 };
                 var signals = f_Antenna.GetOutSignal(scene);
 
@@ -556,8 +534,8 @@ namespace BeamForming
             var array = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue);
             array.ElementPattern = Math.Cos;
 
-            var result = new List<DataPoint>(90);       
-            for (var th0 = 0d; th0 < 45; th0 += 0.5)                     
+            var result = new List<DataPoint>(90);
+            for (var th0 = 0d; th0 < 45; th0 += 0.5)
             {
                 array.th0 = th0 * toRad;
                 var pattern = array.ComputePattern(f_Signal, -90 * toRad, 90 * toRad, 0.5 * toRad);

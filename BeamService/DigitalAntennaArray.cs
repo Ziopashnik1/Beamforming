@@ -354,7 +354,7 @@ namespace BeamService
             var sources = new Source[N];
             for (var i = 0; i < scene.Count; i++)
             {
-                var sources_i = GetSources(scene[i].Thetta, scene[i].Signal);
+                var sources_i = GetSources(scene[i].Thetta, scene[i].Signal.Value);
                 for (var j = 0; j < N; j++)
                     sources[j] += sources_i[j];
             }
@@ -402,12 +402,4 @@ namespace BeamService
             return result.ToArray();
         }
     }
-
-    public class SpaceSignal
-    {
-        public double Thetta { get; set; }
-        public Func<double, double> Signal { get; set; }
-    }
-
-    public class RadioScene : List<SpaceSignal> { }
 }

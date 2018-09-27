@@ -56,9 +56,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="E:\Users\Timofey\Desktop\!dep406\ПРОГРАММА ЦАР\Program.cs">
-      <Link>Program.cs</Link>
-    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

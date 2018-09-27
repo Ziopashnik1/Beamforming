@@ -6,7 +6,7 @@
         xmlns:l="clr-namespace:BeamForming"  
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        Title="Модель ЦАР" Height="600" Width="800">
+        Title="Модель ЦАР" Height="680" Width="800">
     <Window.DataContext>
         <l:MainViewModel/>
     </Window.DataContext>
@@ -27,75 +27,52 @@
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <GroupBox Grid.Column="0" Header="Параметры" Margin="0,0,2,0">
+                <GroupBox.Resources>
+                    <Style TargetType="{x:Type xctk:DoubleUpDown}">
+                        <Setter Property="MouseWheelActiveTrigger" Value="MouseOver"/>
+                        <Setter Property="UpdateValueOnEnterKey" Value="True"/>
+                        <Setter Property="Increment" Value="0.1"/>   
+                    </Style>
+                </GroupBox.Resources>
                 <ScrollViewer>
                     <StackPanel>
                         <Expander Header="Параметры радиосцены" IsExpanded="True">
                             <StackPanel>
                                 <TextBlock Text="Амплитуда сигнала 1 волны [В]"/>
-                                <DockPanel>
-                                    <ScrollBar Orientation="Horizontal" DockPanel.Dock="Right"
-                                               Minimum="0" Maximum="10" 
-                                               SmallChange="0.1" Value="{Binding A01}"/>
-                                    <TextBox Text="{Binding A01, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:f2}}"/>
-                                </DockPanel>
+                                <xctk:DoubleUpDown Value="{Binding A01, Delay=100}" Maximum="10" Minimum="0" FormatString="f2" ClipValueToMinMax="True"/>
                                 <TextBlock Text="Частота сигнала 1 волны [ГГц]"/>
-                                <DockPanel>
-                                    <ScrollBar Orientation="Horizontal" DockPanel.Dock="Right"
-                                               Minimum="0.1" Maximum="10" 
-                                               SmallChange="0.1" Value="{Binding f01, Converter={l:MultiplyConverter K=1e-9}}"/>
-                                    <TextBox Text="{Binding f01, Converter={l:MultiplyConverter K=1e-9}}" />
-                                </DockPanel>
+                                <xctk:DoubleUpDown Value="{Binding f01, Delay=100, Converter={l:MultiplyConverter K=1e-9}}" Maximum="10" Minimum="0.1" FormatString="f2"/>
                                 <TextBlock Text="Угол падения 1 волны [°]"/>
-                                <DockPanel>
-                                    <ScrollBar Orientation="Horizontal" DockPanel.Dock="Right"
-                                               Minimum="-90" Maximum="90" 
-                                               SmallChange="1" Value="{Binding ThSignal1}"/>
-                                    <TextBox Text="{Binding ThSignal1, UpdateSourceTrigger=PropertyChanged}" />
-                                </DockPanel>
+                                <xctk:DoubleUpDown Value="{Binding ThSignal1, Delay=100}" Maximum="90" Minimum="-90"/>
                                 <TextBlock Text="Амплитуда сигнала 2 волны [В]"/>
-                                <DockPanel>
-                                    <ScrollBar Orientation="Horizontal" DockPanel.Dock="Right"
-                                               Minimum="0" Maximum="10" 
-                                               SmallChange="0.1" Value="{Binding A02}"/>
-                                    <TextBox Text="{Binding A02, UpdateSourceTrigger=PropertyChanged}" />
-                                </DockPanel>
+                                <xctk:DoubleUpDown Value="{Binding A02, Delay=100}" Maximum="10" Minimum="0" FormatString="f2" ClipValueToMinMax="True"/>
                                 <TextBlock Text="Частота сигнала 2 волны [ГГц]"/>
-                                <DockPanel>
-                                    <ScrollBar Orientation="Horizontal" DockPanel.Dock="Right"
-                                               Minimum="0.1" Maximum="10" 
-                                               SmallChange="0.1" Value="{Binding f02, Converter={l:MultiplyConverter K=1e-9}}"/>
-                                    <TextBox Text="{Binding f02, Converter={l:MultiplyConverter K=1e-9}}" />
-                                </DockPanel>
+                                <xctk:DoubleUpDown Value="{Binding f02, Delay=100, Converter={l:MultiplyConverter K=1e-9}}" Maximum="10" Minimum="0.1" FormatString="f2"/>
                                 <TextBlock Text="Угол падения 2 волны [°]"/>
-                                <DockPanel>
-                                    <ScrollBar Orientation="Horizontal" DockPanel.Dock="Right"
-                                               Minimum="-90" Maximum="90" 
-                                               SmallChange="1" Value="{Binding ThSignal2}"/>
-                                    <TextBox Text="{Binding ThSignal2, UpdateSourceTrigger=PropertyChanged}" />
-                                </DockPanel>
+                                <xctk:DoubleUpDown Value="{Binding ThSignal2, Delay=100}" Maximum="90" Minimum="-90"/>
                             </StackPanel>
                         </Expander>
                         <Expander Header="Параметры решётки"  IsExpanded="True">
                             <StackPanel>
                                 <TextBlock Text="Число элементов"/>
-                                <xctk:IntegerUpDown Value="{Binding N, UpdateSourceTrigger=LostFocus}" Minimum="1"/>
+                                <xctk:IntegerUpDown Value="{Binding N, Delay=1000}" Minimum="1" MouseWheelActiveTrigger="MouseOver" />
                                 <TextBlock Text="Размер выборки"/>
-                                <xctk:IntegerUpDown Value="{Binding Nd, UpdateSourceTrigger=LostFocus}" Minimum="2"/>
+                                <xctk:IntegerUpDown Value="{Binding Nd, Delay=1000}" Minimum="2"/>
                                 <TextBlock Text="Шаг [м]"/>
-                                <xctk:DoubleUpDown Value="{Binding d, UpdateSourceTrigger=LostFocus}" Minimum="0"/>
+                                <xctk:DoubleUpDown Value="{Binding d, Delay=1000}" Minimum="0"/>
                                 <TextBlock Text="Угол фазирования [°]"/>
-                                <xctk:DoubleUpDown Value="{Binding Th0, UpdateSourceTrigger=LostFocus}" Minimum="-90" Maximum="90"/>
+                                <xctk:DoubleUpDown Value="{Binding Th0, Delay=1000}" Minimum="-90" Maximum="90"/>
                                 <GroupBox Header="Параметры антенного элемента" Visibility="Collapsed"></GroupBox>
                                 <GroupBox Header="Параметры АЦП">
                                     <StackPanel>
                                         <TextBlock Text="Частота дискретизации [ГГц]"/>
-                                        <TextBox Text="{Binding fd, Converter={l:MultiplyConverter K=1e-9}}"/>
+                                        <xctk:DoubleUpDown Value="{Binding fd, Delay=100, Converter={l:MultiplyConverter K=1e-9}}" Maximum="20" Minimum="4" FormatString="f2"/>
                                         <TextBlock Text="Разрядность кода"/>
-                                        <TextBox Text="{Binding n}"/>
+                                        <xctk:IntegerUpDown Value="{Binding n, Delay=100}" Maximum="64" Minimum="1"/>
                                         <TextBlock Text="Динамический диапазон [В]"/>
-                                        <TextBox Text="{Binding MaxValue}"/>
+                                        <xctk:DoubleUpDown Value="{Binding MaxValue, Delay=100}" Maximum="20" Minimum="1" FormatString="f2"/>
                                         <TextBlock Text="Величина джиттера [нс]"/>
-                                        <TextBox Text="{Binding tj}"/>
+                                        <xctk:DoubleUpDown Value="{Binding tj, Delay=100}" Maximum="20" Minimum="1" FormatString="f2" IsEnabled="False"/>
                                     </StackPanel>
                                 </GroupBox>
                             </StackPanel>
@@ -118,7 +95,7 @@
                         <oxy:Plot Grid.Row="1">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" MajorGridlineThickness="2" MinorTickSize="2" MajorTickSize="4" 
-                                                MajorStep="10" MinorStep="5"/>
+                                                MajorStep="5" MinorStep="2.5"/>
                                 <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
@@ -150,11 +127,10 @@
                 <TabItem Header="ДН">
                     <oxy:Plot Title="ДН ЦАР" TitleFontSize="14">
                         <oxy:Plot.Axes>
-                            <!-- PositionAtZeroCrossing="True" TitlePosition="0.05" AxisTitleDistance="-45" FractionUnit="0.0175" FractionUnitSymbol="deg" FormatAsFractions="True" -->
                             <oxy:LinearAxis Position="Bottom"  Title="Угол"
                                             MajorGridlineColor="Gray" MinorGridlineColor="LightGray" MajorGridlineStyle="Solid" MinorGridlineStyle="Dash"
-                                            MajorStep="10"
-                                            AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="2" Unit="deg"/>
+                                            MajorStep="10" Minimum="-90" Maximum="90"
+                                             AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="2" Unit="deg"/>
                             <oxy:LinearAxis Position="Left" Title="ДН" AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="2"
                                             MajorStep="10"
                                             MajorGridlineColor="Gray" MinorGridlineColor="LightGray" Minimum="-40"
@@ -162,19 +138,9 @@
                                             MajorGridlineThickness="1" MinorGridlineThickness="0.5"/>
                         </oxy:Plot.Axes>
                         <oxy:Plot.Series>
-                            <!--<oxy:LineSeries StrokeThickness="2" Color="Red" ItemsSource="{Binding BeamNorm}" DataFieldX="Angle_deg" DataFieldY="Value_db"/>-->
-                            <!--<oxy:LineSeries StrokeThickness="1" Color="Black" ItemsSource="{Binding BeamNorm1}" DataFieldX="Angle_deg" DataFieldY="Value_db"/>-->
                             <oxy:LineSeries StrokeThickness="2" Color="Red" ItemsSource="{Binding RadioSceneBeamPattern}" 
                                             DataFieldX="Angle_deg" DataFieldY="Value_db"/>
                         </oxy:Plot.Series>
-                        <!--<oxy:Plot.Annotations>
-                            <oxy:LineAnnotation X="{Binding LeftBeamEdge_07}" Type="Vertical" />
-                            <oxy:LineAnnotation X="{Binding RightBeamEdge_07}" Type="Vertical" />
-                            <oxy:LineAnnotation Y="-3" Type="Horizontal" MinimumX="{Binding LeftBeamEdge_07}" MaximumX="{Binding RightBeamEdge_07}" />
-                            <oxy:LineAnnotation Y="{Binding UBL}" Type="Horizontal" Color="Red" Text="{Binding UBL, StringFormat='УБЛ={0:f1}дБ'}"/>
-                            <oxy:LineAnnotation Y="{Binding MeanUBL}" Type="Horizontal" Color="Red" Text="{Binding MeanUBL, StringFormat='Средний УБЛ={0:f1}дБ'}" LineStyle="Dot"/>
-                            <oxy:LineAnnotation Y="0" Type="Horizontal" Color="Black" LineStyle="Solid" />
-                        </oxy:Plot.Annotations>-->
                     </oxy:Plot>
                 </TabItem>
             </TabControl>
