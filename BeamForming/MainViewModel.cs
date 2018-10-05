@@ -323,9 +323,7 @@ namespace BeamForming
                 new SpaceSignal{ Thetta = f_th_signal2 * toRad, Signal = new LamdaSignalFunction(SignalFunction2) }
             };
 
-            var signals = f_Antenna.GetOutSignal(scene);
-            OutSignalI = signals[0];
-            OutSignalQ = signals[1];
+            (OutSignalI, OutSignalQ) = f_Antenna.GetOutSignal(scene);
             CalculatePatternAsync();
         }
 
@@ -435,7 +433,7 @@ namespace BeamForming
             MeanUBL = 10 * Math.Log10(f_Beam_Norm.Where(v => !(v.Angle > left_0 && v.Angle < right_0)).Sum(v => v.Value) * f_dth / (180 - BeamWidth0));
             OnPropertyChanged(nameof(MeanUBL));
 
-            SignalIn = f_Antenna.ADC[0].GetDiscretSignal(new Source(f_Signal), f_Antenna.Nd);
+            SignalIn = f_Antenna.ADC[0].GetDiscretSignal(new AnalogSignalSource(f_Signal), f_Antenna.Nd);
             OnPropertyChanged(nameof(SignalIn));
 
             InputSignals = f_Antenna.GetInputDigitalSignals(Th0, f_Signal);
@@ -484,7 +482,7 @@ namespace BeamForming
                 };
                 var signals = f_Antenna.GetOutSignal(scene);
 
-                pattern_values[i] = new PatternValue { Angle = th * toRad, Value = Math.Sqrt(signals[0].Power + signals[1].Power) };
+                pattern_values[i] = new PatternValue { Angle = th * toRad, Value = Math.Sqrt(signals.P.Power + signals.Q.Power) };
             }
             cancel.ThrowIfCancellationRequested();
             var max = pattern_values.Max(v => v.Value); foreach (var v in pattern_values) v.Value /= max;

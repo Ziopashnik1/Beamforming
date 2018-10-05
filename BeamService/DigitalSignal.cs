@@ -39,7 +39,7 @@ namespace BeamService
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Sample>)f_Samples).GetEnumerator();
 
-        public override string ToString() => $"Тсчётов {Count}, мощность {Power}, амплитуда {Max - Min}";
+        public override string ToString() => $"Отсчётов {Count}, мощность {Power}, амплитуда {Max - Min}";
 
         public DigitalSpectrum GetSpectrum()
         {

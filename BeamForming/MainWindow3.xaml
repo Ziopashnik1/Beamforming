@@ -6,6 +6,8 @@
         xmlns:l="clr-namespace:BeamForming"
         xmlns:b="clr-namespace:BeamService;assembly=BeamService"
         xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:oxy="http://oxyplot.org/wpf"
         Title="MainWindow3" 
         Height="450" Width="800">
     <Window.DataContext>
@@ -23,86 +25,133 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
-            <DockPanel Grid.Column="0">
-                <GroupBox DockPanel.Dock="Bottom" Header="Источник">
-                    <GroupBox.Resources>
-                        <DataTemplate DataType="{x:Type b:SinSignal}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Амплитуда"/>
-                                <xc:DoubleUpDown Grid.Column="1" Grid.Row="0" Value="{Binding Amplitude}"/>
-                                <TextBlock Grid.Column="0" Grid.Row="1" Text="Частота"/>
-                                <xc:DoubleUpDown Grid.Column="1" Grid.Row="1" Value="{Binding Frequency}"/>
-                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Фаза"/>
-                                <xc:DoubleUpDown Grid.Column="1" Grid.Row="2" Value="{Binding Phase}"/>
-                            </Grid>
-                        </DataTemplate>
-
-                        <DataTemplate DataType="{x:Type b:SpaceSignal}">
-                            <StackPanel>
-                                <GroupBox Header="Угол падения" Style="{StaticResource ParameterGroup}">
-                                    <xc:DoubleUpDown Value="{Binding Thetta}"/>
-                                </GroupBox>
-                                <GroupBox Header="Сигнал" Style="{StaticResource ParameterGroup}">
-                                    <ContentControl Content="{Binding Signal}"/>
-                                </GroupBox>
-                            </StackPanel>
-                        </DataTemplate>
-                    </GroupBox.Resources>
-                    <ContentControl Content="{Binding SelectedItem, ElementName=SourcesList}"/>
-                </GroupBox>
-                <GroupBox Header="Источники">
+            <TabControl Grid.Column="0">
+                <TabItem Header="Радиосцена">
                     <DockPanel>
-                        <DockPanel.Resources>
-                            <DataTemplate DataType="{x:Type b:SinSignal}">
-                                <TextBlock>
-                                    <TextBlock Text="{Binding Amplitude}"/>
-                                    * Sin(2*pi*(<TextBlock Text="{Binding Frequency}"/>*t + <TextBlock Text="{Binding Phase}"/>))
-                                </TextBlock>
-                            </DataTemplate>
+                        <GroupBox DockPanel.Dock="Bottom" Header="Источник">
+                            <GroupBox.Resources>
+                                <DataTemplate DataType="{x:Type b:SinSignal}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Амплитуда"/>
+                                        <xc:DoubleUpDown Grid.Column="1" Grid.Row="0" Value="{Binding Amplitude}" FormatString="0.#" Increment="0.1"/>
+                                        <TextBlock Grid.Column="0" Grid.Row="1" Text="Частота"/>
+                                        <xc:DoubleUpDown Grid.Column="1" Grid.Row="1" Value="{Binding Frequency, Converter={l:MultiplyConverter K=1e-9}}" FormatString="0.#" Increment="0.1"/>
+                                        <TextBlock Grid.Column="0" Grid.Row="2" Text="Фаза"/>
+                                        <xc:DoubleUpDown Grid.Column="1" Grid.Row="2" Value="{Binding Phase}" FormatString="0.#" Increment="0.1"/>
+                                    </Grid>
+                                </DataTemplate>
 
-                            <DataTemplate DataType="{x:Type b:CosSignal}">
-                                <TextBlock>
+                                <DataTemplate DataType="{x:Type b:SpaceSignal}">
+                                    <StackPanel>
+                                        <GroupBox Header="Угол падения" Style="{StaticResource ParameterGroup}">
+                                            <xc:DoubleUpDown Value="{Binding Thetta}" Increment="0.1"  
+                                                             FormatString="0.0"
+                                                             Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
+                                        </GroupBox>
+                                        <GroupBox Header="Сигнал" Style="{StaticResource ParameterGroup}">
+                                            <ContentControl Content="{Binding Signal}"/>
+                                        </GroupBox>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GroupBox.Resources>
+                            <ContentControl Content="{Binding SelectedItem, ElementName=SourcesList}"/>
+                        </GroupBox>
+                        <GroupBox Header="Источники">
+                            <DockPanel>
+                                <DockPanel.Resources>
+                                    <DataTemplate DataType="{x:Type b:SinSignal}">
+                                        <TextBlock>
+                                    <TextBlock Text="{Binding Amplitude}"/>
+                                    * Sin(2*pi*(<TextBlock Text="{Binding Frequency, Converter={l:MultiplyConverter K=1e-9}, StringFormat=0.#}"/>E9 * t <TextBlock Text="{Binding Phase, StringFormat='+ 0.#;- 0.#'}"/>))
+                                </TextBlock>
+                                    </DataTemplate>
+
+                                    <DataTemplate DataType="{x:Type b:CosSignal}">
+                                        <TextBlock>
                                     <TextBlock Text="{Binding Amplitude}"/>
                                     * Cos(2*pi*(<TextBlock Text="{Binding Frequency}"/>*t + <TextBlock Text="{Binding Phase}"/>))
                                 </TextBlock>
-                            </DataTemplate>
+                                    </DataTemplate>
 
-                            <DataTemplate DataType="{x:Type b:RectSignalFunction}">
-                                <TextBlock>
+                                    <DataTemplate DataType="{x:Type b:RectSignalFunction}">
+                                        <TextBlock>
                                     <TextBlock Text="{Binding Amplitude}"/>
                                     * Rect(t, tau:<TextBlock Text="{Binding Tau}"/>, T:<TextBlock Text="{Binding Period}"/>)
                                 </TextBlock>
-                            </DataTemplate>
+                                    </DataTemplate>
 
-                            <DataTemplate DataType="{x:Type b:SpaceSignal}">
-                                <Border BorderThickness="1" BorderBrush="Blue" CornerRadius="3">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Thetta, StringFormat='Угол {0}'}"/>
-                                        <ContentControl Content="{Binding Signal}"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </DockPanel.Resources>
-                        <Button DockPanel.Dock="Top"  Content="Добавить источник" Command="{Binding AddNewSourceCommand}"/>
-                        <ListBox ItemsSource="{Binding Sources}" Name="SourcesList" SelectedIndex="0">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                        </ListBox>
+                                    <DataTemplate DataType="{x:Type b:SpaceSignal}">
+                                        <Border BorderThickness="1" BorderBrush="Blue" CornerRadius="3">
+                                            <Grid>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Thetta, StringFormat='Угол {0}'}"/>
+                                                    <ContentControl Content="{Binding Signal}"/>
+                                                </StackPanel>
+                                                <Button VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0"
+                                                Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
+                                                Command="{Binding DataContext.RemoveSourceCommand, RelativeSource={RelativeSource AncestorType=DockPanel}}"
+                                                CommandParameter="{Binding}">
+                                                    <fa:ImageAwesome Height="13" Icon="TimesCircle" Foreground="Red"/>
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="False">
+                                                                    <Setter Property="Opacity" Value="0.3"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </DockPanel.Resources>
+                                <Button DockPanel.Dock="Top"  Content="Добавить источник" Command="{Binding AddNewSourceCommand}"/>
+                                <ListBox ItemsSource="{Binding Sources}" Name="SourcesList" SelectedIndex="0">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+                            </DockPanel>
+                        </GroupBox>
                     </DockPanel>
-                </GroupBox>
-            </DockPanel>
+                </TabItem>
+                <TabItem Header="Решётка">
+                    <DockPanel></DockPanel>
+                </TabItem>
+            </TabControl>
+            <TabControl Grid.Column="1">
+                <TabItem Header="Сигналы">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding OutSignal.Power}"/>
+                        <oxy:Plot Grid.Row="1">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" MajorGridlineThickness="2" MinorTickSize="2" MajorTickSize="4" 
+                                                MajorStep="5" MinorStep="2.5"/>
+                                <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
+                                                MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
+                            </oxy:Plot.Axes>
+                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignal}" DataFieldX="Time_ns" DataFieldY="Value" CanTrackerInterpolatePoints="False" LineLegendPosition="Start" MarkerType="Circle"/>
+                        </oxy:Plot>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </Grid>
     </DockPanel>
 </Window>

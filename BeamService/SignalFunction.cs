@@ -1,6 +1,6 @@
 ﻿namespace BeamService
 {
-    public abstract class SignalFunction
+    public abstract class SignalFunction : ViewModel
     {
         public abstract double Value(double t);
 

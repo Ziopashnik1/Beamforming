@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace BeamForming
+namespace BeamService
 {
     public abstract class ViewModel : INotifyPropertyChanged
     {

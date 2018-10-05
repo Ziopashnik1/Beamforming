@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BeamService
 {
-    public class DigitalAntennaArray
+    public class DigitalAntennaArray : ViewModel
     {
         private const double c = 3e8;
         private static readonly Complex i1 = Complex.ImaginaryOne;
@@ -27,6 +27,7 @@ namespace BeamService
         private int f_n;
         private double f_MaxValue;
         private int f_Nd;   //нужно сдлеать матрицы ПФ саморасчитываемыми, без инициализации новой ЦАР
+        private Func<double, double> f_ElementPattern = th => Math.Cos(5 * th);
 
         /// <summary>Число элементов реешётки</summary>
         public int N
@@ -40,11 +41,12 @@ namespace BeamService
                 for (var i = 0; i < value; i++)
                     f_ADC[i] = new ADC(n, fd, MaxValue, f_tj);
                 f_Wth0 = Get_Wth0(f_th0);
+                OnPropertyChanged();
             }
         }
 
         /// <summary>Шаг решетки</summary>
-        public double d { get => f_d; set => f_d = value; }
+        public double d { get => f_d; set => Set(ref f_d, value); }
 
         /// <summary>размер апертуры</summary>
         public double AperturaLength => d * (N - 1);
@@ -55,8 +57,7 @@ namespace BeamService
             get => f_th0;
             set
             {
-                if (Equals(f_th0, value)) return;
-                f_th0 = value;
+                if(!Set(ref f_th0, value)) return;
                 f_Wth0 = Get_Wth0(value);
             }
         }
@@ -73,8 +74,10 @@ namespace BeamService
                 if (f_Nd == value) return;
                 f_Nd = value;
                 f_Wth0 = Get_Wth0(f_th0);
-                f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * (j) / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+                f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
                 f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(df));
             }
         }
 
@@ -91,6 +94,8 @@ namespace BeamService
                 if (f_fd == value) return;
                 f_fd = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].Fd = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(df));
             }
         }
 
@@ -104,6 +109,7 @@ namespace BeamService
                 if (f_tj == value) return;
                 f_tj = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].tj = value;
+                OnPropertyChanged();
             }
         }
 
@@ -117,10 +123,15 @@ namespace BeamService
                 if (f_n == value) return;
                 f_n = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].N = value;
+                OnPropertyChanged();
             }
         }
 
-        public Func<double, double> ElementPattern { get; set; } = th => Math.Cos(5 * th);
+        public Func<double, double> ElementPattern
+        {
+            get => f_ElementPattern;
+            set => Set(ref f_ElementPattern, value);
+        }
 
         /// <summary>Максимальная амплитуда сигнала</summary>  
         public double MaxValue
@@ -132,6 +143,7 @@ namespace BeamService
                 if (f_MaxValue == value) return;
                 f_MaxValue = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].MaxValue = value;
+                OnPropertyChanged();
             }
         }
         /// <summary>Инициализация новой цифровой антенной решётки</summary>
@@ -163,28 +175,26 @@ namespace BeamService
 
         }
         /// <summary>
-        /// Формирование падающей волны
+        /// Формирование падающей волны - набор сигналов решётки для конкретного источника, заданного углом падения волны на решётку и сигналом
         /// </summary>
         /// <param name="th">Угол падения волны</param>
         /// <param name="signal"></param>
         /// <returns></returns>
-        public Source[] GetSources(double th, Func<double, double> signal)
+        public AnalogSignalSource[] GetSources(double th, Func<double, double> signal)
         {
-            var sources = new Source[N];
+            var sources = new AnalogSignalSource[N];
             for (var i = 0; i < N; i++)
             {
                 var dt = i * d / c * Math.Sin(th);
-                sources[i] = new Source(t => signal(t - dt) * ElementPattern(th));
+                sources[i] = new AnalogSignalSource(t => signal(t - dt) * ElementPattern(th));
             }
             return sources;
         }
         
-        /// <summary>
-        /// Формирование матрицы продескретизированных сигналов в каждом элементе решетки 
-        /// </summary>
-        /// <param name="sources"></param>
-        /// <returns></returns>
-        private Matrix GetSignalMatrix(Source[] sources)
+        /// <summary>Формирование матрицы продескретизированных сигналов в каждом элементе решетки</summary>
+        /// <param name="sources">Массив аналоговых источников сигналов на входах АЦП</param>
+        /// <returns>Сигнальная матрица с выходов АЦП</returns>
+        private Matrix GetSignalMatrix(AnalogSignalSource[] sources)
         {
             var s_data = new double[N, Nd];
             for (var i = 0; i < N; i++)
@@ -335,29 +345,40 @@ namespace BeamService
             var samples_p = new double[q.M];
             var samples_q = new double[q.M];
 
-            for (var i = 0; i < samples_p.Length; i++)
-            {
-                samples_p[i] = q[0, i].Real;
-                samples_q[i] = q[0, i].Imaginary;
-            }
-
-            var dt = f_ADC[0].dt;
-            return new[]
-            {
+            for (var i = 0; i < samples_p.Length; i++)                         
+            {                                                                  
+                samples_p[i] = q[0, i].Real;                                   
+                samples_q[i] = q[0, i].Imaginary;                              
+            }                                                                  
+                                                                               
+            var dt = f_ADC[0].dt;                                              
+            return new[]                                                       
+            {                                                                  
                 new DigitalSignal(samples_p, dt),
                 new DigitalSignal(samples_q, dt)
             };
         }
 
-        public DigitalSignal[] GetOutSignal(RadioScene scene)
+        public (DigitalSignal P, DigitalSignal Q) GetOutSignal(RadioScene scene)
         {
-            var sources = new Source[N];
-            for (var i = 0; i < scene.Count; i++)
+            if (scene is null || scene.Count == 0) return (null, null);
+
+            var sources = new AnalogSignalSource[N];
+
+            foreach (var (thetta, signal) in scene)
             {
-                var sources_i = GetSources(scene[i].Thetta, scene[i].Signal.Value);
+                var sources_i = GetSources(thetta, signal);
                 for (var j = 0; j < N; j++)
                     sources[j] += sources_i[j];
             }
+
+            //for (var i = 0; i < scene.Count; i++)
+            //{
+            //    var sources_i = GetSources(scene[i].Thetta, scene[i].Signal.Value);
+            //    for (var j = 0; j < N; j++)
+            //        sources[j] += sources_i[j];
+            //}
+
             var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
             var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
             var QQ = ComputeResultMatrix(SS);                                 // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
@@ -374,11 +395,7 @@ namespace BeamService
             }
 
             var dt = f_ADC[0].dt;
-            return new[]
-            {
-                new DigitalSignal(samples_p, dt),
-                new DigitalSignal(samples_q, dt)
-            };
+            return (new DigitalSignal(samples_p, dt), new DigitalSignal(samples_q, dt));
         }
 
         /// <summary>

@@ -51,7 +51,7 @@ namespace BeamService
         /// <param name="src">Дискретизируемый источник сигнала</param>
         /// <param name="Count">Число отсчётов сигнала, которые надо получить</param>
         /// <returns>Массив значений отсчётов сигнала</returns>
-        public double[] GetDiscretSignalValues(Source src, int Count)
+        public double[] GetDiscretSignalValues(AnalogSignalSource src, int Count)
         {
             var result = new double[Count];
             var dt = 1 / Fd;
@@ -70,7 +70,7 @@ namespace BeamService
         /// <param name="src">Дискретизируемый источник сигнала</param>
         /// <param name="Count">Число отсчётов сигнала, которые надо получить</param>
         /// <returns>Массив значений отсчётов сигнала</returns>
-        public SignalValue[] GetDiscretSignal(Source src, int Count)
+        public SignalValue[] GetDiscretSignal(AnalogSignalSource src, int Count)
         {
             var result = new SignalValue[Count];
             var dt = 1 / Fd;
