@@ -42,11 +42,20 @@ namespace BeamService
                     f_ADC[i] = new ADC(n, fd, MaxValue, f_tj);
                 f_Wth0 = Get_Wth0(f_th0);
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(AperturaLength));
             }
         }
 
         /// <summary>Шаг решетки</summary>
-        public double d { get => f_d; set => Set(ref f_d, value); }
+        public double d
+        {
+            get => f_d;
+            set
+            {
+                if(!Set(ref f_d, value)) return;
+                OnPropertyChanged(nameof(AperturaLength));
+            }
+        }
 
         /// <summary>размер апертуры</summary>
         public double AperturaLength => d * (N - 1);
@@ -91,7 +100,7 @@ namespace BeamService
             set
             {
                 if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), "Частота дискретизации должна быть больше 0");
-                if (f_fd == value) return;
+                if (f_fd.Equals(value)) return;
                 f_fd = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].Fd = value;
                 OnPropertyChanged();
@@ -106,7 +115,7 @@ namespace BeamService
             set
             {
                 if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), "Величина джиттера не должна быть меньше 0");
-                if (f_tj == value) return;
+                if (f_tj.Equals(value)) return;
                 f_tj = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].tj = value;
                 OnPropertyChanged();
@@ -140,7 +149,7 @@ namespace BeamService
             set
             {
                 if (value <= 0) throw new ArgumentOutOfRangeException(nameof(n), "Амплитуда ограничителя АЦП должна быть больше 0");
-                if (f_MaxValue == value) return;
+                if (f_MaxValue.Equals(value)) return;
                 f_MaxValue = value;
                 for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].MaxValue = value;
                 OnPropertyChanged();
@@ -170,7 +179,7 @@ namespace BeamService
             f_tj = tj;
             this.N = N; // Нужно установить именно через свойство, что бы создать новый массив АЦП
 
-            f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * (j) / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+            f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
             f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd)); //new FourierMatrix(Nd, true);  
 
         }
@@ -324,23 +333,23 @@ namespace BeamService
         /// <returns></returns>
         public double ComputePatternValue(double th, Func<double, double> signal)
         {
-            var sources = GetSources(th, signal);                             // Определяем массив источников для элементов решётки
-            var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
-            var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
-            var QQ = ComputeResultMatrix(SS);                                 // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
-            var Q = SumRows(QQ);                                              // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
-            var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
-            return GetPower(q);                                               // Вычисляем мощность выходного сигнала
+            var sources = GetSources(th, signal);  // Определяем массив источников для элементов решётки
+            var ss = GetSignalMatrix(sources);     // Определяем сигнальную матрицу на выходе АЦП всех элементов
+            var SS = GetSpectralMatrix(ss);        // Получаем спектральную матрицу, как произведение ss*Wt
+            var QQ = ComputeResultMatrix(SS);      // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
+            var Q = SumRows(QQ);                   // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
+            var q = ComputeResultSignal(Q);        // Вычисляем обратное преобразование Фурье для получение выходного сигнала
+            return GetPower(q);                    // Вычисляем мощность выходного сигнала
         }
 
         public DigitalSignal[] GetOutSignal(double th, Func<double, double> signal)
         {
-            var sources = GetSources(th, signal);                             // Определяем массив источников для элементов решётки
-            var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
-            var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
-            var QQ = ComputeResultMatrix(SS);                                 // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
-            var Q = SumRows(QQ);                                              // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
-            var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
+            var sources = GetSources(th, signal);  // Определяем массив источников для элементов решётки
+            var ss = GetSignalMatrix(sources);     // Определяем сигнальную матрицу на выходе АЦП всех элементов
+            var SS = GetSpectralMatrix(ss);        // Получаем спектральную матрицу, как произведение ss*Wt
+            var QQ = ComputeResultMatrix(SS);      // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
+            var Q = SumRows(QQ);                   // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
+            var q = ComputeResultSignal(Q);        // Вычисляем обратное преобразование Фурье для получение выходного сигнала
 
             var samples_p = new double[q.M];
             var samples_q = new double[q.M];
@@ -359,7 +368,11 @@ namespace BeamService
             };
         }
 
-        public (DigitalSignal P, DigitalSignal Q) GetOutSignal(RadioScene scene)
+        /// <summary>Расчёт цифрового сигнала на выходе ЦДО</summary>
+        /// <param name="scene">Радиосцена</param>
+        /// <param name="angle_offset">Угловой поворот решётки</param>
+        /// <returns>Квадратурный сигнал высхода ЦДО</returns>
+        public (DigitalSignal P, DigitalSignal Q) GetOutSignal(RadioScene scene, double angle_offset = 0)
         {
             if (scene is null || scene.Count == 0) return (null, null);
 
@@ -367,7 +380,7 @@ namespace BeamService
 
             foreach (var (thetta, signal) in scene)
             {
-                var sources_i = GetSources(thetta, signal);
+                var sources_i = GetSources(thetta - angle_offset, signal);
                 for (var j = 0; j < N; j++)
                     sources[j] += sources_i[j];
             }
@@ -379,11 +392,11 @@ namespace BeamService
             //        sources[j] += sources_i[j];
             //}
 
-            var ss = GetSignalMatrix(sources);                                // Определяем сигнальную матрицу на выходе АЦП всех элементов
-            var SS = GetSpectralMatrix(ss);                                   // Получаем спектральную матрицу, как произведение ss*Wt
-            var QQ = ComputeResultMatrix(SS);                                 // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
-            var Q = SumRows(QQ);                                              // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
-            var q = ComputeResultSignal(Q);                                   // Вычисляем обратное преобразование Фурье для получение выходного сигнала
+            var ss = GetSignalMatrix(sources);  // Определяем сигнальную матрицу на выходе АЦП всех элементов
+            var SS = GetSpectralMatrix(ss);     // Получаем спектральную матрицу, как произведение ss*Wt
+            var QQ = ComputeResultMatrix(SS);   // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
+            var Q = SumRows(QQ);                // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
+            var q = ComputeResultSignal(Q);     // Вычисляем обратное преобразование Фурье для получение выходного сигнала
 
             var samples_p = new double[q.M];
             var samples_q = new double[q.M];

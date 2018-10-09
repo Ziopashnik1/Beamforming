@@ -5,7 +5,7 @@ namespace BeamService
     /// <summary>АЦП</summary>
     public class ADC
     {
-        private readonly Random f_Random;
+        private static readonly Random sf_Random = new Random((int)DateTime.Now.Ticks);
 
         /// <summary>Динамический диапазон</summary>
         public double D => MaxValue / ((1 << N) - 1);
@@ -41,8 +41,6 @@ namespace BeamService
             Fd = fd;
             this.MaxValue = MaxValue;
             this.tj = tj;
-
-            f_Random = new Random((int)DateTime.Now.Ticks);
         }
 
         /// <summary>
@@ -57,7 +55,7 @@ namespace BeamService
             var dt = 1 / Fd;
             for (int i = 0; i < Count; i++)
             {
-                var tj = (f_Random.NextDouble() - 0.5) * this.tj;
+                var tj = (sf_Random.NextDouble() - 0.5) * this.tj * dt;
                 var t = i * dt + tj;
                 result[i] = Quant(src[t]);
             }
@@ -76,7 +74,7 @@ namespace BeamService
             var dt = 1 / Fd;
             for (int i = 0; i < Count; i++)
             {
-                var tj = (f_Random.NextDouble() - 0.5) * this.tj;
+                var tj = (sf_Random.NextDouble() - 0.5) * this.tj;
                 var t = i * dt + tj;
                 result[i] = new SignalValue { t = t, V = Quant(src[t]) };
             }

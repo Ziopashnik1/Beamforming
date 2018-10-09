@@ -17,9 +17,16 @@
         <Style x:Key="ParameterGroup" TargetType="{x:Type GroupBox}">
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
+        <l:MultiplyConverter x:Key="GHz" K="1e-9"/>
+        <l:MultiplyConverter x:Key="InDeg" K="57.2957795130823"/>
     </Window.Resources>
     <DockPanel>
-        <StatusBar DockPanel.Dock="Bottom"></StatusBar>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StackPanel Orientation="Horizontal">
+                <ProgressBar Width="120" Height="10" Value="{Binding PatternCalculationProgress}" Maximum="1"/>
+                <TextBlock Text="{Binding PatternCalculationProgress, StringFormat={}{0:p2}}"/>
+            </StackPanel>
+        </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -44,7 +51,7 @@
                                         <TextBlock Grid.Column="0" Grid.Row="0" Text="Амплитуда"/>
                                         <xc:DoubleUpDown Grid.Column="1" Grid.Row="0" Value="{Binding Amplitude}" FormatString="0.#" Increment="0.1"/>
                                         <TextBlock Grid.Column="0" Grid.Row="1" Text="Частота"/>
-                                        <xc:DoubleUpDown Grid.Column="1" Grid.Row="1" Value="{Binding Frequency, Converter={l:MultiplyConverter K=1e-9}}" FormatString="0.#" Increment="0.1"/>
+                                        <xc:DoubleUpDown Grid.Column="1" Grid.Row="1" Value="{Binding Frequency, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
                                         <TextBlock Grid.Column="0" Grid.Row="2" Text="Фаза"/>
                                         <xc:DoubleUpDown Grid.Column="1" Grid.Row="2" Value="{Binding Phase}" FormatString="0.#" Increment="0.1"/>
                                     </Grid>
@@ -53,7 +60,7 @@
                                 <DataTemplate DataType="{x:Type b:SpaceSignal}">
                                     <StackPanel>
                                         <GroupBox Header="Угол падения" Style="{StaticResource ParameterGroup}">
-                                            <xc:DoubleUpDown Value="{Binding Thetta}" Increment="0.1"  
+                                            <xc:DoubleUpDown Value="{Binding Thetta, Converter={StaticResource InDeg}}" Increment="0.1"  
                                                              FormatString="0.0"
                                                              Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
                                         </GroupBox>
@@ -71,7 +78,7 @@
                                     <DataTemplate DataType="{x:Type b:SinSignal}">
                                         <TextBlock>
                                     <TextBlock Text="{Binding Amplitude}"/>
-                                    * Sin(2*pi*(<TextBlock Text="{Binding Frequency, Converter={l:MultiplyConverter K=1e-9}, StringFormat=0.#}"/>E9 * t <TextBlock Text="{Binding Phase, StringFormat='+ 0.#;- 0.#'}"/>))
+                                    * Sin(2*pi*(<TextBlock Text="{Binding Frequency, Converter={StaticResource GHz}, StringFormat=0.#}"/>E9 * t <TextBlock Text="{Binding Phase, StringFormat='+ 0.#;- 0.#'}"/>))
                                 </TextBlock>
                                     </DataTemplate>
 
@@ -93,7 +100,7 @@
                                         <Border BorderThickness="1" BorderBrush="Blue" CornerRadius="3">
                                             <Grid>
                                                 <StackPanel>
-                                                    <TextBlock Text="{Binding Thetta, StringFormat='Угол {0}'}"/>
+                                                    <TextBlock Text="{Binding Thetta, StringFormat='Угол {0}', Converter={StaticResource InDeg}}"/>
                                                     <ContentControl Content="{Binding Signal}"/>
                                                 </StackPanel>
                                                 <Button VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0"
@@ -127,8 +134,57 @@
                         </GroupBox>
                     </DockPanel>
                 </TabItem>
-                <TabItem Header="Решётка">
-                    <DockPanel></DockPanel>
+                <TabItem Header="Решётка" DataContext="{Binding Antenna}">
+                    <DockPanel VerticalAlignment="Top">
+                        <GroupBox Header="Апертура" DockPanel.Dock="Top">
+                            <UniformGrid Columns="2" VerticalAlignment="Top">
+                                <GroupBox Header="Число эл-тов" >
+                                    <xc:IntegerUpDown Value="{Binding N}" Minimum="1" Maximum="1024"/>
+                                </GroupBox>
+                                <GroupBox Header="Шаг" >
+                                    <xc:DoubleUpDown Value="{Binding d}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                </GroupBox>
+                                <GroupBox Header="Размер апертуры">
+                                    <TextBlock Text="{Binding AperturaLength, StringFormat={}{0:0.##}м}" HorizontalAlignment="Center"/>
+                                </GroupBox>
+                                <GroupBox Header="Угол фазирования">
+                                    <xc:DoubleUpDown Value="{Binding th0, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                </GroupBox>
+                                <GroupBox Header="ДН эл-та">
+                                    <ComboBox SelectedIndex="0">
+                                        <ComboBoxItem Content="Всенаправленный"/>
+                                        <ComboBoxItem Content="Косинус"/>
+                                        <ComboBoxItem Content="Вибратор"/>
+                                    </ComboBox>
+                                </GroupBox>
+                                <GroupBox Header="Нормаировать ДН">
+                                    <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/> 
+                                </GroupBox>
+                            </UniformGrid>
+                        </GroupBox>
+                        <GroupBox Header="Параметры АЦП" DockPanel.Dock="Top">
+                            <UniformGrid Columns="2">
+                                <GroupBox Header="Частота дискр.">
+                                    <xc:DoubleUpDown Value="{Binding fd, Converter={StaticResource GHz}}" FormatString="0.0# 'ГГц'" Minimum="0.1" Increment="0.1"/>
+                                </GroupBox>
+                                <GroupBox Header="Частотн.разр.сп." ToolTip="Частотная разрешающая способность">
+                                    <TextBlock Text="{Binding df, Converter={StaticResource GHz}, StringFormat={}{0:0.##}ГГц}" HorizontalAlignment="Center"/>
+                                </GroupBox>
+                                <GroupBox Header="Размер выборки">
+                                    <xc:IntegerUpDown Value="{Binding Nd}" Minimum="2"/>
+                                </GroupBox>
+                                <GroupBox Header="Разрядность">
+                                    <xc:IntegerUpDown Value="{Binding n}" Minimum="1" Maximum="32"/>
+                                </GroupBox>
+                                <GroupBox Header="Динам.диап." ToolTip="Динамический диапазон">
+                                    <xc:DoubleUpDown Value="{Binding MaxValue}" Minimum="0.1" Increment="0.1" FormatString="0.# 'В'"/>
+                                </GroupBox>
+                                <GroupBox Header="Джиттер">
+                                    <xc:DoubleUpDown Value="{Binding tj, Converter={l:MultiplyConverter 1e9}}" Minimum="0" Maximum="1" Increment="0.1"/>
+                                </GroupBox>
+                            </UniformGrid>
+                        </GroupBox>
+                    </DockPanel>
                 </TabItem>
             </TabControl>
             <TabControl Grid.Column="1">
@@ -141,14 +197,39 @@
                         <TextBlock Text="{Binding OutSignal.Power}"/>
                         <oxy:Plot Grid.Row="1">
                             <oxy:Plot.Axes>
-                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" MajorGridlineThickness="2" MinorTickSize="2" MajorTickSize="4" 
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" 
+                                                MajorGridlineThickness="1" MinorTickSize="2" MajorTickSize="4" 
                                                 MajorStep="5" MinorStep="2.5"/>
-                                <oxy:LinearAxis Position="Bottom" PositionAtZeroCrossing="True"
+                                <oxy:LinearAxis Position="Bottom" 
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
                             </oxy:Plot.Axes>
                             <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignal}" DataFieldX="Time_ns" DataFieldY="Value" CanTrackerInterpolatePoints="False" LineLegendPosition="Start" MarkerType="Circle"/>
                         </oxy:Plot>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Диаграмма">
+                    <Grid>
+                        <oxy:Plot Title="ДН ЦАР" TitleFontSize="14">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Bottom"  Title="Угол"
+                                                MajorGridlineColor="Gray" MinorGridlineColor="LightGray" 
+                                                MajorGridlineStyle="Solid" MinorGridlineStyle="Dash"
+                                                MajorStep="10" 
+                                                Minimum="-90" Maximum="90"
+                                                AxislineColor="Black" 
+                                                AxislineStyle="Solid" 
+                                                AxislineThickness="1" Unit="deg"/>
+                                <oxy:LinearAxis Position="Left" Title="ДН" AxislineColor="Black" AxislineStyle="Solid" AxislineThickness="1"
+                                                MajorStep="10"
+                                                MajorGridlineColor="Gray" MinorGridlineColor="LightGray" Minimum="-40"
+                                                MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                MajorGridlineThickness="1" MinorGridlineThickness="0.5"/>
+                            </oxy:Plot.Axes>
+                            <oxy:LineSeries StrokeThickness="2" Color="Red" ItemsSource="{Binding Pattern}" 
+                                            DataFieldX="Angle" DataFieldY="Value_dbP"/>
+                        </oxy:Plot>
+                        <TextBlock Text="{Binding PatternMaximum, FallbackValue=--, StringFormat={}{0:0.0##}db}" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                     </Grid>
                 </TabItem>
             </TabControl>
