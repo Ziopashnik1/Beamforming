@@ -27,7 +27,7 @@ namespace BeamService
         private int f_n;
         private double f_MaxValue;
         private int f_Nd;   //нужно сдлеать матрицы ПФ саморасчитываемыми, без инициализации новой ЦАР
-        private Func<double, double> f_ElementPattern = th => Math.Cos(5 * th);
+        private IAntenna f_Element = new Uniform();
 
         /// <summary>Число элементов реешётки</summary>
         public int N
@@ -136,10 +136,10 @@ namespace BeamService
             }
         }
 
-        public Func<double, double> ElementPattern
+        public IAntenna Element
         {
-            get => f_ElementPattern;
-            set => Set(ref f_ElementPattern, value);
+            get => f_Element;
+            set => Set(ref f_Element, value);
         }
 
         /// <summary>Максимальная амплитуда сигнала</summary>  
@@ -195,7 +195,7 @@ namespace BeamService
             for (var i = 0; i < N; i++)
             {
                 var dt = i * d / c * Math.Sin(th);
-                sources[i] = new AnalogSignalSource(t => signal(t - dt) * ElementPattern(th));
+                sources[i] = new AnalogSignalSource(t => signal(t - dt) * Element.Pattern(th).Magnitude);
             }
             return sources;
         }

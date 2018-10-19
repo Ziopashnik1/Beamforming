@@ -35,7 +35,7 @@
             <TabControl Grid.Column="0">
                 <TabItem Header="Радиосцена">
                     <DockPanel>
-                        <GroupBox DockPanel.Dock="Bottom" Header="Источник">
+                        <GroupBox DockPanel.Dock="Bottom" Header="Источник" Visibility="Collapsed">
                             <GroupBox.Resources>
                                 <DataTemplate DataType="{x:Type b:SinSignal}">
                                     <Grid>
@@ -75,38 +75,68 @@
                         <GroupBox Header="Источники">
                             <DockPanel>
                                 <DockPanel.Resources>
+                                    <Style TargetType="xc:DoubleUpDown">
+                                        <Setter Property="Focusable" Value="True"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="xc:DoubleUpDown">
+                                                            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                    
                                     <DataTemplate DataType="{x:Type b:SinSignal}">
-                                        <TextBlock>
-                                    <TextBlock Text="{Binding Amplitude}"/>
-                                    * Sin(2*pi*(<TextBlock Text="{Binding Frequency, Converter={StaticResource GHz}, StringFormat=0.#}"/>E9 * t <TextBlock Text="{Binding Phase, StringFormat='+ 0.#;- 0.#'}"/>))
-                                </TextBlock>
+                                        <StackPanel Orientation="Horizontal">
+                                            <xc:DoubleUpDown Value="{Binding Amplitude}" FormatString="0.#" Increment="0.1"/>
+                                            <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Frequency, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
+                                            <TextBlock Margin="3,0">* t</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Phase}" FormatString="0.#" Increment="0.1"/>
+                                            <TextBlock Margin="3,0">))</TextBlock>
+                                        </StackPanel>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type b:CosSignal}">
-                                        <TextBlock>
-                                    <TextBlock Text="{Binding Amplitude}"/>
-                                    * Cos(2*pi*(<TextBlock Text="{Binding Frequency}"/>*t + <TextBlock Text="{Binding Phase}"/>))
-                                </TextBlock>
+                                        <StackPanel Orientation="Horizontal">
+                                            <xc:DoubleUpDown Value="{Binding Amplitude}" FormatString="0.#" Increment="0.1"/>
+                                            <TextBlock Margin="3,0,0,0">* Cos(2*pi *(</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Frequency, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
+                                            <TextBlock Margin="3,0">* t</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Phase}" FormatString="0.#" Increment="0.1"/>
+                                            <TextBlock Margin="3,0">))</TextBlock>
+                                        </StackPanel>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type b:RectSignalFunction}">
                                         <TextBlock>
-                                    <TextBlock Text="{Binding Amplitude}"/>
-                                    * Rect(t, tau:<TextBlock Text="{Binding Tau}"/>, T:<TextBlock Text="{Binding Period}"/>)
-                                </TextBlock>
+                                            <TextBlock Text="{Binding Amplitude}"/>
+                                            * Rect(t, tau:<TextBlock Text="{Binding Tau}"/>, T:<TextBlock Text="{Binding Period}"/>)
+                                        </TextBlock>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type b:SpaceSignal}">
-                                        <Border BorderThickness="1" BorderBrush="Blue" CornerRadius="3">
-                                            <Grid>
+                                        <Border BorderThickness="1" BorderBrush="Blue" CornerRadius="3" Margin="2" Focusable="True">
+                                            <Grid Margin="3">
                                                 <StackPanel>
-                                                    <TextBlock Text="{Binding Thetta, StringFormat='Угол {0}', Converter={StaticResource InDeg}}"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Угол" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                        <xc:DoubleUpDown Value="{Binding Thetta, Converter={StaticResource InDeg}}" Increment="0.1"  
+                                                                         FormatString="0.0"
+                                                                         Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
+                                                    </StackPanel>
+                                                    <ComboBox SelectedItem="{Binding Signal}" 
+                                                              ItemsSource="{Binding DataContext.KnownFunctions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                                     <ContentControl Content="{Binding Signal}"/>
                                                 </StackPanel>
                                                 <Button VerticalAlignment="Top" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0"
-                                                Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
-                                                Command="{Binding DataContext.RemoveSourceCommand, RelativeSource={RelativeSource AncestorType=DockPanel}}"
-                                                CommandParameter="{Binding}">
+                                                        Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
+                                                        Command="{Binding DataContext.RemoveSourceCommand, RelativeSource={RelativeSource AncestorType=DockPanel}}"
+                                                        CommandParameter="{Binding}">
                                                     <fa:ImageAwesome Height="13" Icon="TimesCircle" Foreground="Red"/>
                                                     <Button.Style>
                                                         <Style TargetType="Button">
@@ -123,13 +153,14 @@
                                     </DataTemplate>
                                 </DockPanel.Resources>
                                 <Button DockPanel.Dock="Top"  Content="Добавить источник" Command="{Binding AddNewSourceCommand}"/>
-                                <ListBox ItemsSource="{Binding Sources}" Name="SourcesList" SelectedIndex="0">
+                                <!--<ListBox ItemsSource="{Binding Sources}" Name="SourcesList" SelectedIndex="0">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                         </Style>
                                     </ListBox.ItemContainerStyle>
-                                </ListBox>
+                                </ListBox>-->
+                                <ItemsControl ItemsSource="{Binding Sources}" Focusable="True"/>
                             </DockPanel>
                         </GroupBox>
                     </DockPanel>
@@ -151,14 +182,11 @@
                                     <xc:DoubleUpDown Value="{Binding th0, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
                                 </GroupBox>
                                 <GroupBox Header="ДН эл-та">
-                                    <ComboBox SelectedIndex="0">
-                                        <ComboBoxItem Content="Всенаправленный"/>
-                                        <ComboBoxItem Content="Косинус"/>
-                                        <ComboBoxItem Content="Вибратор"/>
-                                    </ComboBox>
+                                    <ComboBox SelectedItem="{Binding Element}" 
+                                              ItemsSource="{Binding DataContext.KnownAntennaElements, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                 </GroupBox>
                                 <GroupBox Header="Нормаировать ДН">
-                                    <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/> 
+                                    <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                 </GroupBox>
                             </UniformGrid>
                         </GroupBox>
@@ -187,6 +215,7 @@
                     </DockPanel>
                 </TabItem>
             </TabControl>
+            <GridSplitter Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="4" Background="Transparent" Cursor="SizeWE" />
             <TabControl Grid.Column="1">
                 <TabItem Header="Сигналы">
                     <Grid>

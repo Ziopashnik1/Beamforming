@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="ADC.cs" />
     <Compile Include="AmplitudeSignalFunction.cs" />
+    <Compile Include="Antenna.cs" />
     <Compile Include="CosSignal.cs" />
     <Compile Include="DigitalAntennaArray.cs" />
     <Compile Include="DigitalSignal.cs" />

@@ -388,7 +388,7 @@ namespace BeamForming
 
             f_Antenna = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue, 0e-10)
             {
-                ElementPattern = Math.Cos
+                Element = new CosElement()
             };
             CalculatePattern();
             CalculateKND_from_th0_Async();
@@ -402,7 +402,7 @@ namespace BeamForming
             OnPropertyChanged(nameof(Beam));
             f_Beam_Norm = GetBeamNorm(f_Beam, out var max);
             OnPropertyChanged(nameof(BeamNorm));
-            f_Beam1 = ComputePattern(f_Antenna.ElementPattern, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
+            f_Beam1 = ComputePattern(th => f_Antenna.Element.Pattern(th).Magnitude, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
             OnPropertyChanged(nameof(Beam1));
             f_Beam1_Norm = GetBeamNorm(f_Beam1, out var _);
             OnPropertyChanged(nameof(BeamNorm1));
@@ -530,7 +530,7 @@ namespace BeamForming
         private void CalculateKND_from_th0()
         {
             var array = new DigitalAntennaArray(f_N, f_d, f_fd, f_n, f_Nd, f_MaxValue);
-            array.ElementPattern = Math.Cos;
+            array.Element = new CosElement();
 
             var result = new List<DataPoint>(90);
             for (var th0 = 0d; th0 < 45; th0 += 0.5)
