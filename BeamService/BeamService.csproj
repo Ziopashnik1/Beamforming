@@ -63,15 +63,21 @@
     <Compile Include="ADC.cs" />
     <Compile Include="AmplitudeSignalFunction.cs" />
     <Compile Include="Antenna.cs" />
+    <Compile Include="CombyneSignalFunction.cs" />
     <Compile Include="CosSignal.cs" />
+    <Compile Include="DiffSignalFunction.cs" />
     <Compile Include="DigitalAntennaArray.cs" />
     <Compile Include="DigitalSignal.cs" />
     <Compile Include="DigitalSpectrum.cs" />
+    <Compile Include="Extensions\DispatcherAwaiter.cs" />
+    <Compile Include="Extensions\RandomExtensions.cs" />
+    <Compile Include="Extensions\TaskEx.cs" />
     <Compile Include="FourierMatrix.cs" />
     <Compile Include="HarmonicSignalFunction.cs" />
     <Compile Include="LamdaSignalFunction.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="MatrixComplex.cs" />
+    <Compile Include="MuliyplySignalFunction.cs" />
     <Compile Include="PageFunction1.xaml.cs">
       <DependentUpon>PageFunction1.xaml</DependentUpon>
     </Compile>
@@ -91,6 +97,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="RadioScene.cs" />
+    <Compile Include="RandomSignal.cs" />
+    <Compile Include="RectSignalFunction.cs" />
     <Compile Include="Sample.cs" />
     <Compile Include="SignalFunction.cs" />
     <Compile Include="SignalValue.cs" />
@@ -98,6 +106,7 @@
     <Compile Include="AnalogSignalSource.cs" />
     <Compile Include="SpaceSignal.cs" />
     <Compile Include="SpectrumSample.cs" />
+    <Compile Include="SummSignalFunction.cs" />
     <Compile Include="ViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -184,7 +184,9 @@
     <Compile Include="MainWindow3.xaml.cs">
       <DependentUpon>MainWindow3.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MainWindow3ViewModel.cs" />
+    <Compile Include="MainWindow3ViewModel.cs">
+      <DependentUpon>MainWindow3.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MultiplyConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

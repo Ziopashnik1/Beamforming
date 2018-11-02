@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace BeamForming
@@ -60,6 +61,8 @@ namespace BeamForming
             }
         }
 
+        public double SNR { get; private set; }
+
         public IEnumerable<IAntenna> KnownAntennaElements => new[]
         {
             Antenna.Element,
@@ -74,6 +77,7 @@ namespace BeamForming
         {
             new SinSignal(1, 1e9), 
             new CosSignal(1, 1e9),
+            new RandomSignal(), 
         };
 
         public ICommand AddNewSourceCommand { get; }
@@ -147,10 +151,34 @@ namespace BeamForming
             var cancel = cancellation.Token;
             try
             {
-                await Task
-                    .Run(() => Antenna.GetOutSignal(Sources), cancel)
-                    .ContinueWith(t => OutSignal = t.Result.P, cancel)
-                    .ConfigureAwait(true);
+                await TaskEx.YieldAsync();
+
+                var radio_scene = Sources;
+
+
+                var signal = (await Antenna.GetOutSignalAsync(radio_scene, cancel: cancel)).P;
+
+                var s0 = radio_scene.FirstOrDefault(s => !(s.Signal is RandomSignal))?.Signal;
+
+                if (s0 is null)
+                    SNR = double.NaN;
+                else
+                {
+                    var sum = 0d;
+                    var N = Antenna.N;
+                    for (var i = 0; i < signal.Count; i++)
+                    {
+                        var v = s0.Value(signal[i].t) - signal[i].Value / N;
+                        sum += v * v;
+                    }
+
+                    SNR = -10 * Math.Log10(sum);
+                }
+
+                await Application.Current.Dispatcher;
+                OnPropertyChanged(nameof(SNR));
+
+                OutSignal = signal;
 
                 const double thetta_min = -90;
                 const double thetta_max = 90;
@@ -159,26 +187,30 @@ namespace BeamForming
                 const double toRad = Math.PI / 180;
                 var pattern = new List<PatternValue>(beam_samples_count);
 
-                await Task.Run(() =>
-                {
-                    for (var thetta = thetta_min; thetta <= thetta_max; thetta += d_thetta)
-                    {
-                        cancel.ThrowIfCancellationRequested();
-                        pattern.Add(new PatternValue
-                        {
-                            Angle = thetta,
-                            Value = Antenna.GetOutSignal(Sources, thetta * toRad).P.Power
-                        });
+                await TaskEx.YieldAsync();
 
-                        PatternCalculationProgress = (double)pattern.Count / pattern.Capacity;
-                    }
-                }, cancel).ConfigureAwait(true);
+                for (var thetta = thetta_min; thetta <= thetta_max; thetta += d_thetta)
+                {
+                    cancel.ThrowIfCancellationRequested();
+                    pattern.Add(new PatternValue
+                    {
+                        Angle = thetta,
+                        Value =  Antenna.GetOutSignal(radio_scene, thetta * toRad).P.Power
+                    });
+
+                    PatternCalculationProgress = (double)pattern.Count / pattern.Capacity;
+                }
 
                 var max = pattern.Max(v => v.Value);
+
+                await Application.Current.Dispatcher;
+
                 Pattern = (f_NormPattern ? pattern.Select(v => v / max) : pattern).ToArray();
                 PatternMaximum = 10 * Math.Log10(max);
             }
             catch (IndexOutOfRangeException) { } // Костыли
+            catch (InvalidOperationException) { } // Костыли
+            catch (ArgumentException) { } // Костыли
             catch (NullReferenceException) { } // Костыли
             catch (TaskCanceledException) { }
             catch (OperationCanceledException) { }

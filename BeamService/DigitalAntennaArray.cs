@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeamService
@@ -52,7 +52,7 @@ namespace BeamService
             get => f_d;
             set
             {
-                if(!Set(ref f_d, value)) return;
+                if (!Set(ref f_d, value)) return;
                 OnPropertyChanged(nameof(AperturaLength));
             }
         }
@@ -66,7 +66,7 @@ namespace BeamService
             get => f_th0;
             set
             {
-                if(!Set(ref f_th0, value)) return;
+                if (!Set(ref f_th0, value)) return;
                 f_Wth0 = Get_Wth0(value);
             }
         }
@@ -91,7 +91,7 @@ namespace BeamService
         }
 
         /// <summary>Шаг спектральных компонент в спектре</summary>
-        public double df => fd / Nd;    
+        public double df => fd / Nd;
 
         /// <summary>Частота дискретизации</summary>
         public double fd
@@ -199,7 +199,7 @@ namespace BeamService
             }
             return sources;
         }
-        
+
         /// <summary>Формирование матрицы продескретизированных сигналов в каждом элементе решетки</summary>
         /// <param name="sources">Массив аналоговых источников сигналов на входах АЦП</param>
         /// <returns>Сигнальная матрица с выходов АЦП</returns>
@@ -211,6 +211,24 @@ namespace BeamService
                 var signal = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
                 for (var j = 0; j < Nd; j++) s_data[i, j] = signal[j];
             }
+            return new Matrix(s_data);
+        }
+
+        private async Task<Matrix> GetSignalMatrixAsync(AnalogSignalSource[] sources, CancellationToken cancel)
+        {
+            cancel.ThrowIfCancellationRequested();
+
+            var s_data = new double[N, Nd];
+
+            await sources.Select((s, i) => Task.Run(async () =>
+            {
+                var signal = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
+                var tt = signal.Select((v, j) => Task.Run(() => s_data[i, j] = signal[j], cancel));
+                await Task.WhenAll(tt);
+            }, cancel)).WhenAll().ConfigureAwait(false);
+
+            cancel.ThrowIfCancellationRequested();
+
             return new Matrix(s_data);
         }
 
@@ -234,6 +252,8 @@ namespace BeamService
         /// <param name="SignalMatrix"></param>
         /// <returns></returns>
         public MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * f_Wt;
+        public Task<MatrixComplex> GetSpectralMatrixAsync(Matrix SignalMatrix, CancellationToken cancel) =>
+            Task.Run(() => SignalMatrix * f_Wt, cancel);
 
         /// <summary>
         /// Создание фазирующей матрицы
@@ -274,12 +294,41 @@ namespace BeamService
             return new MatrixComplex(result);
         }
 
+        private static async Task<MatrixComplex> ElementMultiplyAsync(MatrixComplex A, MatrixComplex B, CancellationToken cancel)
+        {
+            if (A.M != B.M) throw new InvalidOperationException("Число столбцов матриц не совпадает");
+            if (A.N != B.N) throw new InvalidOperationException("Число строк матриц не совпадает");
+            cancel.ThrowIfCancellationRequested();
+
+            var N = A.N;
+            var M = B.M;
+
+            var result = new Complex[N, M];
+            if (N < M)
+                await Enumerable.Range(0, N).Select(i => Task.Run(() =>
+                {
+                    for (var j = 0; j < M; j++)
+                        result[i, j] = A[i, j] * B[i, j];
+                }, cancel)).WhenAll().ConfigureAwait(false);
+            else
+                await Enumerable.Range(0, M).Select(j => Task.Run(() =>
+                {
+                    for (var i = 0; i < N; i++)
+                        result[i, j] = A[i, j] * B[i, j];
+                }, cancel)).WhenAll().ConfigureAwait(false);
+          
+            cancel.ThrowIfCancellationRequested();
+            return new MatrixComplex(result);
+        }
+
         /// <summary>
         /// фазирование и получение матрицы сфазированных спектров
         /// </summary>
         /// <param name="SpectralMatrix"></param>
         /// <returns></returns>
         private MatrixComplex ComputeResultMatrix(MatrixComplex SpectralMatrix) => ElementMultiply(SpectralMatrix, f_Wth0);
+        private Task<MatrixComplex> ComputeResultMatrixAsync(MatrixComplex SpectralMatrix, CancellationToken cancel) =>
+            ElementMultiplyAsync(SpectralMatrix, f_Wth0, cancel);
 
         /// <summary>
         /// сигналы с одинаков ВОЗМОЖНО ОШИБКА!!!!!!!!!!!!!!!!!
@@ -289,6 +338,14 @@ namespace BeamService
         private MatrixComplex ComputeResultSignal(MatrixComplex SpectralMatrix)
         {
             var result = SpectralMatrix * f_W_inv;
+            if (result.N != 1) throw new InvalidOperationException("В результате вычислений получено более одной строки в выходной сигнальной матрице");
+            return result;
+        }
+
+        private async Task<MatrixComplex> ComputeResultSignalAsync(MatrixComplex SpectralMatrix, CancellationToken cancel)
+        {
+            var result = await Task.Run(() => SpectralMatrix * f_W_inv, cancel).ConfigureAwait(false);
+            cancel.ThrowIfCancellationRequested();
             if (result.N != 1) throw new InvalidOperationException("В результате вычислений получено более одной строки в выходной сигнальной матрице");
             return result;
         }
@@ -307,6 +364,22 @@ namespace BeamService
                 for (var i = 0; i < A.N; i++) summ += A[i, j];
                 result[0, j] = summ;
             }
+            return new MatrixComplex(result);
+        }
+
+        private static async Task<MatrixComplex> SumRowsAsync(MatrixComplex A, CancellationToken cancel)
+        {
+            cancel.ThrowIfCancellationRequested();
+            var result = new Complex[1, A.M];
+
+            await Enumerable.Range(0, A.M).Select(j => Task.Run(() =>
+            {
+                var summ = new Complex();
+                for (var i = 0; i < A.N; i++) summ += A[i, j];
+                result[0, j] = summ;
+            }, cancel)).WhenAll().ConfigureAwait(false);
+            cancel.ThrowIfCancellationRequested();
+
             return new MatrixComplex(result);
         }
 
@@ -354,15 +427,15 @@ namespace BeamService
             var samples_p = new double[q.M];
             var samples_q = new double[q.M];
 
-            for (var i = 0; i < samples_p.Length; i++)                         
-            {                                                                  
-                samples_p[i] = q[0, i].Real;                                   
-                samples_q[i] = q[0, i].Imaginary;                              
-            }                                                                  
-                                                                               
-            var dt = f_ADC[0].dt;                                              
-            return new[]                                                       
-            {                                                                  
+            for (var i = 0; i < samples_p.Length; i++)
+            {
+                samples_p[i] = q[0, i].Real;
+                samples_q[i] = q[0, i].Imaginary;
+            }
+
+            var dt = f_ADC[0].dt;
+            return new[]
+            {
                 new DigitalSignal(samples_p, dt),
                 new DigitalSignal(samples_q, dt)
             };
@@ -385,18 +458,55 @@ namespace BeamService
                     sources[j] += sources_i[j];
             }
 
-            //for (var i = 0; i < scene.Count; i++)
-            //{
-            //    var sources_i = GetSources(scene[i].Thetta, scene[i].Signal.Value);
-            //    for (var j = 0; j < N; j++)
-            //        sources[j] += sources_i[j];
-            //}
-
             var ss = GetSignalMatrix(sources);  // Определяем сигнальную матрицу на выходе АЦП всех элементов
             var SS = GetSpectralMatrix(ss);     // Получаем спектральную матрицу, как произведение ss*Wt
             var QQ = ComputeResultMatrix(SS);   // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
             var Q = SumRows(QQ);                // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
             var q = ComputeResultSignal(Q);     // Вычисляем обратное преобразование Фурье для получение выходного сигнала
+
+            var samples_p = new double[q.M];
+            var samples_q = new double[q.M];
+
+            for (var i = 0; i < samples_p.Length; i++)
+            {
+                samples_p[i] = q[0, i].Real;
+                samples_q[i] = q[0, i].Imaginary;
+            }
+
+            var dt = f_ADC[0].dt;
+            return (new DigitalSignal(samples_p, dt), new DigitalSignal(samples_q, dt));
+        }
+
+        public async Task<(DigitalSignal P, DigitalSignal Q)> GetOutSignalAsync
+        (
+            RadioScene scene,
+            double angle_offset = 0,
+            IProgress<double> progress = null,
+            CancellationToken cancel = default
+        )
+        {
+            if (scene is null || scene.Count == 0) return (null, null);
+
+            var sources = await Task.Run(() =>
+            {
+                var result = new AnalogSignalSource[N];
+
+                foreach (var (thetta, signal) in scene)
+                {
+                    cancel.ThrowIfCancellationRequested();
+                    var sources_i = GetSources(thetta - angle_offset, signal);
+                    for (var j = 0; j < N; j++)
+                        result[j] += sources_i[j];
+                }
+
+                return result;
+            }, cancel).ConfigureAwait(false);
+
+            var ss = await GetSignalMatrixAsync(sources, cancel).ConfigureAwait(false); // Определяем сигнальную матрицу на выходе АЦП всех элементов
+            var SS = await GetSpectralMatrixAsync(ss, cancel).ConfigureAwait(false);     // Получаем спектральную матрицу, как произведение ss*Wt
+            var QQ = await ComputeResultMatrixAsync(SS, cancel).ConfigureAwait(false);   // Диаграммообразование - доварачиваем спектр всех компонент спектральной матрицы с учётом сдвигов фаз
+            var Q = await SumRowsAsync(QQ, cancel).ConfigureAwait(false);                // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
+            var q = await ComputeResultSignalAsync(Q, cancel).ConfigureAwait(false);     // Вычисляем обратное преобразование Фурье для получение выходного сигнала
 
             var samples_p = new double[q.M];
             var samples_q = new double[q.M];
