@@ -5,8 +5,11 @@ namespace DSP.Lib
 {
     public class IIR : DigitalFilter
     {
+        /// <summary>Коэффициенты полинома знаменателя</summary>
         [NotNull] private readonly double[] _A;
+        /// <summary>Коэффициенты полинома Числителя</summary>
         [NotNull] private readonly double[] _B;
+        /// <summary>Вектор состояния фильтра (ячейки линии задержки)</summary>
         [NotNull] private readonly double[] _State;
 
 
@@ -31,21 +34,25 @@ namespace DSP.Lib
 
         #region Overrides of DigitalFilter
 
+        /// <summary>
+        /// Фильтрация очередного отсчёта входного сигнала
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <returns></returns>
         public override double GetSample(double sample)
         {
-            var input = sample;
+            var input = 0d;
             var output = 0d;
 
-            //Array.Copy(_State, 0, _State, 1, _State.Length - 1);
             for (var i = _State.Length - 1; i >= 1; i--)
             {
                 _State[i] = _State[i - 1];
-                input -= _State[i] * _A[i];
+                input += _State[i] * _A[i];
                 output += _State[i] * _B[i];
-            } 
-            _State[0] = input;
+            }                 
+            _State[0] = sample - input;
 
-            return output + input * _B[0];
+            return output + _State[0] * _B[0];
         }
 
         public override void Initialize() => Array.Clear(_State, 0, _State.Length);
