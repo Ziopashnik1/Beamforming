@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using DSP.Lib.Service;
 
@@ -8,19 +9,24 @@ namespace DSP.TestConsole
     {
         private static void Main(string[] args)
         {
-            Complex[] z = 
+            Complex[] P =
             {
-                new Complex(-15.70796326794, -60.8366801296),
-                new Complex(-15.70796326794, +60.8366801296),
+                  new Complex(-0.5, + 0.866),
+                  new Complex(-1, 0),
+                  new Complex(-0.5, - 0.866),
             };
 
-            var a = Polynom.GetCoefficients(z);
+            const double fd = 2;
 
-            //Array.Reverse(a);
+            Complex z(Complex p) => (2 * fd + p) / (2 * fd - p);
 
-            //var p = new Polynom(a);
+            Complex[] Z = P.Select(p => z(p)).ToArray();
 
-            //var y = p.GetValue(1/2d);
+            var a = Polynom.GetCoefficients(Z).Select(s => s.Real).ToArray();
+
+            var b = Polynom.GetCoefficients(Enumerable.Repeat(-1d, 3).ToArray());
+
+            var K = a.Sum() / b.Sum();
 
             Console.ReadLine();
         }
