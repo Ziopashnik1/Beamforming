@@ -36,6 +36,8 @@ namespace DSP.Lib
             _Samples = Samples;
         }
 
+        public DigitalSignal(double dt, IEnumerable<double> Samples) : this(dt, Samples.ToArray()) { }
+
         public DigitalSignal([NotNull] Func<double, double> f, double dt, int SamplesCount)
             : this(dt, f.Sample(dt, SamplesCount))
         {
@@ -48,7 +50,7 @@ namespace DSP.Lib
 
         #region Overrides of Object
 
-        public override string ToString() => $"signal(samples:{_Samples.Length}; dt:{_dt})";
+        public override string ToString() => $"signal(samples:{_Samples.Length}; dt:{_dt}; power:{GetTotalPower()})";
 
         public override bool Equals(object obj) => base.Equals(obj);
 
