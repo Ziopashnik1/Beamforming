@@ -25,9 +25,9 @@ namespace DSP.TestConsole
             //var pulse_length = rc.GetImpulseResponse().Count();
 
             var pulse = rc.Filter(s).ToArray();
-            rc.Initialize();
+            rc.Reset();
             var y1 = rc.Filter(s1).ToArray();
-            rc.Initialize();
+            rc.Reset();
             var y2 = rc.Filter(s2).ToArray();
 
             var s1_power = s1.GetTotalPower();

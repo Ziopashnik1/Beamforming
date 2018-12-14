@@ -55,7 +55,7 @@ namespace DSP.Lib
             return output + _State[0] * _B[0];
         }
 
-        public override void Initialize() => Array.Clear(_State, 0, _State.Length);
+        public override void Reset() => Array.Clear(_State, 0, _State.Length);
 
         #endregion
     }

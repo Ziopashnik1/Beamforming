@@ -16,7 +16,7 @@ namespace DSP.Lib
 
             var impulse_response = new double[SamplesCount];
 
-            Filter.Initialize();
+            Filter.Reset();
             impulse_response[0] = Filter.GetSample(1);
             for (var i = 1; i < SamplesCount; i++)
                 impulse_response[i] = Filter.GetSample(0);

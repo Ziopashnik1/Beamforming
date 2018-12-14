@@ -17,7 +17,7 @@ namespace DSP.Lib
 
         #region Overrides of DigitalFilter
 
-        public override void Initialize()
+        public override void Reset()
         {
             for (var i = 0; i < _Order; i++)
                 _State[i] = 0;

@@ -15,6 +15,8 @@ namespace DSP.Lib
                 yield return GetSample(sample);
         }
 
-        public abstract void Initialize();
+        public DigitalSignal Filter(DigitalSignal signal) => new DigitalSignal(signal.dt, Filter(signal.Samples));
+
+        public abstract void Reset();
     }
 }
