@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using JetBrains.Annotations;
 
 namespace DSP.Lib
@@ -30,6 +31,22 @@ namespace DSP.Lib
 
             Array.Copy(a, _A, a.Length);
             Array.Copy(b, _B, b.Length);
+        }
+
+        public Complex GetTransmissionCoefficient(double f, double dt)
+        {
+            var w = -2 * Math.PI * f * dt;
+            var e = new Complex(Math.Cos(w), Math.Sin(w));
+
+            Complex Sum(double[] V)
+            {
+                Complex s = V[V.Length-1];
+                for (var i = V.Length - 2; i >= 0; i--)
+                    s = s * e + V[i];
+                return s;
+            }
+
+            return Sum(_B) / Sum(_A);
         }
 
         #region Overrides of DigitalFilter

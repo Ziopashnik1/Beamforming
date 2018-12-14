@@ -53,8 +53,10 @@
     <Compile Include="DoubleArrayExtensions.cs" />
     <Compile Include="DoubleFuncExtensions.cs" />
     <Compile Include="IIR.cs" />
+    <Compile Include="LowPassRC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExponentialLowPassRC.cs" />
+    <Compile Include="Service\Polynom.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
