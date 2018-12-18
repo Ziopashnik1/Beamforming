@@ -67,16 +67,22 @@
     <Compile Include="AmplitudeSignalFunction.cs" />
     <Compile Include="Antenna.cs" />
     <Compile Include="CombyneSignalFunction.cs" />
+    <Compile Include="Cos2Element.cs" />
+    <Compile Include="CosElement.cs" />
     <Compile Include="CosSignal.cs" />
     <Compile Include="DiffSignalFunction.cs" />
     <Compile Include="DigitalAntennaArray.cs" />
     <Compile Include="DigitalSignal.cs" />
     <Compile Include="DigitalSpectrum.cs" />
     <Compile Include="Extensions\DispatcherAwaiter.cs" />
+    <Compile Include="Extensions\DispatcherExtensions.cs" />
     <Compile Include="Extensions\RandomExtensions.cs" />
     <Compile Include="Extensions\TaskEx.cs" />
+    <Compile Include="Extensions\YieldAsyncAwaitable.cs" />
     <Compile Include="FourierMatrix.cs" />
+    <Compile Include="GuigensElement.cs" />
     <Compile Include="HarmonicSignalFunction.cs" />
+    <Compile Include="IAntenna.cs" />
     <Compile Include="LamdaSignalFunction.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="MatrixComplex.cs" />
@@ -110,6 +116,8 @@
     <Compile Include="SpaceSignal.cs" />
     <Compile Include="SpectrumSample.cs" />
     <Compile Include="SummSignalFunction.cs" />
+    <Compile Include="Uniform.cs" />
+    <Compile Include="Vibrator.cs" />
     <Compile Include="ViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

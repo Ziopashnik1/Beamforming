@@ -52,6 +52,7 @@
     <Compile Include="DigitalSignal.cs" />
     <Compile Include="DoubleArrayExtensions.cs" />
     <Compile Include="DoubleFuncExtensions.cs" />
+    <Compile Include="HighPassRC.cs" />
     <Compile Include="IIR.cs" />
     <Compile Include="LowPassRC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

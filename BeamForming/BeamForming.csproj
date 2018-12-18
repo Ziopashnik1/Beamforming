@@ -165,6 +165,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DataPoint.cs" />
     <Compile Include="LamdaCommand.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">

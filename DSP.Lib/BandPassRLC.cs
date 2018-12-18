@@ -5,7 +5,9 @@ namespace DSP.Lib
     public class BandPassRLC : IIR
     {
         public BandPassRLC(double f0, double DeltaF, double dt)
-            : this(Math.Tan(Math.PI * f0 * dt), Math.PI * dt * DeltaF)
+            : this(
+                w0: Math.Tan(Math.PI * f0 * dt),
+                dw: 2 * Math.Sin(Math.PI * DeltaF * dt) / (Math.Cos(2 * Math.PI * f0 * dt) + Math.Cos(Math.PI * DeltaF * dt)))
         {
 
         }

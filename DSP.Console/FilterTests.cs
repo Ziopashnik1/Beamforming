@@ -47,9 +47,9 @@ namespace DSP.TestConsole
             var phase_fd_2 = c_fd_2.Phase * 180 / Math.PI;
 
             var y0 = rc.Filter(s0);
-            rc.Initialize();
+            rc.Reset();
             var y1 = rc.Filter(s1);
-            rc.Initialize();
+            rc.Reset();
             var y3 = rc.Filter(s3);
         }
     }
