@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BandPassRLC.cs" />
+    <Compile Include="ButterworthLowPass.cs" />
     <Compile Include="DigitalFilterExtensions.cs" />
     <Compile Include="FIR.cs" />
     <Compile Include="DigitalFilter.cs" />
