@@ -15,61 +15,47 @@ namespace DSP.TestConsole
             const double DeltaF = 10;
             const double fd = 5000;
             const double dt = 1 / fd;
-
+            const int SamplesCount = 5000;
 
             const double Rp = 1;
             const double Rs = 30;
 
-            //var Gp = Math.Pow(10, -Rp / 20);
-            //var Gs = Math.Pow(10, -Rs / 20);
+            var filter = new ButterworthLowPass(fp, fs, dt);
+        
+            var s0 = new DigitalSignal(dt, Enumerable.Repeat(1d, SamplesCount));
+            var A0 = Math.Sqrt(2);
+            var sp = new DigitalSignal(dt, SamplesCount, t => A0 * Math.Cos(2 * Math.PI * fp * t));
+            var ss = new DigitalSignal(dt, SamplesCount, t => A0 * Math.Cos(2 * Math.PI * fs * t));
 
-            var Fp = Fd(fp, dt);
-            var Fs = Fd(fs, dt);
-            var k_F = Fs / Fp;
+            var H0 = filter.GetTransmissionCoefficient(0, dt).Magnitude;
+            var H0P = H0 * H0;
+            var y0 = filter.Filter(s0);
+            filter.Reset();
+            var Hsp = filter.GetTransmissionCoefficient(fp, dt).Magnitude;
+            var HspP = Hsp * Hsp;
+            var yp = filter.Filter(sp);
+            filter.Reset();
+            var Hss = filter.GetTransmissionCoefficient(fs, dt).Magnitude;
+            var HssP = Hss * Hss;
+            var ys = filter.Filter(ss);
+            filter.Reset();
 
-            var eps_p = Math.Sqrt(Math.Pow(10, Rp / 10) - 1);
-            var eps_s = Math.Sqrt(Math.Pow(10, Rs / 10) - 1);
-            var k_eps = eps_s / eps_p;
+            var s = s0 + sp + ss;
+            var S = s.GetSpectrum();
 
-            var double_N = Math.Log(k_eps) / Math.Log(k_F);
-            var N = (int)double_N;
-            if (double_N > N) N++;
+            var absS = S.Select(v => v.Magnitude).ToArray();
+            var argS = S.Select(v => v.Phase).ToArray();
 
-            var alpha = Math.Pow(eps_p, -1d / N);
+            var y = filter.Filter(s);
+            filter.Reset();
 
-            var p1 = Poluses(N, alpha * 2 * Math.PI * Fp);
 
-            var z1 = p1.Select(p => ZTransform(p, dt)).ToArray();
+            var Y = y.GetSpectrum();
 
-            var Kz1 = Kz(p1, dt);
+            var absY = Y.Select(v => v.Magnitude).ToArray();
+            var argY = Y.Select(v => v.Phase).ToArray();
 
-            var K = Kz1 * Math.Pow(2 * Math.PI * Fp, N) / eps_p;
-
-            var B = Polynom.GetCoefficients(Enumerable.Repeat(-1d, N).ToArray()).Select(b => b * K).ToArray();
-
-            var A = Polynom.GetCoefficients(z1).Select(a => a.Real).Reverse().ToArray();
-
-            var iir = new IIR(A, B);
-
-            var k0 = iir.GetTransmissionCoefficient(0, dt).Magnitude;
-            var k0_ph = iir.GetTransmissionCoefficient(0, dt).Phase;
-            var kp = iir.GetTransmissionCoefficient(fp, dt).Magnitude;
-            var kp_ph = iir.GetTransmissionCoefficient(fp, dt).Phase;
-            var ks = iir.GetTransmissionCoefficient(fs, dt).Magnitude;
-            var ks_ph = iir.GetTransmissionCoefficient(fs, dt).Phase;
-            var kd = iir.GetTransmissionCoefficient(fd / 2, dt).Magnitude;
-            var kd_ph = iir.GetTransmissionCoefficient(fd / 2, dt).Phase;
-
-            iir = new ButterworthLowPass(fp, fs, dt);
-
-            var k0_ = iir.GetTransmissionCoefficient(0, dt).Magnitude;
-            var k0_ph_ = iir.GetTransmissionCoefficient(0, dt).Phase;
-            var kp_ = iir.GetTransmissionCoefficient(fp, dt).Magnitude;
-            var kp_ph_ = iir.GetTransmissionCoefficient(fp, dt).Phase;
-            var ks_ = iir.GetTransmissionCoefficient(fs, dt).Magnitude;
-            var ks_ph_ = iir.GetTransmissionCoefficient(fs, dt).Phase;
-            var kd_ = iir.GetTransmissionCoefficient(fd / 2, dt).Magnitude;
-            var kd_ph_ = iir.GetTransmissionCoefficient(fd / 2, dt).Phase;
+            
 
             Console.ReadLine();
         }

@@ -12,8 +12,8 @@ namespace DSP.TestConsole
         public static void Run()
         {
             var s = Enumerable.Repeat(1d, 1000).ToArray();
-            var s1 = new DigitalSignal(t => Math.Sin(2 * Math.PI * t * 0.5e3), 0.5e-4, 1000);
-            var s2 = new DigitalSignal(t => Math.Sin(2 * Math.PI * t * 1e3), 0.5e-4, 1000);
+            var s1 = new DigitalSignal(0.5e-4, 1000, t => Math.Sin(2 * Math.PI * t * 0.5e3));
+            var s2 = new DigitalSignal(0.5e-4, 1000, t => Math.Sin(2 * Math.PI * t * 1e3));
 
 
             var iir = new IIR(

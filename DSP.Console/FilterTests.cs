@@ -20,10 +20,10 @@ namespace DSP.TestConsole
             var d = new double[1000]; d[0] = 1;
 
             var A0 = Math.Sqrt(2);
-            var s0 = new DigitalSignal(t => 1 * Math.Cos(2 * Math.PI * t * 0), dt, 1000);
-            var s1 = new DigitalSignal(t => A0 * Math.Cos(2 * Math.PI * t * f0), dt, 1000);
-            var s2 = new DigitalSignal(t => A0 * Math.Cos(2 * Math.PI * t * 30), dt, 1000);
-            var s3 = new DigitalSignal(t => A0 * Math.Cos(2 * Math.PI * t * 40), dt, 1000);
+            var s0 = new DigitalSignal(dt, 1000, t => 1 * Math.Cos(2 * Math.PI * t * 0));
+            var s1 = new DigitalSignal(dt, 1000, t => A0 * Math.Cos(2 * Math.PI * t * f0));
+            var s2 = new DigitalSignal(dt, 1000, t => A0 * Math.Cos(2 * Math.PI * t * 30));
+            var s3 = new DigitalSignal(dt, 1000, t => A0 * Math.Cos(2 * Math.PI * t * 40));
 
             //var iir = new IIR(new [] { 1, - 0.7 }, new [] { 0.3, 0 } );
 

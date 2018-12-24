@@ -13,6 +13,8 @@ namespace DSP.Lib
         /// <summary>Вектор состояния фильтра (ячейки линии задержки)</summary>
         [NotNull] private readonly double[] _State;
 
+        /// <summary>Порядок фильтра</summary>
+        public int Order => _State.Length - 1;
 
         /// <summary>
         /// Инициализация нового цифрового фильтра с бесконечной импульсной характеристикой
