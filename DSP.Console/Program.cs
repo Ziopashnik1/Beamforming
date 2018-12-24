@@ -20,8 +20,8 @@ namespace DSP.TestConsole
             const double Rp = 1;
             const double Rs = 30;
 
-            var Gp = Math.Pow(10, -Rp / 20);
-            var Gs = Math.Pow(10, -Rs / 20);
+            //var Gp = Math.Pow(10, -Rp / 20);
+            //var Gs = Math.Pow(10, -Rs / 20);
 
             var Fp = Fd(fp, dt);
             var Fs = Fd(fs, dt);
@@ -52,9 +52,24 @@ namespace DSP.TestConsole
             var iir = new IIR(A, B);
 
             var k0 = iir.GetTransmissionCoefficient(0, dt).Magnitude;
+            var k0_ph = iir.GetTransmissionCoefficient(0, dt).Phase;
             var kp = iir.GetTransmissionCoefficient(fp, dt).Magnitude;
+            var kp_ph = iir.GetTransmissionCoefficient(fp, dt).Phase;
             var ks = iir.GetTransmissionCoefficient(fs, dt).Magnitude;
+            var ks_ph = iir.GetTransmissionCoefficient(fs, dt).Phase;
             var kd = iir.GetTransmissionCoefficient(fd / 2, dt).Magnitude;
+            var kd_ph = iir.GetTransmissionCoefficient(fd / 2, dt).Phase;
+
+            iir = new ButterworthLowPass(fp, fs, dt);
+
+            var k0_ = iir.GetTransmissionCoefficient(0, dt).Magnitude;
+            var k0_ph_ = iir.GetTransmissionCoefficient(0, dt).Phase;
+            var kp_ = iir.GetTransmissionCoefficient(fp, dt).Magnitude;
+            var kp_ph_ = iir.GetTransmissionCoefficient(fp, dt).Phase;
+            var ks_ = iir.GetTransmissionCoefficient(fs, dt).Magnitude;
+            var ks_ph_ = iir.GetTransmissionCoefficient(fs, dt).Phase;
+            var kd_ = iir.GetTransmissionCoefficient(fd / 2, dt).Magnitude;
+            var kd_ph_ = iir.GetTransmissionCoefficient(fd / 2, dt).Phase;
 
             Console.ReadLine();
         }
@@ -84,7 +99,7 @@ namespace DSP.TestConsole
             return result;
         }
 
-        private static Complex ZTransform(Complex p, double dt) => (2 / dt + p) / (2 / dt - p);
+        private static Complex ZTransform(in Complex p, double dt) => (2 / dt + p) / (2 / dt - p);
 
         private static double Kz(Complex[] p, double dt)
         {
