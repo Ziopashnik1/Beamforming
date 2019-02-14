@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using DSP.Lib;
 
 namespace BeamService
 {
@@ -16,6 +17,7 @@ namespace BeamService
         private const double toRad = Math.PI / 180;
 
         private ADC[] f_ADC;
+        private DigitalFilter[] f_Filters;
         private MatrixComplex f_Wt;
         private double f_th0;
         private MatrixComplex f_Wth0;
@@ -29,6 +31,39 @@ namespace BeamService
         private int f_Nd;   //нужно сдлеать матрицы ПФ саморасчитываемыми, без инициализации новой ЦАР
         private IAntenna f_Element = new Uniform();
 
+        private double f_FilterF0;
+        private double f_FilterDf;
+
+        public double FilterF0
+        {
+            get => f_FilterF0;
+            set
+            {
+                if (Equals(f_FilterF0, value)) return;
+                f_FilterF0 = value;
+                if (f_Filters is null) f_Filters = new DigitalFilter[f_N];
+                if (f_FilterF0 > 0 && f_FilterDf > 0)
+                    for (var i = 0; i < f_Filters.Length; i++)
+                        f_Filters[i] = new BandPassRLC(value, f_FilterDf, 1 / f_fd);
+                OnPropertyChanged();
+            }
+        }
+
+        public double FilterDf
+        {
+            get => f_FilterDf;
+            set
+            {
+                if (Equals(f_FilterDf, value)) return;
+                f_FilterDf = value;
+                if (f_Filters is null) f_Filters = new DigitalFilter[f_N];
+                if (f_FilterF0 > 0 && f_FilterDf > 0)
+                    for (var i = 0; i < f_Filters.Length; i++)
+                        f_Filters[i] = new BandPassRLC(f_FilterF0, value, 1 / f_fd);
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>Число элементов реешётки</summary>
         public int N
         {
@@ -38,8 +73,13 @@ namespace BeamService
                 if (f_N == value) return;
                 f_N = value;
                 f_ADC = new ADC[value];
+                f_Filters = new DigitalFilter[value];
                 for (var i = 0; i < value; i++)
+                {
                     f_ADC[i] = new ADC(n, fd, MaxValue, f_tj);
+                    if (f_FilterF0 > 0 && f_FilterDf > 0)
+                        f_Filters[i] = new BandPassRLC(f_FilterF0, f_FilterDf, 1 / fd);
+                }
                 f_Wth0 = Get_Wth0(f_th0);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(AperturaLength));
@@ -102,7 +142,13 @@ namespace BeamService
                 if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), "Частота дискретизации должна быть больше 0");
                 if (f_fd.Equals(value)) return;
                 f_fd = value;
-                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].Fd = value;
+                if (f_Filters is null) f_Filters = new DigitalFilter[f_N];
+                for (var i = 0; i < f_ADC.Length; i++)
+                {
+                    f_ADC[i].Fd = value;
+                    if (f_FilterF0 > 0 && f_FilterDf > 0)
+                        f_Filters[i] = new BandPassRLC(f_FilterF0, f_FilterDf, 1 / fd);
+                }
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(df));
             }
@@ -209,6 +255,8 @@ namespace BeamService
             for (var i = 0; i < N; i++)
             {
                 var signal = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
+                if (f_Filters != null && f_Filters[i] != null)
+                    signal = f_Filters[i].Filter(signal).ToArray();
                 for (var j = 0; j < Nd; j++) s_data[i, j] = signal[j];
             }
             return new Matrix(s_data);
@@ -316,7 +364,7 @@ namespace BeamService
                     for (var i = 0; i < N; i++)
                         result[i, j] = A[i, j] * B[i, j];
                 }, cancel)).WhenAll().ConfigureAwait(false);
-          
+
             cancel.ThrowIfCancellationRequested();
             return new MatrixComplex(result);
         }
