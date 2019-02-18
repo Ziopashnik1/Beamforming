@@ -10,6 +10,8 @@ namespace DSP.TestConsole
     {
         private static void Main(string[] args)
         {
+            AntennaArrayTest.Test();
+
             const double fp = 500;
             const double fs = 1500;
             const double DeltaF = 10;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Text;
+using MathService;
 
 namespace BeamService
 {
@@ -157,7 +158,7 @@ namespace BeamService
             var result = new Complex[f_N, f_M];
             for (var i = 0; i < f_N; i++)
                 for (var j = 0; j < f_M; j++)
-                    result[i, j] = new Complex(f_Data[i, j].Real, -f_Data[i, j].Imaginary);
+                    result[i, j] = new Complex(f_Data[i, j].Re, -f_Data[i, j].Im);
             return new MatrixComplex(result);
         }
 
@@ -309,7 +310,7 @@ namespace BeamService
             var result = new double[N, M];
             for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
-                    result[i, j] = f_Data[i, j].Real;
+                    result[i, j] = f_Data[i, j].Re;
             return new Matrix(result);
         }
 
@@ -318,7 +319,7 @@ namespace BeamService
             var result = new double[N, M];
             for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
-                    result[i, j] = f_Data[i, j].Imaginary;
+                    result[i, j] = f_Data[i, j].Im;
             return new Matrix(result);
         }
 
@@ -328,7 +329,7 @@ namespace BeamService
             var a = Data;
             for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
-                    result[i, j] = Math.Sqrt(Math.Pow(a[i, j].Real, 2) + Math.Pow(a[i, j].Imaginary, 2));
+                    result[i, j] = Math.Sqrt(Math.Pow(a[i, j].Re, 2) + Math.Pow(a[i, j].Im, 2));
             return new Matrix(result);
         }
 
@@ -338,7 +339,7 @@ namespace BeamService
             var a = Data;
             for (var i = 0; i < N; i++)
                 for (var j = 0; j < M; j++)
-                    result[i, j] = a[i, j].Phase;
+                    result[i, j] = a[i, j].Arg;
             return new Matrix(result);
         }
 

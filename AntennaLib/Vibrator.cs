@@ -91,7 +91,7 @@ namespace Antennas
 
         public double Length
         {
-            [System.Diagnostics.Contracts.Pure]
+            [Pure]
             get
             {
                 Contract.Ensures(Contract.Result<double>() >= 0);
@@ -119,7 +119,7 @@ namespace Antennas
             f_Length = Length;
         }
 
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public override Complex Pattern(SpaceAngle Direction, double f)
         {
             Contract.Requires(f > 0);
@@ -139,7 +139,7 @@ namespace Antennas
                 .Divide(1d.ToExpression().Subtract(cos_kl).Multiply(sin_exp(th)));
         }
 
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public double GetActiveLength(double f)
         {
             Contract.Requires(f > 0);
@@ -150,14 +150,14 @@ namespace Antennas
             return tg(k05 * f_Length) / k05;
         }
 
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public double CurentDestribution(double f0, double z)
         {
             Contract.Requires(f0 > 0);
             return CurentDestribution(f0, f_Length, z);
         }
 
-        [System.Diagnostics.Contracts.Pure, NotNull]
+        [Pure, NotNull]
         public Func<double, double> CurentDestribution(double f0)
         {
             Contract.Requires(f0 > 0);
@@ -165,7 +165,7 @@ namespace Antennas
             return z => CurentDestribution(f0, z);
         }
 
-        [System.Diagnostics.Contracts.Pure]
+        [Pure]
         public override string ToString()
         {
             Contract.Ensures(Contract.Result<string>() != null);

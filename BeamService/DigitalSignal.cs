@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using MathService;
 
 namespace BeamService
 {
@@ -45,13 +46,13 @@ namespace BeamService
         {
             var N = f_Samples.Length;
             var spectrum_samples = new Complex[N];
-            var j2pi_N = Complex.ImaginaryOne * 2 * Math.PI/N;
+            var j2pi_N = 2 * Math.PI/N;
             for (var m = 0; m < N; m++)
             {
                 Complex sample = default;
                 for (var n = 0; n < N; n++)
                     sample += f_Samples[n].V / N * Complex.Exp(-j2pi_N * m * n);
-                if (sample.Magnitude < 1e-10) sample = default;
+                if (sample.Abs < 1e-10) sample = default;
                 spectrum_samples[m] = sample;
             }
             return new DigitalSpectrum(spectrum_samples, 1 / (N * f_dt));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using MathService;
 
 namespace BeamService
 {
@@ -23,7 +24,7 @@ namespace BeamService
             var F_max = double.NegativeInfinity;
             while (th <= th2)
             {
-                var f = F(th).Magnitude;
+                var f = F(th).Abs;
                 if (f > F_max)
                 {
                     F_max = f;
@@ -36,12 +37,12 @@ namespace BeamService
 
         public static void GetPatternWidth(this Func<double, Complex> F, double th0, out double Left07, out double Right07, out double Left0, out double Right0, double dth = 0.1 * toRad)
         {
-            var max = F(th0).Magnitude;
+            var max = F(th0).Abs;
             var max07 = max / 2;
 
             var th = th0;
             var f = max;
-            while (f > max07) f = F(th -= dth).Magnitude;
+            while (f > max07) f = F(th -= dth).Abs;
             Left07 = th;
 
             var f1 = f;
@@ -49,13 +50,13 @@ namespace BeamService
             {
                 th -= dth;
                 f = f1;
-                f1 = F(th).Magnitude;
+                f1 = F(th).Abs;
             }
             Left0 = th + dth * 0.5;
 
             th = th0;
             f = max;
-            while (f >= max07) f = F(th += dth).Magnitude;
+            while (f >= max07) f = F(th += dth).Abs;
             Right07 = th;
 
             f1 = Math.Abs(f);
@@ -63,7 +64,7 @@ namespace BeamService
             {
                 th += dth;
                 f = f1;
-                f1 = F(th).Magnitude;
+                f1 = F(th).Abs;
             }
             Right0 = th - dth * 0.5;
         }
@@ -81,22 +82,22 @@ namespace BeamService
         public static IEnumerable<PatternValue> GetMaximums(this Func<double, Complex> F, double th1 = -90 * toRad, double th2 = 90 * toRad, double dth = 0.5 * toRad)
         {
             var th = th1;
-            if (F(th).Magnitude > F(th + dth).Magnitude)
-                yield return new PatternValue { Angle = th1, Value = F(th1).Magnitude };
+            if (F(th).Abs > F(th + dth).Abs)
+                yield return new PatternValue { Angle = th1, Value = F(th1).Abs };
 
             while (th <= th2)
             {
                 th += dth;
-                var F1 = F(th - dth).Magnitude;
-                var F0 = F(th).Magnitude;
-                var F2 = F(th + dth).Magnitude;
+                var F1 = F(th - dth).Abs;
+                var F0 = F(th).Abs;
+                var F2 = F(th + dth).Abs;
 
                 if (F0 > F1 && F0 > F2)
                     yield return new PatternValue { Angle = th, Value = F0 };
             }
 
-            if (F(th2).Magnitude > F(th2 - dth).Magnitude)
-                yield return new PatternValue { Angle = th2, Value = F(th2).Magnitude };
+            if (F(th2).Abs > F(th2 - dth).Abs)
+                yield return new PatternValue { Angle = th2, Value = F(th2).Abs };
         }
 
     }

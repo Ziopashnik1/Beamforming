@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using MathService;
 
 namespace BeamService
 {
@@ -7,8 +8,8 @@ namespace BeamService
         public readonly Complex value;
         public readonly double f;
 
-        public double Abs => value.Magnitude;
-        public double Arg => value.Phase;
+        public double Abs => value.Abs;
+        public double Arg => value.Arg;
         public double Frequency => f;
 
         public SpectrumSample(double f, Complex value)

@@ -44,9 +44,11 @@
     <Reference Include="JetBrains.Annotations, Version=2018.2.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.2018.2.1\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
+    <Reference Include="MathService">
+      <HintPath>..\lib\MathService.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -73,6 +75,7 @@
     <Compile Include="CosSignal.cs" />
     <Compile Include="DiffSignalFunction.cs" />
     <Compile Include="DigitalAntennaArray.cs" />
+    <Compile Include="DigitalAntennaArray2.cs" />
     <Compile Include="DigitalSignal.cs" />
     <Compile Include="DigitalSpectrum.cs" />
     <Compile Include="Extensions\DispatcherAwaiter.cs" />
@@ -141,6 +144,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AntennaLib\AntennaLib.csproj">
+      <Project>{39c2f4b5-2c8e-49f8-90d7-eb2546a5f363}</Project>
+      <Name>AntennaLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSP.Lib\DSP.Lib.csproj">
       <Project>{ff5b9ad2-57e9-443d-a91f-da90a672298c}</Project>
       <Name>DSP.Lib</Name>

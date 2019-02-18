@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AntennaArrayTest.cs" />
     <Compile Include="FilterTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,6 +59,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AntennaLib\AntennaLib.csproj">
+      <Project>{39c2f4b5-2c8e-49f8-90d7-eb2546a5f363}</Project>
+      <Name>AntennaLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DSP.Lib\DSP.Lib.csproj">
       <Project>{ff5b9ad2-57e9-443d-a91f-da90a672298c}</Project>
       <Name>DSP.Lib</Name>

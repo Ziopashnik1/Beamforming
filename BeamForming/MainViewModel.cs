@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using MathService;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 
@@ -402,7 +404,7 @@ namespace BeamForming
             OnPropertyChanged(nameof(Beam));
             f_Beam_Norm = GetBeamNorm(f_Beam, out var max);
             OnPropertyChanged(nameof(BeamNorm));
-            f_Beam1 = ComputePattern(th => f_Antenna.Element.Pattern(th).Magnitude, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
+            f_Beam1 = ComputePattern(th => f_Antenna.Element.Pattern(th).Abs, f_th1 * toRad, f_th2 * toRad, f_dth * toRad);
             OnPropertyChanged(nameof(Beam1));
             f_Beam1_Norm = GetBeamNorm(f_Beam1, out var _);
             OnPropertyChanged(nameof(BeamNorm1));

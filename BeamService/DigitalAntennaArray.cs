@@ -6,13 +6,14 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using DSP.Lib;
+using MathService;
 
 namespace BeamService
 {
     public class DigitalAntennaArray : ViewModel
     {
         private const double c = 3e8;
-        private static readonly Complex i1 = Complex.ImaginaryOne;
+        private static readonly Complex i1 = Complex.i;
         private const double pi2 = Math.PI * 2;
         private const double toRad = Math.PI / 180;
 
@@ -123,8 +124,8 @@ namespace BeamService
                 if (f_Nd == value) return;
                 f_Nd = value;
                 f_Wth0 = Get_Wth0(f_th0);
-                f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
-                f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd));
+                f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+                f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i * j / Nd));
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(df));
             }
@@ -225,8 +226,8 @@ namespace BeamService
             f_tj = tj;
             this.N = N; // Нужно установить именно через свойство, что бы создать новый массив АЦП
 
-            f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i1 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
-            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i1 * i * j / Nd)); //new FourierMatrix(Nd, true);  
+            f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i * j / Nd)); //new FourierMatrix(Nd, true);  
 
         }
         /// <summary>
@@ -241,7 +242,7 @@ namespace BeamService
             for (var i = 0; i < N; i++)
             {
                 var dt = i * d / c * Math.Sin(th);
-                sources[i] = new AnalogSignalSource(t => signal(t - dt) * Element.Pattern(th).Magnitude);
+                sources[i] = new AnalogSignalSource(t => signal(t - dt) * Element.Pattern(th).Abs);
             }
             return sources;
         }
@@ -310,7 +311,7 @@ namespace BeamService
         private MatrixComplex Get_Wth0(double t0) => MatrixComplex.Create(N, Nd, (i, m) =>
         {
             var fm = m_correction(m, Nd) * df;
-            return Complex.Exp(i1 * pi2 / c * fm * i * d * Math.Sin(t0));
+            return Complex.Exp(pi2 / c * fm * i * d * Math.Sin(t0));
         });
 
         /// <summary>
@@ -441,7 +442,7 @@ namespace BeamService
             var P = 0d;
             for (var i = 0; i < q.M; i++)
             {
-                var s = q[0, i].Magnitude;
+                var s = q[0, i].Abs;
                 P += s * s;
             }
             return P / q.M;
@@ -477,8 +478,8 @@ namespace BeamService
 
             for (var i = 0; i < samples_p.Length; i++)
             {
-                samples_p[i] = q[0, i].Real;
-                samples_q[i] = q[0, i].Imaginary;
+                samples_p[i] = q[0, i].Re;
+                samples_q[i] = q[0, i].Im;
             }
 
             var dt = f_ADC[0].dt;
@@ -517,8 +518,8 @@ namespace BeamService
 
             for (var i = 0; i < samples_p.Length; i++)
             {
-                samples_p[i] = q[0, i].Real;
-                samples_q[i] = q[0, i].Imaginary;
+                samples_p[i] = q[0, i].Re;
+                samples_q[i] = q[0, i].Im;
             }
 
             var dt = f_ADC[0].dt;
@@ -561,8 +562,8 @@ namespace BeamService
 
             for (var i = 0; i < samples_p.Length; i++)
             {
-                samples_p[i] = q[0, i].Real;
-                samples_q[i] = q[0, i].Imaginary;
+                samples_p[i] = q[0, i].Re;
+                samples_q[i] = q[0, i].Im;
             }
 
             var dt = f_ADC[0].dt;
