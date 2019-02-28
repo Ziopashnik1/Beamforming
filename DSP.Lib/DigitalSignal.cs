@@ -29,6 +29,8 @@ namespace DSP.Lib
             set => _Samples[index] = value;
         }
 
+        public DigitalSignal(double dt, int SamplesCount) : this(dt, new double[SamplesCount]) { }
+
         public DigitalSignal(double dt, double[] Samples)
         {
             _dt = dt;
@@ -99,10 +101,10 @@ namespace DSP.Lib
 
         public static implicit operator double[] (DigitalSignal siagnal) => (double[])siagnal._Samples.Clone();
 
-        public static DigitalSignal operator +([NotNull] DigitalSignal s1, [NotNull] DigitalSignal s2)
+        public static DigitalSignal operator +(DigitalSignal s1, DigitalSignal s2)
         {
-            if (s1 is null) throw new ArgumentNullException(nameof(s1));
-            if (s2 is null) throw new ArgumentNullException(nameof(s2));
+            if (s1 is null) return s2;
+            if (s2 is null) return s1;
             if (s1.dt != s2.dt) throw new InvalidOperationException();
             if (s1.SamplesCount != s2.SamplesCount) throw new InvalidOperationException();
 
@@ -113,10 +115,10 @@ namespace DSP.Lib
             return new DigitalSignal(s1.dt, samples);
         }
 
-        public static DigitalSignal operator -([NotNull] DigitalSignal s1, [NotNull] DigitalSignal s2)
+        public static DigitalSignal operator -(DigitalSignal s1, DigitalSignal s2)
         {
-            if (s1 is null) throw new ArgumentNullException(nameof(s1));
-            if (s2 is null) throw new ArgumentNullException(nameof(s2));
+            if (s1 is null) return new DigitalSignal(s2.dt, s2.Samples.Select(s => -s));
+            if (s2 is null) return s1;
             if (s1.dt != s2.dt) throw new InvalidOperationException();
             if (s1.SamplesCount != s2.SamplesCount) throw new InvalidOperationException();
 
@@ -130,6 +132,8 @@ namespace DSP.Lib
         public static DigitalSignal operator *([NotNull] DigitalSignal s1, double k)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 1) return s1;
+            if(k == 0) return new DigitalSignal(s1.dt, new double[s1.SamplesCount]);
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)
@@ -141,6 +145,8 @@ namespace DSP.Lib
         public static DigitalSignal operator *(double k, [NotNull] DigitalSignal s1)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 1) return s1;
+            if (k == 0) return new DigitalSignal(s1.dt, new double[s1.SamplesCount]);
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)
@@ -152,6 +158,7 @@ namespace DSP.Lib
         public static DigitalSignal operator +([NotNull] DigitalSignal s1, double k)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 0) return s1;
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)
@@ -163,6 +170,7 @@ namespace DSP.Lib
         public static DigitalSignal operator +(double k, [NotNull] DigitalSignal s1)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 0) return s1;
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)
@@ -174,6 +182,7 @@ namespace DSP.Lib
         public static DigitalSignal operator -([NotNull] DigitalSignal s1, double k)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 0) return s1;
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)
@@ -185,6 +194,7 @@ namespace DSP.Lib
         public static DigitalSignal operator -(double k, [NotNull] DigitalSignal s1)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 0) return new DigitalSignal(s1.dt, s1.Samples.Select(s => -s));
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)
@@ -196,6 +206,8 @@ namespace DSP.Lib
         public static DigitalSignal operator /([NotNull] DigitalSignal s1, double k)
         {
             if (s1 is null) throw new ArgumentNullException(nameof(s1));
+            if (k == 1) return s1;
+            if (k == -1) return new DigitalSignal(s1.dt, s1.Samples.Select(s => -s));
 
             var samples = new double[s1.SamplesCount];
             for (var i = 0; i < s1.Samples.Length; i++)

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using Antennas;
+using BeamService;
 using DSP.Lib;
 using DSP.Lib.Service;
+using MathService.Vectors;
 
 namespace DSP.TestConsole
 {
@@ -10,6 +13,12 @@ namespace DSP.TestConsole
     {
         private static void Main(string[] args)
         {
+            DigitalAntennaArray2Test.Test();
+
+
+            return;
+
+
             AntennaArrayTest.Test();
 
             const double fp = 500;

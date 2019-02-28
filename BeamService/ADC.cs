@@ -1,4 +1,5 @@
 ﻿using System;
+using DSP.Lib;
 
 namespace BeamService
 {
@@ -79,6 +80,19 @@ namespace BeamService
                 result[i] = new SignalValue { t = t, V = Quant(src[t]) };
             }
             return result;
+        }
+
+        public DigitalSignal GetDigitalSignal(AnalogSignalSource src, int Count)
+        {
+            var samples = new double[Count];
+            var dt = 1 / Fd;
+            for (var i = 0; i < Count; i++)
+            {
+                var tj = (sf_Random.NextDouble() - 0.5) * this.tj;
+                var t = i * dt + tj;
+                samples[i] = Quant(src[t]);
+            }
+            return new DigitalSignal(dt, samples);
         }
 
         private double threshold(double x)

@@ -1,26 +1,45 @@
 ﻿using System;
 using System.ComponentModel;
+using MathService.Vectors;
+using MathService.ViewModels;
 
 namespace BeamService
 {
     public class SpaceSignal : ViewModel
     {
-        private double f_Thetta;
-        private SignalFunction f_Signal;
+        private double _Thetta;
+        private double _Phi;
+        private SignalFunction _Signal;
 
         public double Thetta
         {
-            get => f_Thetta;
-            set => Set(ref f_Thetta, value);
+            get => _Thetta;
+            set => SetValue(ref _Thetta, value).Update(nameof(Angle));
+        }
+
+        public double Phi
+        {
+            get => _Phi;
+            set => SetValue(ref _Phi, value).Update(nameof(Angle));
+        }
+
+        public SpaceAngle Angle
+        {
+            get => new SpaceAngle(_Thetta, _Phi);
+            set
+            {
+                Thetta = value.ThettaRad;
+                Phi = value.PhiRad;
+            }
         }
 
         public SignalFunction Signal
         {
-            get => f_Signal;
+            get => _Signal;
             set
             {
-                var old_signal = f_Signal;
-                if(!Set(ref f_Signal, value)) return;
+                var old_signal = _Signal;
+                if (!Set(ref _Signal, value)) return;
                 if (old_signal != null) old_signal.PropertyChanged -= OnSignalPropertyChanged;
                 if (value != null) value.PropertyChanged += OnSignalPropertyChanged;
             }

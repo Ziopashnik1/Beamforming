@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using MathService;
+using MathService.ViewModels;
 
 namespace BeamService
 {

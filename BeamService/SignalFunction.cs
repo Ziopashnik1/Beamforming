@@ -1,4 +1,6 @@
-﻿namespace BeamService
+﻿using MathService.ViewModels;
+
+namespace BeamService
 {
     public abstract class SignalFunction : ViewModel
     {

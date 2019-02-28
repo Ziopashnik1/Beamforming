@@ -72,7 +72,7 @@
     <Compile Include="CosSignal.cs" />
     <Compile Include="DiffSignalFunction.cs" />
     <Compile Include="DigitalAntennaArray.cs" />
-    <Compile Include="DigitalAntennaArray2.cs" />
+    <Compile Include="Digital\DigitalAntennaArray2.cs" />
     <Compile Include="SamplesSignal.cs" />
     <Compile Include="DigitalSpectrum.cs" />
     <Compile Include="Extensions\DispatcherAwaiter.cs" />

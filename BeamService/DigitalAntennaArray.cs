@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSP.Lib;
 using MathService;
+using MathService.ViewModels;
 
 namespace BeamService
 {
