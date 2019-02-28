@@ -9,7 +9,7 @@ using MathService;
 
 namespace BeamService
 {
-    public class DigitalSignal : IEnumerable<Sample>
+    public class SamplesSignal : IEnumerable<Sample>
     {
         private readonly Sample[] f_Samples;
         private readonly double f_dt;
@@ -25,7 +25,7 @@ namespace BeamService
 
         public DigitalSpectrum Spectrum => GetSpectrum();
 
-        public DigitalSignal(double[] samples, double dt = 1, double t0 = 0)
+        public SamplesSignal(double[] samples, double dt = 1, double t0 = 0)
         {
             if (samples == null) throw new ArgumentNullException(nameof(samples));
             f_dt = dt;

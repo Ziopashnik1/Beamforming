@@ -107,7 +107,7 @@
                     <Grid>
                         <ListView ItemsSource="{Binding InputSignals}" HorizontalContentAlignment="Stretch">
                             <ListView.ItemTemplate>
-                                <DataTemplate DataType="{x:Type a:DigitalSignal}">
+                                <DataTemplate DataType="{x:Type a:SamplesSignal}">
                                     <oxy:Plot Height="100" Padding="0" PlotMargins="0">
                                         <oxy:Plot.Axes>
                                             <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"/>

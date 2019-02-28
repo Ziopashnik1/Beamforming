@@ -149,9 +149,6 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\BeamService\BeamService.csproj">
       <Project>{ccc78748-4795-4404-b374-791547a6cd91}</Project>
       <Name>BeamService</Name>

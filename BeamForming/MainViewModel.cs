@@ -330,14 +330,14 @@ namespace BeamForming
         }
 
         /// <summary>Синфазная составляющая выходного сигнала</summary>
-        private DigitalSignal f_OutSignalI;
+        private SamplesSignal f_OutSignalI;
         /// <summary>Синфазная составляющая выходного сигнала</summary>
-        public DigitalSignal OutSignalI { get => f_OutSignalI; set => Set(ref f_OutSignalI, value); }
+        public SamplesSignal OutSignalI { get => f_OutSignalI; set => Set(ref f_OutSignalI, value); }
 
         /// <summary>Квадратурная составляющая выходного сигнала</summary>
-        private DigitalSignal f_OutSignalQ;
+        private SamplesSignal f_OutSignalQ;
         /// <summary>Квадратурная составляющая выходного сигнала</summary>
-        public DigitalSignal OutSignalQ { get => f_OutSignalQ; set => Set(ref f_OutSignalQ, value); }
+        public SamplesSignal OutSignalQ { get => f_OutSignalQ; set => Set(ref f_OutSignalQ, value); }
 
         /// <summary>Коэффициент усиления решётки (максимум не нормированной ДН)</summary>
         public double Max { get; private set; } = double.NaN;
@@ -370,9 +370,9 @@ namespace BeamForming
         public DataPoint[] KND_th0 { get; private set; }
 
         /// <summary>Массив входных сигналов</summary>
-        private DigitalSignal[] f_InputSignals;
+        private SamplesSignal[] f_InputSignals;
         /// <summary>Массив входных сигналов</summary>
-        public DigitalSignal[] InputSignals
+        public SamplesSignal[] InputSignals
         {
             get => f_InputSignals;
             set => Set(ref f_InputSignals, value);

@@ -281,15 +281,15 @@ namespace BeamService
             return new Matrix(s_data);
         }
 
-        public DigitalSignal[] GetInputDigitalSignals(double th, Func<double, double> signal)
+        public SamplesSignal[] GetInputDigitalSignals(double th, Func<double, double> signal)
         {
             var sources = GetSources(th, signal);
-            var signals = new DigitalSignal[N];
+            var signals = new SamplesSignal[N];
 
             for (var i = 0; i < N; i++)
             {
                 var s = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
-                signals[i] = new DigitalSignal(s, f_ADC[i].dt);
+                signals[i] = new SamplesSignal(s, f_ADC[i].dt);
             }
 
             return signals;
@@ -464,7 +464,7 @@ namespace BeamService
             return GetPower(q);                    // Вычисляем мощность выходного сигнала
         }
 
-        public DigitalSignal[] GetOutSignal(double th, Func<double, double> signal)
+        public SamplesSignal[] GetOutSignal(double th, Func<double, double> signal)
         {
             var sources = GetSources(th, signal);  // Определяем массив источников для элементов решётки
             var ss = GetSignalMatrix(sources);     // Определяем сигнальную матрицу на выходе АЦП всех элементов
@@ -485,8 +485,8 @@ namespace BeamService
             var dt = f_ADC[0].dt;
             return new[]
             {
-                new DigitalSignal(samples_p, dt),
-                new DigitalSignal(samples_q, dt)
+                new SamplesSignal(samples_p, dt),
+                new SamplesSignal(samples_q, dt)
             };
         }
 
@@ -494,7 +494,7 @@ namespace BeamService
         /// <param name="scene">Радиосцена</param>
         /// <param name="angle_offset">Угловой поворот решётки</param>
         /// <returns>Квадратурный сигнал высхода ЦДО</returns>
-        public (DigitalSignal P, DigitalSignal Q) GetOutSignal(RadioScene scene, double angle_offset = 0)
+        public (SamplesSignal P, SamplesSignal Q) GetOutSignal(RadioScene scene, double angle_offset = 0)
         {
             if (scene is null || scene.Count == 0) return (null, null);
 
@@ -523,10 +523,10 @@ namespace BeamService
             }
 
             var dt = f_ADC[0].dt;
-            return (new DigitalSignal(samples_p, dt), new DigitalSignal(samples_q, dt));
+            return (new SamplesSignal(samples_p, dt), new SamplesSignal(samples_q, dt));
         }
 
-        public async Task<(DigitalSignal P, DigitalSignal Q)> GetOutSignalAsync
+        public async Task<(SamplesSignal P, SamplesSignal Q)> GetOutSignalAsync
         (
             RadioScene scene,
             double angle_offset = 0,
@@ -567,7 +567,7 @@ namespace BeamService
             }
 
             var dt = f_ADC[0].dt;
-            return (new DigitalSignal(samples_p, dt), new DigitalSignal(samples_q, dt));
+            return (new SamplesSignal(samples_p, dt), new SamplesSignal(samples_q, dt));
         }
 
         /// <summary>

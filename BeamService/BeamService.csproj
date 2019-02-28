@@ -73,7 +73,7 @@
     <Compile Include="DiffSignalFunction.cs" />
     <Compile Include="DigitalAntennaArray.cs" />
     <Compile Include="DigitalAntennaArray2.cs" />
-    <Compile Include="DigitalSignal.cs" />
+    <Compile Include="SamplesSignal.cs" />
     <Compile Include="DigitalSpectrum.cs" />
     <Compile Include="Extensions\DispatcherAwaiter.cs" />
     <Compile Include="Extensions\DispatcherExtensions.cs" />

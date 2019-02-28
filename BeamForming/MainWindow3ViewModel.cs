@@ -13,9 +13,9 @@ namespace BeamForming
 {
     internal class MainWindow3ViewModel : ViewModel
     {
-        private DigitalSignal f_OutSignal;
+        private SamplesSignal f_OutSignal;
 
-        public DigitalSignal OutSignal
+        public SamplesSignal OutSignal
         {
             get => f_OutSignal;
             set => Set(ref f_OutSignal, value);
