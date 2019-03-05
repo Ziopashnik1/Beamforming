@@ -24,7 +24,7 @@ namespace DSP.TestConsole
             const double dx = 0.137; // m
             var antenna_array = Enumerable.Repeat(antenna_item, antennas_count)
                 .Aggregate(
-                    new DigitalAntennaArray2(),
+                    new DigitalAntennaArray2(16),
                     (array, item, i) =>
                     {
                         array.Add(item, new Vector3D(i * dx), adc);
@@ -36,7 +36,7 @@ namespace DSP.TestConsole
                 { 30 * Consts.ToRad, 0, new CosSignal(1, f0) }
             };
 
-            var signal = antenna_array.GetSignal(radio_scene, 16);
+            var signal = antenna_array.GetSignal(radio_scene);
         }
     }
 }

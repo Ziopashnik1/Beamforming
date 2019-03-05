@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Antennas;
+using BeamService.Digital;
 using DSP.Lib;
 using MathService;
 using MathService.Vectors;
@@ -41,36 +43,28 @@ namespace BeamService
 
                     var analog_signal_source = new AnalogSignalSource(t => signal.Signal.Value(t - delta_t));
                     result += ADC.GetDigitalSignal(analog_signal_source, SamplesCount);
-
-                    //todo: дописать диаграммообразующую схему
                 }
 
-                return result;
+                return Filter.Filter(result);
             }
         }
 
         private readonly List<DigitalAntennaItem> _Items = new List<DigitalAntennaItem>();
+        private readonly int _SamplesCount;
+        
 
-        public DigitalAntennaArray2() { }
+        private BeamForming BeamForming { get; set; }
 
-        public DigitalSignal GetSignal(RadioScene Scene, int SamplesCount)
+        public DigitalAntennaArray2(int SamplesCount)
         {
-            DigitalSignal result = null;
+            _SamplesCount = SamplesCount;
+        }
 
-            foreach (var antenna_item in _Items)
-            {
-                var antenna_signal = antenna_item.GetSignal(Scene, SamplesCount);
-                result += antenna_signal;
-            }
-
-            return result;
-
-
-            //return _Items
-            //    .AsParallel()
-            //    .Aggregate(
-            //        default(DigitalSignal), 
-            //        (S, item) => S + item.GetSignal(Scene, SamplesCount));
+        public DigitalSignal GetSignal(RadioScene Scene)
+        {
+            var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount));
+            if(BeamForming is null) throw new InvalidOperationException("Отсутствует диаграммообразующая схема");
+            return BeamForming.GetSignal(signals.ToArray());
         }
 
 

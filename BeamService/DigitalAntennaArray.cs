@@ -311,17 +311,10 @@ namespace BeamService
         /// <returns></returns>
         private MatrixComplex Get_Wth0(double t0) => MatrixComplex.Create(N, Nd, (i, m) =>
         {
-            var fm = m_correction(m, Nd) * df;
+            var fm = (m <= Nd / 2 ? m : m - Nd) * df;
             return Complex.Exp(pi2 / c * fm * i * d * Math.Sin(t0));
         });
 
-        /// <summary>
-        /// корректирующая функция
-        /// </summary>
-        /// <param name="m"></param>
-        /// <param name="M"></param>
-        /// <returns></returns>
-        private static int m_correction(int m, int M) => m <= M / 2 ? m : m - M;
 
         /// <summary>
         /// поэлементное умножение матрицы на матрицу, используется при фазировании
