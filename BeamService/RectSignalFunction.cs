@@ -2,19 +2,27 @@
 {
     public class RectSignalFunction : AmplitudeSignalFunction
     {
-        private double f_Period = 5e-9;
-        private double f_Tau = 2.5e-9;
+        private double _Period = 5e-9;
+        private double _Tau = 2.5e-9;
 
         public double Period
         {
-            get => f_Period;
-            set => Set(ref f_Period, value);
+            get => _Period;
+            set => Set(ref _Period, value);
         }
 
         public double Tau
         {
-            get => f_Tau;
-            set => Set(ref f_Tau, value);
+            get => _Tau;
+            set => Set(ref _Tau, value);
+        }
+
+        public RectSignalFunction() { }
+
+        public RectSignalFunction(double Tau, double Period)
+        {
+            _Period = Period;
+            _Tau = Tau;
         }
 
         public override double Value(double t)
