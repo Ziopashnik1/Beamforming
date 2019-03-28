@@ -16,17 +16,25 @@ namespace Antenna.Console
 
             var antenna_item = new UniformAntenna();
 
-            const int antennas_count = 16;
+            const int antennas_count_x = 16;
+            const int antennas_count_y = 16;
             const double f0 = 1e9;  // Hz
             const double dx = 0.15; // m
+            const double dy = 0.15; // m
             const int SamplesCount = 16;
 
             var antenna_array = new DigitalAntennaArray2(SamplesCount);
-            
 
-            var i = 0;
-            foreach (var element in Enumerable.Repeat(antenna_item, antennas_count))
-                antenna_array.Add(element, new Vector3D(i++ * dx), adc);
+            for (var ix = 0; ix < antennas_count_x; ix++)
+                for (var iy = 0; iy < antennas_count_y; iy++)
+                {
+                    var location = new Vector3D(ix * dx, iy * dy);
+                    antenna_array.Add(antenna_item, location, adc);
+                }
+
+            //var i = 0;
+            //foreach (var element in Enumerable.Repeat(antenna_item, antennas_count_x))
+            //    antenna_array.Add(element, new Vector3D(i++ * dx), adc);
 
             var beam_forming = new MatrixBeamForming(
                 antenna_array.Select(e => e.Location).ToArray(),
@@ -37,10 +45,10 @@ namespace Antenna.Console
 
             var radio_scene = new RadioScene
             {
-                { 30 * Consts.ToRad, 0, new CosSignal(1, f0) }
+                { new SpaceAngle(29,30, AngleType.Deg), new CosSignal(1, f0) }
             };
 
-            beam_forming.PhasingАngle = new SpaceAngle(30, 0, AngleType.Deg);
+            beam_forming.PhasingАngle = new SpaceAngle(30, 30, AngleType.Deg);
 
             var signal = antenna_array.GetSignal(radio_scene);
         }
