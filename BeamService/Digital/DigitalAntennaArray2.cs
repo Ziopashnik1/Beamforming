@@ -45,15 +45,16 @@ namespace BeamService
                     result += ADC.GetDigitalSignal(analog_signal_source, SamplesCount);
                 }
 
-                return Filter.Filter(result);
+                return Filter?.Filter(result) ?? result;
             }
         }
 
         private readonly List<DigitalAntennaItem> _Items = new List<DigitalAntennaItem>();
         private readonly int _SamplesCount;
-        
 
-        private BeamForming BeamForming { get; set; }
+
+        public int SamplesCount => _SamplesCount;
+        public BeamForming BeamForming { get; set; }
 
         public DigitalAntennaArray2(int SamplesCount)
         {

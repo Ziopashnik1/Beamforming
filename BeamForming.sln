@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSP.Console", "DSP.Console\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntennaLib", "AntennaLib\AntennaLib.csproj", "{39C2F4B5-2C8E-49F8-90D7-EB2546A5F363}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antenna.Console", "Antenna.Console\Antenna.Console.csproj", "{0DA6FFA9-FAC5-4327-B9D9-93FDDB9A6A82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{39C2F4B5-2C8E-49F8-90D7-EB2546A5F363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39C2F4B5-2C8E-49F8-90D7-EB2546A5F363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39C2F4B5-2C8E-49F8-90D7-EB2546A5F363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DA6FFA9-FAC5-4327-B9D9-93FDDB9A6A82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DA6FFA9-FAC5-4327-B9D9-93FDDB9A6A82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DA6FFA9-FAC5-4327-B9D9-93FDDB9A6A82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DA6FFA9-FAC5-4327-B9D9-93FDDB9A6A82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{89404ECD-BDB0-4315-8F17-6B13551266CB} = {C980DF97-D427-4816-8D3D-3B4669A1F9B1}
 		{39C2F4B5-2C8E-49F8-90D7-EB2546A5F363} = {C980DF97-D427-4816-8D3D-3B4669A1F9B1}
+		{0DA6FFA9-FAC5-4327-B9D9-93FDDB9A6A82} = {C980DF97-D427-4816-8D3D-3B4669A1F9B1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {22E8FF6C-021F-41A0-BF4A-878476FE6BE5}

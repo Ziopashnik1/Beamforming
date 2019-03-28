@@ -467,19 +467,19 @@ namespace BeamService
             var Q = SumRows(QQ);                   // Складываем элементы столбцов получая строку - матрицу спектра выходного сигнала схемы ЦДО
             var q = ComputeResultSignal(Q);        // Вычисляем обратное преобразование Фурье для получение выходного сигнала
 
-            var samples_p = new double[q.M];
+            var samples_i = new double[q.M];
             var samples_q = new double[q.M];
 
-            for (var i = 0; i < samples_p.Length; i++)
+            for (var i = 0; i < samples_i.Length; i++)
             {
-                samples_p[i] = q[0, i].Re;
+                samples_i[i] = q[0, i].Re;
                 samples_q[i] = q[0, i].Im;
             }
 
             var dt = f_ADC[0].dt;
             return new[]
             {
-                new SamplesSignal(samples_p, dt),
+                new SamplesSignal(samples_i, dt),
                 new SamplesSignal(samples_q, dt)
             };
         }
