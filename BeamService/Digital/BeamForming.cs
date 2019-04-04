@@ -28,7 +28,7 @@ namespace BeamService.Digital
             get => _PhasingАngle;
             set
             {
-                if (_PhasingАngle.InRad == value.InRad) return;
+                if (_PhasingMatrix != null && _PhasingАngle.InRad == value.InRad) return;
                 _PhasingАngle = value;
                 _PhasingMatrix = GetPhasingMatrix(value.InRad);
             }
