@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using BeamService.Functions;
 using MathService.Vectors;
 
 namespace BeamService

@@ -1,4 +1,4 @@
-﻿namespace BeamService
+﻿namespace BeamService.Functions
 {
     public class MuliyplySignalFunction : CombyneSignalFunction
     {

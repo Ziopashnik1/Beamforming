@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BeamService
+namespace BeamService.Functions
 {
     public class CosSignal : HarmonicSignalFunction
     {

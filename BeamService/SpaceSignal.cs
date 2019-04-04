@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using BeamService.Functions;
 using MathService.Vectors;
 using MathService.ViewModels;
 

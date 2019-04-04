@@ -1,6 +1,6 @@
 ﻿using MathService.ViewModels;
 
-namespace BeamService
+namespace BeamService.Functions
 {
     public abstract class SignalFunction : ViewModel
     {

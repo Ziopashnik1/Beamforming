@@ -1,4 +1,4 @@
-﻿namespace BeamService
+﻿namespace BeamService.Functions
 {
     public class RectSignalFunction : AmplitudeSignalFunction
     {
@@ -31,4 +31,6 @@
             return Amplitude * (t.Equals(Tau) || t.Equals(0d) ? 0.5 : (0 < t && t < Tau ? 1 : 0));
         }
     }
+
+
 }

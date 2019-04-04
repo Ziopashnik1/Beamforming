@@ -2,6 +2,7 @@
 using Antennas;
 using BeamService;
 using BeamService.Digital;
+using BeamService.Functions;
 using MathService;
 using MathService.Vectors;
 

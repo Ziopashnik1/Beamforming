@@ -8,6 +8,7 @@
         xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:functions="clr-namespace:BeamService.Functions;assembly=BeamService"
         Title="MainWindow3" 
         Height="450" Width="800">
     <Window.DataContext>
@@ -37,7 +38,7 @@
                     <DockPanel>
                         <GroupBox DockPanel.Dock="Bottom" Header="Источник" Visibility="Collapsed">
                             <GroupBox.Resources>
-                                <DataTemplate DataType="{x:Type b:SinSignal}">
+                                <DataTemplate DataType="{x:Type functions:SinSignal}">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
@@ -90,7 +91,7 @@
                                         </Style.Triggers>
                                     </Style>
                                     
-                                    <DataTemplate DataType="{x:Type b:SinSignal}">
+                                    <DataTemplate DataType="{x:Type functions:SinSignal}">
                                         <StackPanel Orientation="Horizontal">
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
@@ -101,7 +102,7 @@
                                         </StackPanel>
                                     </DataTemplate>
 
-                                    <DataTemplate DataType="{x:Type b:CosSignal}">
+                                    <DataTemplate DataType="{x:Type functions:CosSignal}">
                                         <StackPanel Orientation="Horizontal">
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0,0,0">* Cos(2*pi *(</TextBlock>
@@ -112,14 +113,14 @@
                                         </StackPanel>
                                     </DataTemplate>
 
-                                    <DataTemplate DataType="{x:Type b:AmplitudeSignalFunction}">
+                                    <DataTemplate DataType="{x:Type functions:AmplitudeSignalFunction}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock>Амплитуда:</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                         </StackPanel>
                                     </DataTemplate>
 
-                                    <DataTemplate DataType="{x:Type b:RectSignalFunction}">
+                                    <DataTemplate DataType="{x:Type functions:RectSignalFunction}">
                                         <TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                             * Rect(t, tau:<TextBlock Text="{Binding Tau, Delay=300}"/>, T:<TextBlock Text="{Binding Period}"/>)
@@ -138,13 +139,13 @@
                                                     </StackPanel>
                                                     <Decorator>
                                                         <Decorator.Resources>
-                                                            <DataTemplate DataType="{x:Type b:SinSignal}">
+                                                            <DataTemplate DataType="{x:Type functions:SinSignal}">
                                                                 <TextBlock Text="sin"/>
                                                             </DataTemplate>
-                                                            <DataTemplate DataType="{x:Type b:CosSignal}">
+                                                            <DataTemplate DataType="{x:Type functions:CosSignal}">
                                                                 <TextBlock Text="cos"/>
                                                             </DataTemplate>
-                                                            <DataTemplate DataType="{x:Type b:RandomSignal}">
+                                                            <DataTemplate DataType="{x:Type functions:RandomSignal}">
                                                                 <TextBlock Text="rnd"/>
                                                             </DataTemplate>
                                                         </Decorator.Resources>
