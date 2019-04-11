@@ -15,50 +15,50 @@ namespace BeamForming
 {
     internal class MainWindow3ViewModel : ViewModel
     {
-        private SamplesSignal f_OutSignal;
+        private SamplesSignal _OutSignal;
 
         public SamplesSignal OutSignal
         {
-            get => f_OutSignal;
-            set => Set(ref f_OutSignal, value);
+            get => _OutSignal;
+            set => Set(ref _OutSignal, value);
         }
 
         public RadioScene Sources { get; } = new RadioScene();
 
         public DigitalAntennaArray Antenna { get; } = new DigitalAntennaArray(16, 0.15, 8e9, 8, 16, 5);
 
-        private PatternValue[] f_Pattern;
+        private PatternValue[] _Pattern;
 
         public PatternValue[] Pattern
         {
-            get => f_Pattern;
-            set => Set(ref f_Pattern, value);
+            get => _Pattern;
+            set => Set(ref _Pattern, value);
         }
 
-        private double f_PatternCalculationProgress;
+        private double _PatternCalculationProgress;
 
         public double PatternCalculationProgress
         {
-            get => f_PatternCalculationProgress;
-            set => Set(ref f_PatternCalculationProgress, value);
+            get => _PatternCalculationProgress;
+            set => Set(ref _PatternCalculationProgress, value);
         }
 
-        private double f_PatternMaximum;
+        private double _PatternMaximum;
 
         public double PatternMaximum
         {
-            get => f_PatternMaximum;
-            private set => Set(ref f_PatternMaximum, value);
+            get => _PatternMaximum;
+            private set => Set(ref _PatternMaximum, value);
         }
 
-        private bool f_NormPattern;
+        private bool _NormPattern;
 
         public bool NormPattern
         {
-            get => f_NormPattern;
+            get => _NormPattern;
             set
             {
-                if (Set(ref f_NormPattern, value))
+                if (Set(ref _NormPattern, value))
                     ComputeOutputSignalAsync();
             }
         }
@@ -75,12 +75,15 @@ namespace BeamForming
             new Vibrator()
         };
 
-        public IEnumerable<SignalFunction> KnownFunctions => new SignalFunction[]
-        {
-            new SinSignal(1, 1e9), 
-            new CosSignal(1, 1e9),
-            new RandomSignal(), 
-        };
+        public IEnumerable<SignalFunction> KnownFunctions => 
+            new SignalFunction[]
+            {
+                new SinSignal(1, 1e9), 
+                new CosSignal(1, 1e9),
+                new RandomSignal(),
+                new LFM(1e9, 2e9, 60e-9, 0),
+                new RectSignalFunction(60e-9, 120e-9), 
+            };
 
         public ICommand AddNewSourceCommand { get; }
 
@@ -88,29 +91,12 @@ namespace BeamForming
 
         public MainWindow3ViewModel()
         {
-            //for (var i = 0; i < 18; i++)
-            //{
-            //    switch (i % 3)
-            //    {
-            //        case 0:
-            //            Sources.Add(new SpaceSignal { Signal = new SinSignal(), Thetta = i * 10 });
-            //            break;
-            //        case 1:
-            //            Sources.Add(new SpaceSignal { Signal = new CosSignal(), Thetta = i * 10 });
-            //            break;
-            //        case 2:
-            //            Sources.Add(new SpaceSignal { Signal = new RectSignalFunction(), Thetta = i * 10 });
-            //            break;
-            //    }
-            //}
-
             AddNewSourceCommand = new LamdaCommand(AddNewCommandExecuted);
             RemoveSourceCommand = new LamdaCommand(RemoveSourceCommandExecuted, p => p is SpaceSignal source && Sources.Contains(source));
             Sources.CollectionChanged += OnRadioSceneChanged;
             Antenna.PropertyChanged += OnAntennaPaarmeterChanged;
 
             Sources.Add(new SpaceSignal { Signal = new SinSignal(1, 1e9) });
-            //ComputeOutputSignalAsync();
         }
 
         private void AddNewCommandExecuted(object Obj) => Sources.Add(new SpaceSignal { Signal = new SinSignal(1, 1e9) });
@@ -145,11 +131,11 @@ namespace BeamForming
         private void OnAntennaPaarmeterChanged(object Sender, PropertyChangedEventArgs E) => ComputeOutputSignalAsync();
 
 
-        private CancellationTokenSource f_ComputeOutputSignalCancellation;
+        private CancellationTokenSource _ComputeOutputSignalCancellation;
         private async void ComputeOutputSignalAsync()
         {
             var cancellation = new CancellationTokenSource();
-            Interlocked.Exchange(ref f_ComputeOutputSignalCancellation, cancellation)?.Cancel();
+            Interlocked.Exchange(ref _ComputeOutputSignalCancellation, cancellation)?.Cancel();
             var cancel = cancellation.Token;
             try
             {
@@ -207,7 +193,7 @@ namespace BeamForming
 
                 await Application.Current.Dispatcher;
 
-                Pattern = (f_NormPattern ? pattern.Select(v => v / max) : pattern).ToArray();
+                Pattern = (_NormPattern ? pattern.Select(v => v / max) : pattern).ToArray();
                 PatternMaximum = 10 * Math.Log10(max);
             }
             catch (IndexOutOfRangeException) { } // Костыли

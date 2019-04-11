@@ -26,7 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -110,6 +110,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="MainWindow4.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindow2.xaml.cs">
@@ -121,6 +125,10 @@
     <Compile Include="MainWindow3ViewModel.cs">
       <DependentUpon>MainWindow3.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MainWindow4.xaml.cs">
+      <DependentUpon>MainWindow4.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindow4ViewModel.cs" />
     <Compile Include="MultiplyConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
