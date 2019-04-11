@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Antennas;
 using BeamService.Digital;
@@ -12,6 +13,7 @@ namespace BeamService
 {
     public class DigitalAntennaArray2 : Antennas.Antenna, IEnumerable<DigitalAntennaArray2.DigitalAntennaItem>
     {
+
         public class DigitalAntennaItem : AntennaItem
         {
             public ADC ADC { get; }
@@ -52,9 +54,12 @@ namespace BeamService
         private readonly List<DigitalAntennaItem> _Items = new List<DigitalAntennaItem>();
         private readonly int _SamplesCount;
 
+        public int ElementsCount => _Items.Count;
 
         public int SamplesCount => _SamplesCount;
         public BeamForming BeamForming { get; set; }
+
+
 
         public DigitalAntennaArray2(int SamplesCount)
         {
