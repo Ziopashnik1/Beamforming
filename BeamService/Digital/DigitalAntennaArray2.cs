@@ -57,9 +57,8 @@ namespace BeamService
         public int ElementsCount => _Items.Count;
 
         public int SamplesCount => _SamplesCount;
+
         public BeamForming BeamForming { get; set; }
-
-
 
         public DigitalAntennaArray2(int SamplesCount)
         {
@@ -72,7 +71,6 @@ namespace BeamService
             if(BeamForming is null) throw new InvalidOperationException("Отсутствует диаграммообразующая схема");
             return BeamForming.GetSignal(signals.ToArray());
         }
-
 
         public DigitalAntennaItem Add(
             Antennas.Antenna antenna, 
@@ -96,6 +94,8 @@ namespace BeamService
             _Items.Add(item);
             return item;
         }
+
+        public bool Remove(DigitalAntennaItem item) => _Items.Remove(item);
 
         #region Overrides of Antenna
 

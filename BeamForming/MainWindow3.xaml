@@ -10,7 +10,7 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:functions="clr-namespace:BeamService.Functions;assembly=BeamService"
         Title="MainWindow3" 
-        Height="450" Width="800">
+        Height="486" Width="800">
     <Window.DataContext>
         <l:MainWindow3ViewModel/>
     </Window.DataContext>
@@ -25,7 +25,7 @@
         <StatusBar DockPanel.Dock="Bottom">
             <StackPanel Orientation="Horizontal">
                 <ProgressBar Width="120" Height="10" Value="{Binding PatternCalculationProgress}" Maximum="1"/>
-                <TextBlock Text="{Binding PatternCalculationProgress, StringFormat={}{0:p2}}"/>
+                <TextBlock Text="{Binding PatternCalculationProgress, StringFormat={}{0:p2}}" Margin="3,0,0,0"/>
             </StackPanel>
         </StatusBar>
         <Grid>
@@ -186,21 +186,38 @@
                         </GroupBox>
                     </DockPanel>
                 </TabItem>
-                <TabItem Header="Решётка" DataContext="{Binding Antenna}">
+                <TabItem Header="Решётка">
                     <DockPanel VerticalAlignment="Top">
                         <GroupBox Header="Апертура" DockPanel.Dock="Top">
                             <UniformGrid Columns="2" VerticalAlignment="Top">
-                                <GroupBox Header="Число эл-тов" >
-                                    <xc:IntegerUpDown Value="{Binding N, Delay=300}" Minimum="1" Maximum="1024"/>
+                                <GroupBox Header="Nx" >
+                                    <xc:IntegerUpDown Value="{Binding Nx, Delay=300}" Minimum="1" Maximum="1024"/>
                                 </GroupBox>
-                                <GroupBox Header="Шаг" >
-                                    <xc:DoubleUpDown Value="{Binding d, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                <GroupBox Header="dx" >
+                                    <xc:DoubleUpDown Value="{Binding dx, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
                                 </GroupBox>
-                                <GroupBox Header="Размер апертуры">
-                                    <TextBlock Text="{Binding AperturaLength, Delay=300, StringFormat={}{0:0.##}м}" HorizontalAlignment="Center"/>
+                                <GroupBox Header="Ny" >
+                                    <xc:IntegerUpDown Value="{Binding Ny, Delay=300}" Minimum="1" Maximum="1024"/>
                                 </GroupBox>
-                                <GroupBox Header="Направление луча от нормали">
+                                <GroupBox Header="dy" >
+                                    <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                </GroupBox>
+                                <GroupBox Header="Thetta0">
                                     <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                </GroupBox>
+                                <GroupBox Header="Phi">
+                                    <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                </GroupBox>
+                                <GroupBox Header="Размер апертуры X">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding AperturaLengthX, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox Header="Размер апертуры Y">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding AperturaLengthY, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
+                                    </StackPanel>
                                 </GroupBox>
                                 <GroupBox Header="ДН эл-та">
                                     <ComboBox SelectedItem="{Binding Element, Delay=300}" 
@@ -214,7 +231,7 @@
                         <GroupBox Header="Параметры АЦП" DockPanel.Dock="Top">
                             <UniformGrid Columns="2">
                                 <GroupBox Header="Частота дискр.">
-                                    <xc:DoubleUpDown Value="{Binding fd, Delay=300, Converter={StaticResource GHz}}" FormatString="0.0# 'ГГц'" Minimum="0.1" Increment="0.1"/>
+                                    <xc:DoubleUpDown Value="{Binding fd, Delay=300, Converter={StaticResource GHz}, FallbackValue=0}" FormatString="0.0# 'ГГц'" Minimum="0.1" Increment="0.1"/>
                                 </GroupBox>
                                 <GroupBox Header="Частотн.разр.сп." ToolTip="Частотная разрешающая способность">
                                     <TextBlock Text="{Binding df, Delay=300, Converter={StaticResource GHz}, StringFormat={}{0:0.##}ГГц}" HorizontalAlignment="Center"/>
@@ -241,7 +258,7 @@
                 <TabItem Header="Сигналы">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <StackPanel>
@@ -251,13 +268,18 @@
                         <oxy:Plot Grid.Row="1">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" 
-                                                MajorGridlineThickness="1" MinorTickSize="2" MajorTickSize="4" 
-                                                MajorStep="5" MinorStep="2.5"/>
+                                                />
                                 <oxy:LinearAxis Position="Bottom" 
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
                             </oxy:Plot.Axes>
-                            <oxy:LineSeries Color="Red" ItemsSource="{Binding OutSignal}" DataFieldX="Time_ns" DataFieldY="Value" CanTrackerInterpolatePoints="False" LineLegendPosition="Start" MarkerType="Circle"/>
+                            <oxy:LineSeries Color="Red" 
+                                            ItemsSource="{Binding OutSignalValues}" 
+                                            DataFieldX="X" 
+                                            DataFieldY="Y" 
+                                            CanTrackerInterpolatePoints="False"
+                                            LineLegendPosition="Start"
+                                            MarkerType="Circle"/>
                         </oxy:Plot>
                     </Grid>
                 </TabItem>
