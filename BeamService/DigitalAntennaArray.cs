@@ -18,50 +18,50 @@ namespace BeamService
         private const double pi2 = Math.PI * 2;
         private const double toRad = Math.PI / 180;
 
-        private ADC[] f_ADC;
-        private DigitalFilter[] f_Filters;
-        private MatrixComplex f_Wt;
-        private double f_th0;
-        private MatrixComplex f_Wth0;
-        private MatrixComplex f_W_inv;
-        private int f_N;
-        private double f_tj;
-        private double f_d;
-        private double f_fd;
-        private int f_n;
-        private double f_MaxValue;
-        private int f_Nd;   //нужно сдлеать матрицы ПФ саморасчитываемыми, без инициализации новой ЦАР
-        private IAntenna f_Element = new Uniform();
+        private ADC[] _ADC;
+        private DigitalFilter[] _Filters;
+        private MatrixComplex _Wt;
+        private double _th0;
+        private MatrixComplex _Wth0;
+        private MatrixComplex _W_inv;
+        private int _N;
+        private double _tj;
+        private double _d;
+        private double _fd;
+        private int _n;
+        private double _MaxValue;
+        private int _Nd;   //нужно сдлеать матрицы ПФ саморасчитываемыми, без инициализации новой ЦАР
+        private IAntenna _Element = new Uniform();
 
-        private double f_FilterF0;
-        private double f_FilterDf;
+        private double _FilterF0;
+        private double _FilterDf;
 
         public double FilterF0
         {
-            get => f_FilterF0;
+            get => _FilterF0;
             set
             {
-                if (Equals(f_FilterF0, value)) return;
-                f_FilterF0 = value;
-                if (f_Filters is null) f_Filters = new DigitalFilter[f_N];
-                if (f_FilterF0 > 0 && f_FilterDf > 0)
-                    for (var i = 0; i < f_Filters.Length; i++)
-                        f_Filters[i] = new BandPassRLC(value, f_FilterDf, 1 / f_fd);
+                if (Equals(_FilterF0, value)) return;
+                _FilterF0 = value;
+                if (_Filters is null) _Filters = new DigitalFilter[_N];
+                if (_FilterF0 > 0 && _FilterDf > 0)
+                    for (var i = 0; i < _Filters.Length; i++)
+                        _Filters[i] = new BandPassRLC(value, _FilterDf, 1 / _fd);
                 OnPropertyChanged();
             }
         }
 
         public double FilterDf
         {
-            get => f_FilterDf;
+            get => _FilterDf;
             set
             {
-                if (Equals(f_FilterDf, value)) return;
-                f_FilterDf = value;
-                if (f_Filters is null) f_Filters = new DigitalFilter[f_N];
-                if (f_FilterF0 > 0 && f_FilterDf > 0)
-                    for (var i = 0; i < f_Filters.Length; i++)
-                        f_Filters[i] = new BandPassRLC(f_FilterF0, value, 1 / f_fd);
+                if (Equals(_FilterDf, value)) return;
+                _FilterDf = value;
+                if (_Filters is null) _Filters = new DigitalFilter[_N];
+                if (_FilterF0 > 0 && _FilterDf > 0)
+                    for (var i = 0; i < _Filters.Length; i++)
+                        _Filters[i] = new BandPassRLC(_FilterF0, value, 1 / _fd);
                 OnPropertyChanged();
             }
         }
@@ -69,20 +69,20 @@ namespace BeamService
         /// <summary>Число элементов реешётки</summary>
         public int N
         {
-            get => f_N;
+            get => _N;
             set
             {
-                if (f_N == value) return;
-                f_N = value;
-                f_ADC = new ADC[value];
-                f_Filters = new DigitalFilter[value];
+                if (_N == value) return;
+                _N = value;
+                _ADC = new ADC[value];
+                _Filters = new DigitalFilter[value];
                 for (var i = 0; i < value; i++)
                 {
-                    f_ADC[i] = new ADC(n, fd, MaxValue, f_tj);
-                    if (f_FilterF0 > 0 && f_FilterDf > 0)
-                        f_Filters[i] = new BandPassRLC(f_FilterF0, f_FilterDf, 1 / fd);
+                    _ADC[i] = new ADC(n, fd, MaxValue, _tj);
+                    if (_FilterF0 > 0 && _FilterDf > 0)
+                        _Filters[i] = new BandPassRLC(_FilterF0, _FilterDf, 1 / fd);
                 }
-                f_Wth0 = Get_Wth0(f_th0);
+                _Wth0 = Get_Wth0(_th0);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(AperturaLength));
             }
@@ -91,10 +91,10 @@ namespace BeamService
         /// <summary>Шаг решетки</summary>
         public double d
         {
-            get => f_d;
+            get => _d;
             set
             {
-                if (!Set(ref f_d, value)) return;
+                if (!Set(ref _d, value)) return;
                 OnPropertyChanged(nameof(AperturaLength));
             }
         }
@@ -105,28 +105,28 @@ namespace BeamService
         /// <summary>Угол фазирования</summary>
         public double th0
         {
-            get => f_th0;
+            get => _th0;
             set
             {
-                if (!Set(ref f_th0, value)) return;
-                f_Wth0 = Get_Wth0(value);
+                if (!Set(ref _th0, value)) return;
+                _Wth0 = Get_Wth0(value);
             }
         }
 
-        public ReadOnlyCollection<ADC> ADC => new ReadOnlyCollection<ADC>(f_ADC);
+        public ReadOnlyCollection<ADC> ADC => new ReadOnlyCollection<ADC>(_ADC);
 
         /// <summary>Размер выборки цифрового сигнала </summary>
         public int Nd
         {
-            get => f_Nd;
+            get => _Nd;
             set
             {
                 if (value < 2) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть больше числа элементов");
-                if (f_Nd == value) return;
-                f_Nd = value;
-                f_Wth0 = Get_Wth0(f_th0);
-                f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
-                f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i * j / Nd));
+                if (_Nd == value) return;
+                _Nd = value;
+                _Wth0 = Get_Wth0(_th0);
+                _Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+                _W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i * j / Nd));
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(df));
             }
@@ -138,18 +138,18 @@ namespace BeamService
         /// <summary>Частота дискретизации</summary>
         public double fd
         {
-            get => f_fd;
+            get => _fd;
             set
             {
                 if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), "Частота дискретизации должна быть больше 0");
-                if (f_fd.Equals(value)) return;
-                f_fd = value;
-                if (f_Filters is null) f_Filters = new DigitalFilter[f_N];
-                for (var i = 0; i < f_ADC.Length; i++)
+                if (_fd.Equals(value)) return;
+                _fd = value;
+                if (_Filters is null) _Filters = new DigitalFilter[_N];
+                for (var i = 0; i < _ADC.Length; i++)
                 {
-                    f_ADC[i].Fd = value;
-                    if (f_FilterF0 > 0 && f_FilterDf > 0)
-                        f_Filters[i] = new BandPassRLC(f_FilterF0, f_FilterDf, 1 / fd);
+                    _ADC[i].Fd = value;
+                    if (_FilterF0 > 0 && _FilterDf > 0)
+                        _Filters[i] = new BandPassRLC(_FilterF0, _FilterDf, 1 / fd);
                 }
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(df));
@@ -159,13 +159,13 @@ namespace BeamService
         /// <summary>Величина джиттера</summary>
         public double tj
         {
-            get => f_tj;
+            get => _tj;
             set
             {
                 if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), "Величина джиттера не должна быть меньше 0");
-                if (f_tj.Equals(value)) return;
-                f_tj = value;
-                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].tj = value;
+                if (_tj.Equals(value)) return;
+                _tj = value;
+                for (var i = 0; i < _ADC.Length; i++) _ADC[i].tj = value;
                 OnPropertyChanged();
             }
         }
@@ -173,33 +173,33 @@ namespace BeamService
         /// <summary>Число разрядов в кода</summary> 
         public int n
         {
-            get => f_n;
+            get => _n;
             set
             {
                 if (value < 1) throw new ArgumentOutOfRangeException(nameof(n), "Число разрядов кода АЦП должно быть больше 0");
-                if (f_n == value) return;
-                f_n = value;
-                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].N = value;
+                if (_n == value) return;
+                _n = value;
+                for (var i = 0; i < _ADC.Length; i++) _ADC[i].N = value;
                 OnPropertyChanged();
             }
         }
 
         public IAntenna Element
         {
-            get => f_Element;
-            set => Set(ref f_Element, value);
+            get => _Element;
+            set => Set(ref _Element, value);
         }
 
         /// <summary>Максимальная амплитуда сигнала</summary>  
         public double MaxValue
         {
-            get => f_MaxValue;
+            get => _MaxValue;
             set
             {
                 if (value <= 0) throw new ArgumentOutOfRangeException(nameof(n), "Амплитуда ограничителя АЦП должна быть больше 0");
-                if (f_MaxValue.Equals(value)) return;
-                f_MaxValue = value;
-                for (var i = 0; i < f_ADC.Length; i++) f_ADC[i].MaxValue = value;
+                if (_MaxValue.Equals(value)) return;
+                _MaxValue = value;
+                for (var i = 0; i < _ADC.Length; i++) _ADC[i].MaxValue = value;
                 OnPropertyChanged();
             }
         }
@@ -219,16 +219,16 @@ namespace BeamService
             if (Nd <= 0) throw new ArgumentOutOfRangeException(nameof(Nd), "Размер выборки должен быть положительным числом");
             if (MaxValue <= 0) throw new ArgumentOutOfRangeException(nameof(MaxValue), "Максимальая амплитуда АЦП не может быть меньше, либо равна нулю");
 
-            f_d = d;
-            f_fd = fd;
-            f_n = n;
-            f_Nd = Nd;
-            f_MaxValue = MaxValue;
-            f_tj = tj;
+            _d = d;
+            _fd = fd;
+            _n = n;
+            _Nd = Nd;
+            _MaxValue = MaxValue;
+            _tj = tj;
             this.N = N; // Нужно установить именно через свойство, что бы создать новый массив АЦП
 
-            f_Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
-            f_W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i * j / Nd)); //new FourierMatrix(Nd, true);  
+            _Wt = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(-pi2 * i * j / Nd) / Nd); //new FourierMatrix(Nd);                        // мне кажется алгоритм не отрабатывает так, как мы хотим
+            _W_inv = MatrixComplex.Create(Nd, Nd, (i, j) => Complex.Exp(pi2 * i * j / Nd)); //new FourierMatrix(Nd, true);  
 
         }
         /// <summary>
@@ -256,9 +256,9 @@ namespace BeamService
             var s_data = new double[N, Nd];
             for (var i = 0; i < N; i++)
             {
-                var signal = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
-                if (f_Filters != null && f_Filters[i] != null)
-                    signal = f_Filters[i].Filter(signal).ToArray();
+                var signal = _ADC[i].GetDiscretSignalValues(sources[i], Nd);
+                if (_Filters != null && _Filters[i] != null)
+                    signal = _Filters[i].Filter(signal).ToArray();
                 for (var j = 0; j < Nd; j++) s_data[i, j] = signal[j];
             }
             return new Matrix(s_data);
@@ -272,7 +272,7 @@ namespace BeamService
 
             await sources.Select((s, i) => Task.Run(async () =>
             {
-                var signal = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
+                var signal = _ADC[i].GetDiscretSignalValues(sources[i], Nd);
                 var tt = signal.Select((v, j) => Task.Run(() => s_data[i, j] = signal[j], cancel));
                 await Task.WhenAll(tt);
             }, cancel)).WhenAll().ConfigureAwait(false);
@@ -289,8 +289,8 @@ namespace BeamService
 
             for (var i = 0; i < N; i++)
             {
-                var s = f_ADC[i].GetDiscretSignalValues(sources[i], Nd);
-                signals[i] = new SamplesSignal(s, f_ADC[i].dt);
+                var s = _ADC[i].GetDiscretSignalValues(sources[i], Nd);
+                signals[i] = new SamplesSignal(s, _ADC[i].dt);
             }
 
             return signals;
@@ -301,9 +301,9 @@ namespace BeamService
         /// </summary>
         /// <param name="SignalMatrix"></param>
         /// <returns></returns>
-        public MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * f_Wt;
+        public MatrixComplex GetSpectralMatrix(Matrix SignalMatrix) => SignalMatrix * _Wt;
         public Task<MatrixComplex> GetSpectralMatrixAsync(Matrix SignalMatrix, CancellationToken cancel) =>
-            Task.Run(() => SignalMatrix * f_Wt, cancel);
+            Task.Run(() => SignalMatrix * _Wt, cancel);
 
         /// <summary>
         /// Создание фазирующей матрицы
@@ -369,9 +369,9 @@ namespace BeamService
         /// </summary>
         /// <param name="SpectralMatrix"></param>
         /// <returns></returns>
-        private MatrixComplex ComputeResultMatrix(MatrixComplex SpectralMatrix) => ElementMultiply(SpectralMatrix, f_Wth0);
+        private MatrixComplex ComputeResultMatrix(MatrixComplex SpectralMatrix) => ElementMultiply(SpectralMatrix, _Wth0);
         private Task<MatrixComplex> ComputeResultMatrixAsync(MatrixComplex SpectralMatrix, CancellationToken cancel) =>
-            ElementMultiplyAsync(SpectralMatrix, f_Wth0, cancel);
+            ElementMultiplyAsync(SpectralMatrix, _Wth0, cancel);
 
         /// <summary>
         /// сигналы с одинаков ВОЗМОЖНО ОШИБКА!!!!!!!!!!!!!!!!!
@@ -380,14 +380,14 @@ namespace BeamService
         /// <returns></returns>
         private MatrixComplex ComputeResultSignal(MatrixComplex SpectralMatrix)
         {
-            var result = SpectralMatrix * f_W_inv;
+            var result = SpectralMatrix * _W_inv;
             if (result.N != 1) throw new InvalidOperationException("В результате вычислений получено более одной строки в выходной сигнальной матрице");
             return result;
         }
 
         private async Task<MatrixComplex> ComputeResultSignalAsync(MatrixComplex SpectralMatrix, CancellationToken cancel)
         {
-            var result = await Task.Run(() => SpectralMatrix * f_W_inv, cancel).ConfigureAwait(false);
+            var result = await Task.Run(() => SpectralMatrix * _W_inv, cancel).ConfigureAwait(false);
             cancel.ThrowIfCancellationRequested();
             if (result.N != 1) throw new InvalidOperationException("В результате вычислений получено более одной строки в выходной сигнальной матрице");
             return result;
@@ -476,7 +476,7 @@ namespace BeamService
                 samples_q[i] = q[0, i].Im;
             }
 
-            var dt = f_ADC[0].dt;
+            var dt = _ADC[0].dt;
             return new[]
             {
                 new SamplesSignal(samples_i, dt),
@@ -516,7 +516,7 @@ namespace BeamService
                 samples_q[i] = q[0, i].Im;
             }
 
-            var dt = f_ADC[0].dt;
+            var dt = _ADC[0].dt;
             return (new SamplesSignal(samples_p, dt), new SamplesSignal(samples_q, dt));
         }
 
@@ -560,7 +560,7 @@ namespace BeamService
                 samples_q[i] = q[0, i].Im;
             }
 
-            var dt = f_ADC[0].dt;
+            var dt = _ADC[0].dt;
             return (new SamplesSignal(samples_p, dt), new SamplesSignal(samples_q, dt));
         }
 

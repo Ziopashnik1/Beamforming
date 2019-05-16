@@ -16,8 +16,8 @@ namespace BeamService.Digital
         private readonly Vector3D[] _AntennaElementLocations;
         private readonly int _SamplesCount;
         private readonly double _fd;
-        private MatrixComplex _Wt;
-        private MatrixComplex _Wt_inv;
+        private readonly MatrixComplex _Wt;
+        private readonly MatrixComplex _Wt_inv;
         private MatrixComplex _PhasingMatrix;
         private const double pi2 = Consts.pi2;
         private const double c = Consts.SpeedOfLigth;
