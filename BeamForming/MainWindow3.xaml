@@ -242,10 +242,10 @@
                                 <GroupBox Header="Разрядность">
                                     <xc:IntegerUpDown Value="{Binding n, Delay=300}" Minimum="1" Maximum="32"/>
                                 </GroupBox>
-                                <GroupBox Header="Динам.диап." ToolTip="Динамический диапазон">
-                                    <xc:DoubleUpDown Value="{Binding MaxValue, Delay=300}" Minimum="0.1" Increment="0.1" FormatString="0.# 'В'"/>
+                                <GroupBox Header="Динам.диап." ToolTip="Максимальная амплитуда АЦП">
+                                    <xc:DoubleUpDown Value="{Binding ADCmaxAmplitude, Delay=300}" Minimum="0.1" Increment="0.1" FormatString="0.# 'В'"/>
                                 </GroupBox>
-                                <GroupBox Header="Джиттер">
+                                <GroupBox Header="Джиттер" Visibility="Hidden">
                                     <xc:DoubleUpDown Value="{Binding tj, Delay=300, Converter={l:MultiplyConverter 1e9}}" Minimum="0" Maximum="1" Increment="0.1"/>
                                 </GroupBox>
                             </UniformGrid>
@@ -313,6 +313,61 @@
                                          Value="{Binding Minimum, ElementName=AngleAxis}"/>
                         <xc:DoubleUpDown VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="51,12,0,7" 
                                          Value="{Binding Maximum, ElementName=AngleAxis}"/>
+                        <BulletDecorator VerticalAlignment="Top" HorizontalAlignment="Right" Margin="8,7">
+                            <BulletDecorator.Bullet>
+                                <TextBlock Text="Phi:"/>
+                            </BulletDecorator.Bullet>
+                            <xc:DoubleUpDown Width="80" Minimum="0" Maximum="180" Increment="0.5"
+                                             Value="{Binding Phi}"
+                                             FormatString="0.0 '°'"/>
+                        </BulletDecorator>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Решётка">
+                    <Grid>
+                        <Viewbox>
+                            <ItemsControl ItemsSource="{Binding Antenna}" Width="{Binding AperturaLengthX}" Height="{Binding AperturaLengthY}">
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Canvas.Left" Value="{Binding LocationX}"/>
+                                        <Setter Property="Canvas.Top" Value="{Binding LocationY}"/>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type b:DigitalAntennaItem}">
+                                        <Ellipse Width="0.05" Height="0.05" Stroke="Blue" StrokeThickness="0.01" Fill="Red">
+                                            <Ellipse.ToolTip>
+                                                <GroupBox Header="Элемент">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition/>
+                                                        </Grid.RowDefinitions>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Grid.Row="0" Text="X:"/>
+                                                        <TextBlock Grid.Column="0" Grid.Row="1" Text="Y:"/>
+                                                        <TextBlock Grid.Column="0" Grid.Row="2" Text="Тип:"/>
+
+                                                        <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding LocationX}"/>
+                                                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding LocationY}"/>
+                                                        <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Element}"/>
+                                                    </Grid>
+                                                </GroupBox>
+                                            </Ellipse.ToolTip>
+                                        </Ellipse>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas IsItemsHost="True"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Viewbox>
                     </Grid>
                 </TabItem>
             </TabControl>

@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,7 +31,12 @@ namespace BeamForming
         public ADC ADC
         {
             get => _ADC;
-            set => Set(ref _ADC, value);
+            set
+            {
+                if(!Set(ref _ADC, value ?? throw new ArgumentNullException(nameof(value)))) return;
+                UpdateBeamforming();
+                ComputeOutputSignalAsync();
+            }
         }
 
         private Antenna _AntennaItem;
@@ -38,7 +44,11 @@ namespace BeamForming
         public Antenna AntennaItem
         {
             get => _AntennaItem;
-            set => Set(ref _AntennaItem, value);
+            set
+            {
+                if (!Set(ref _AntennaItem, value ?? throw new ArgumentNullException(nameof(value)))) return;
+                ComputeOutputSignalAsync();
+            }
         }
 
         private int _Nx = 8;
@@ -56,7 +66,7 @@ namespace BeamForming
                     // Нужно добавить новые элементы
                     var new_count = value - old_nx;
                     for (var j = 0; j < _Ny; j++)
-                        for (var i = 1; i <= new_count; i++)
+                        for (var i = 0; i < new_count; i++)
                             Antenna.Add(_AntennaItem, new Vector3D((old_nx + i) * _dx, j * _dy), _ADC);
                 }
                 else
@@ -68,6 +78,7 @@ namespace BeamForming
                 }
 
                 UpdateBeamforming();
+                ComputeOutputSignalAsync();
             }
         }
 
@@ -85,7 +96,7 @@ namespace BeamForming
                     // Нужно добавить новые элементы
                     var new_count = value - old_ny;
                     for (var i = 0; i < _Nx; i++)
-                        for (var j = 1; j <= new_count; j++)
+                        for (var j = 0; j < new_count; j++)
                             Antenna.Add(_AntennaItem, new Vector3D(i * _dx, (old_ny + j) * _dy), _ADC);
                 }
                 else
@@ -97,6 +108,7 @@ namespace BeamForming
                 }
 
                 UpdateBeamforming();
+                ComputeOutputSignalAsync();
             }
         }
 
@@ -117,6 +129,7 @@ namespace BeamForming
                 }
 
                 UpdateBeamforming();
+                ComputeOutputSignalAsync();
             }
         }
 
@@ -137,6 +150,7 @@ namespace BeamForming
                 }
 
                 UpdateBeamforming();
+                ComputeOutputSignalAsync();
             }
         }
 
@@ -160,26 +174,140 @@ namespace BeamForming
         //    }
         //}
 
-        private double _th0 = 0;
+        #region th0 : double - Угол отклонения луча ДН по углу места
+
+        ///<summary>Угол отклонения луча ДН по углу места</summary>
+        private double _th0;
+
+        ///<summary>Угол отклонения луча ДН по углу места</summary>
         public double th0
         {
             get => _th0;
-            set
-            {
-                if (!Set(ref _th0, value)) return;
-            }
+            set => Set(ref _th0, value);
         }
 
-        private double _phi0 = 0;
+        #endregion
+
+        #region phi0 : double - Угол отклонения луча ДН по азимуту
+
+        ///<summary>Угол отклонения луча ДН по азимуту</summary>
+        private double _phi0;
+
+        ///<summary>Угол отклонения луча ДН по азимуту</summary>
         public double phi0
         {
             get => _phi0;
+            set => Set(ref _phi0, value);
+        }
+
+        #endregion
+
+        #region fd : double - Частота дискретизации
+
+        private double _fd;
+
+        ///<summary>Частота дискретизации</summary>
+        public double fd
+        {
+            get => _fd;
             set
             {
-                if (!Set(ref _phi0, value)) return;
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Частота должна быть больше 0");
+                if (!Set(ref _fd, value)) return;
+
+                _ADC.Fd = value;
+                UpdateBeamforming();
+                ComputeOutputSignalAsync();
             }
         }
 
+        #endregion
+
+        #region Nd : int - Размер выборки
+
+        private int _Nd;
+
+        ///<summary>Размер выборки</summary>
+        public int Nd
+        {
+            get => _Nd;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Размер выборки должен быть больше 0");
+                if (!Set(ref _Nd, value)) return;
+
+                Antenna.SamplesCount = value;
+
+                UpdateBeamforming();
+                ComputeOutputSignalAsync();
+            }
+        }
+
+        #endregion
+
+        #region df : double - Частотная разрешающая способность
+
+        ///<summary>Частотная разрешающая способность</summary>
+        [DependencyOn(nameof(fd)), DependencyOn(nameof(Nd))]
+        public double df => fd / Nd;
+
+        #endregion
+
+        #region n : int - Разрядность кода
+
+        private int _n = 16;
+
+        ///<summary>Разрядность кода</summary>
+        public int n
+        {
+            get => _n;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Разрядность кода должна быть больше 0");
+                if (!Set(ref _n, value)) return;
+
+                _ADC.N = value;
+
+                ComputeOutputSignalAsync();
+            }
+        }
+
+        #endregion
+
+        #region tj : double - Джиттер
+
+        private double _tj;
+
+        ///<summary>Джиттер</summary>
+        public double tj
+        {
+            get => _tj;
+            set => Set(ref _tj, value);
+        }
+
+        #endregion
+
+        #region ADCmaxAmplitude : double - Максимальная амплитуда АЦП
+
+        ///<summary>Максимальная амплитуда АЦП</summary>
+        private double _AdCmaxAmplitude;
+
+        ///<summary>Максимальная амплитуда АЦП</summary>
+        public double ADCmaxAmplitude
+        {
+            get => _AdCmaxAmplitude;
+            set
+            {
+                if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Максимальная амплитуда АЦП должна быть больше 0");
+                if (!Set(ref _AdCmaxAmplitude, value)) return;
+
+                _ADC.MaxValue = value;
+
+                ComputeOutputSignalAsync();
+            }
+        }
+
+        #endregion
 
         private DigitalSignal _OutSignal;
 
@@ -213,18 +341,6 @@ namespace BeamForming
         public ObservableCollection<DataPoint> OutSignalValues { get; } = new ObservableCollection<DataPoint>();
 
         public RadioScene Sources { get; } = new RadioScene();
-
-        private int _SamplesCount;
-
-        public int SamplesCount
-        {
-            get => _SamplesCount;
-            //set
-            //{
-            //    if(!Set(ref _SamplesCount, value)) return;
-            //    Antenna.SamplesCount = value;
-            //}
-        }
 
         public DigitalAntennaArray2 Antenna { get; }
 
@@ -264,13 +380,23 @@ namespace BeamForming
             }
         }
 
-        private double _Phi = 0;
+        #region Phi : double - Азимут сечения ДН
 
+        ///<summary>Азимут сечения ДН</summary>
+        private double _Phi;
+
+        ///<summary>Азимут сечения ДН</summary>
         public double Phi
         {
             get => _Phi;
-            set => Set(ref _Phi, value);
+            set
+            {
+                if (!Set(ref _Phi, value)) return;
+                ComputeOutputSignalAsync();
+            }
         }
+
+        #endregion
 
         public double SNR { get; private set; }
 
@@ -300,13 +426,15 @@ namespace BeamForming
 
         public MainWindow3ViewModel()
         {
-            _SamplesCount = 16;
-            var antenna = new DigitalAntennaArray2(_SamplesCount);
+            _Nd = 16;
+            var antenna = new DigitalAntennaArray2(_Nd);
 
             _AntennaItem = new UniformAntenna();
             const double fd = 8e9; // Hz
+            _fd = fd;
             const double max_amplidude = 5;
-            _ADC = new ADC(16, fd, max_amplidude);
+            _AdCmaxAmplitude = max_amplidude;
+            _ADC = new ADC(_n, _fd, _AdCmaxAmplitude);
             for (var ix = 0; ix < _Nx; ix++)
                 for (var iy = 0; iy < _Ny; iy++)
                 {
@@ -327,7 +455,7 @@ namespace BeamForming
 
         private void UpdateBeamforming()
         {
-            Antenna.BeamForming = new MatrixBeamForming(Antenna.Select(item => item.Location).ToArray(), _SamplesCount, _ADC.Fd);
+            Antenna.BeamForming = new MatrixBeamForming(Antenna.Select(item => item.Location).ToArray(), _Nd, _ADC.Fd);
         }
 
         private void AddNewCommandExecuted(object Obj) => Sources.Add(new SpaceSignal { Signal = new SinSignal(1, 1e9) });
