@@ -309,16 +309,17 @@ namespace BeamForming
 
         #endregion
 
-        private DigitalSignal _OutSignal;
+        private DigitalSignal _OutSignalI;
+        private DigitalSignal _OutSignalQ;
 
-        public DigitalSignal OutSignal
+        public DigitalSignal OutSignalI
         {
-            get => _OutSignal;
+            get => _OutSignalI;
             private set
             {
-                if (!Set(ref _OutSignal, value)) return;
+                if (!Set(ref _OutSignalI, value)) return;
 
-                var values = OutSignalValues;
+                var values = new ObservableCollection<DataPoint>();
                 values.Clear();
                 if (value is null) return;
 
@@ -329,6 +330,28 @@ namespace BeamForming
                         X = dt * i,
                         Y = value[i]
                     });
+                OutSignalValuesI = values;
+            }
+        }
+
+        public DigitalSignal OutSignalQ
+        {
+            get => _OutSignalQ;
+            private set
+            {
+                if (!Set(ref _OutSignalQ, value)) return;
+
+                var values = new ObservableCollection<DataPoint>();
+                if (value is null) return;
+
+                var dt = value.dt * 1e9;
+                for (var i = 0; i < value.SamplesCount; i++)
+                    values.Add(new DataPoint
+                    {
+                        X = dt * i,
+                        Y = value[i]
+                    });
+                OutSignalValuesQ = values;
             }
         }
 
@@ -338,7 +361,21 @@ namespace BeamForming
             public double Y { get; set; }
         }
 
-        public ObservableCollection<DataPoint> OutSignalValues { get; } = new ObservableCollection<DataPoint>();
+        private ObservableCollection<DataPoint> _OutSignalValuesI = new ObservableCollection<DataPoint>();
+
+        public ObservableCollection<DataPoint> OutSignalValuesI
+        {
+            get => _OutSignalValuesI;
+            set => Set(ref _OutSignalValuesI, value);
+        }
+
+        private ObservableCollection<DataPoint> _OutSignalValuesQ = new ObservableCollection<DataPoint>();
+
+        public ObservableCollection<DataPoint> OutSignalValuesQ
+        {
+            get => _OutSignalValuesQ;
+            set => Set(ref _OutSignalValuesQ, value);
+        }
 
         public RadioScene Sources { get; } = new RadioScene();
 
@@ -525,7 +562,8 @@ namespace BeamForming
                 await Application.Current.Dispatcher;
                 OnPropertyChanged(nameof(SNR));
 
-                OutSignal = signal;
+                OutSignalI = signal.I;
+                OutSignalQ = signal.Q;
 
                 const double thetta_min = -90;
                 const double thetta_max = 90;
@@ -539,10 +577,11 @@ namespace BeamForming
                 for (var thetta = thetta_min; thetta <= thetta_max; thetta += d_thetta)
                 {
                     cancel.ThrowIfCancellationRequested();
+                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(thetta, phi, AngleType.Deg));
                     pattern.Add(new PatternValue
                     {
                         Angle = thetta,
-                        Value = Antenna.GetSignal(radio_scene.Rotate(thetta, phi, AngleType.Deg)).GetTotalPower()//.GetOutSignal(radio_scene, thetta * toRad).P.Power
+                        Value = i.GetTotalPower() + q.GetTotalPower()
                     });
 
                     PatternCalculationProgress = (double)pattern.Count / pattern.Capacity;

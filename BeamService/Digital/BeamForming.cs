@@ -8,7 +8,7 @@ namespace BeamService.Digital
     /// <summary>Диаграммообразующая схема</summary>
     public abstract class BeamForming
     {
-        public abstract DigitalSignal GetSignal(DigitalSignal[] Signals);
+        public abstract (DigitalSignal I, DigitalSignal Q) GetSignal(DigitalSignal[] Signals);
     }
 
     public class MatrixBeamForming : BeamForming
@@ -52,7 +52,7 @@ namespace BeamService.Digital
                 return Complex.Exp(pi2 / c * fm * location.GetProjectionTo(Angle));
             });
 
-        public override DigitalSignal GetSignal(DigitalSignal[] Signals)
+        public override (DigitalSignal I, DigitalSignal Q) GetSignal(DigitalSignal[] Signals)
         {
             var ss = GetSignalMatrix(Signals);
             var SS = ss * _Wt;
@@ -61,13 +61,15 @@ namespace BeamService.Digital
             var q = Q * _Wt_inv;
 
             var samples_i = new double[q.M];
+            var samples_q = new double[q.M];
             for (var i = 0; i < samples_i.Length; i++)
             {
                 samples_i[i] = q[0, i].Re;
+                samples_q[i] = q[0, i].Im;
                 //if(Math.Abs(q[0, i].Im) > 1e-10)
                 //    throw new InvalidOperationException("Ошибка преобразования - получен комплексный результат");
             }
-            return new DigitalSignal(1 / _fd, samples_i);
+            return (new DigitalSignal(1 / _fd, samples_i), new DigitalSignal(1 / _fd, samples_q));
         }
 
         private Matrix GetSignalMatrix(DigitalSignal[] Signals)

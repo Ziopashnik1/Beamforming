@@ -72,7 +72,7 @@ namespace BeamService
 
         public DigitalAntennaArray2(int SamplesCount) => _SamplesCount = SamplesCount;
 
-        public DigitalSignal GetSignal(RadioScene Scene)
+        public (DigitalSignal I, DigitalSignal Q) GetSignal(RadioScene Scene)
         {
             var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount));
             if(BeamForming is null) throw new InvalidOperationException("Отсутствует диаграммообразующая схема");

@@ -262,7 +262,7 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <StackPanel>
-                            <TextBlock Text="{Binding OutSignal.Power, StringFormat=Мощность:{0:f3}}"/>
+                            <TextBlock Text="{Binding OutSignalI.Power, StringFormat=Мощность:{0:f3}}"/>
                             <TextBlock Text="{Binding SNR, StringFormat=SNR:{0:f3}db}"/>
                         </StackPanel>
                         <oxy:Plot Grid.Row="1">
@@ -274,7 +274,14 @@
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
                             </oxy:Plot.Axes>
                             <oxy:LineSeries Color="Red" 
-                                            ItemsSource="{Binding OutSignalValues}" 
+                                            ItemsSource="{Binding OutSignalValuesI}" 
+                                            DataFieldX="X" 
+                                            DataFieldY="Y" 
+                                            CanTrackerInterpolatePoints="False"
+                                            LineLegendPosition="Start"
+                                            MarkerType="Circle"/>
+                            <oxy:LineSeries Color="Blue" 
+                                            ItemsSource="{Binding OutSignalValuesQ}" 
                                             DataFieldX="X" 
                                             DataFieldY="Y" 
                                             CanTrackerInterpolatePoints="False"
