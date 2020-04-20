@@ -234,74 +234,78 @@
                     </DockPanel>
                 </TabItem>
                 <TabItem Header="Решётка">
-                    <DockPanel VerticalAlignment="Top">
-                        <GroupBox Header="Апертура" DockPanel.Dock="Top">
-                            <UniformGrid Columns="2" VerticalAlignment="Top">
-                                <GroupBox Header="Nx" >
-                                    <xc:IntegerUpDown Value="{Binding Nx, Delay=300}" Minimum="1" Maximum="1024"/>
-                                </GroupBox>
-                                <GroupBox Header="dx" >
-                                    <xc:DoubleUpDown Value="{Binding dx, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
-                                </GroupBox>
-                                <GroupBox Header="Ny" >
-                                    <xc:IntegerUpDown Value="{Binding Ny, Delay=300}" Minimum="1" Maximum="1024"/>
-                                </GroupBox>
-                                <GroupBox Header="dy" >
-                                    <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
-                                </GroupBox>
-                                <GroupBox Header="Thetta0">
-                                    <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
-                                </GroupBox>
-                                <GroupBox Header="Phi">
-                                    <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
-                                </GroupBox>
-                                <GroupBox Header="Размер апертуры X">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding AperturaLengthX, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </GroupBox>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <DockPanel VerticalAlignment="Top">
+                            <GroupBox Header="Апертура" DockPanel.Dock="Top">
+                                <UniformGrid Columns="2" VerticalAlignment="Top">
+                                    <GroupBox Header="Nx" >
+                                        <xc:IntegerUpDown Value="{Binding Nx, Delay=300}" Minimum="1" Maximum="1024"/>
+                                    </GroupBox>
+                                    <GroupBox Header="dx" >
+                                        <xc:DoubleUpDown Value="{Binding dx, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Ny" >
+                                        <xc:IntegerUpDown Value="{Binding Ny, Delay=300}" Minimum="1" Maximum="1024"/>
+                                    </GroupBox>
+                                    <GroupBox Header="dy" >
+                                        <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Thetta0">
+                                        <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Phi">
+                                        <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Размер апертуры X">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding AperturaLengthX, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </GroupBox>
 
-                                <GroupBox Header="Размер апертуры Y">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding AperturaLengthY, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </GroupBox>
-                                <GroupBox Header="ДН эл-та">
-                                    <ComboBox SelectedItem="{Binding AntennaItem, Delay=300}" 
+                                    <GroupBox Header="Размер апертуры Y">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding AperturaLengthY, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="ДН эл-та">
+                                        <ComboBox SelectedItem="{Binding AntennaItem, Delay=300}" 
+                                              SelectedIndex="0"
                                               ItemsSource="{Binding DataContext.KnownAntennaItems, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
-                                </GroupBox> 
-                                <GroupBox Header="Ампл. распр.">
-                                    <ComboBox SelectedItem="{Binding AmplitudeDestribution, Delay=300}" 
+                                    </GroupBox>
+                                    <GroupBox Header="Ампл. распр.">
+                                        <ComboBox SelectedItem="{Binding AmplitudeDestribution, Delay=300}" 
+                                              SelectedIndex="0"
                                               ItemsSource="{Binding DataContext.KnownAmplitudeDestributions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
-                                </GroupBox>
-                                <GroupBox Header="Нормаировать ДН">
-                                    <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
-                                </GroupBox>
-                            </UniformGrid>
-                        </GroupBox>
-                        <GroupBox Header="Параметры АЦП" DockPanel.Dock="Top">
-                            <UniformGrid Columns="2">
-                                <GroupBox Header="Частота дискр.">
-                                    <xc:DoubleUpDown Value="{Binding fd, Delay=300, Converter={StaticResource GHz}, FallbackValue=0}" FormatString="0.0# 'ГГц'" Minimum="0.1" Increment="0.1"/>
-                                </GroupBox>
-                                <GroupBox Header="Частотн.разр.сп." ToolTip="Частотная разрешающая способность">
-                                    <TextBlock Text="{Binding df, Delay=300, Converter={StaticResource GHz}, StringFormat={}{0:0.##}ГГц}" HorizontalAlignment="Center"/>
-                                </GroupBox>
-                                <GroupBox Header="Размер выборки">
-                                    <xc:IntegerUpDown Value="{Binding Nd, Delay=300}" Minimum="2"/>
-                                </GroupBox>
-                                <GroupBox Header="Разрядность">
-                                    <xc:IntegerUpDown Value="{Binding n, Delay=300}" Minimum="1" Maximum="32"/>
-                                </GroupBox>
-                                <GroupBox Header="Динам.диап." ToolTip="Максимальная амплитуда АЦП">
-                                    <xc:DoubleUpDown Value="{Binding ADCmaxAmplitude, Delay=300}" Minimum="0.1" Increment="0.1" FormatString="0.# 'В'"/>
-                                </GroupBox>
-                                <GroupBox Header="Джиттер" Visibility="Hidden">
-                                    <xc:DoubleUpDown Value="{Binding tj, Delay=300, Converter={l:MultiplyConverter 1e9}}" Minimum="0" Maximum="1" Increment="0.1"/>
-                                </GroupBox>
-                            </UniformGrid>
-                        </GroupBox>
-                    </DockPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Нормаировать ДН">
+                                        <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                    </GroupBox>
+                                </UniformGrid>
+                            </GroupBox>
+                            <GroupBox Header="Параметры АЦП" DockPanel.Dock="Top">
+                                <UniformGrid Columns="2">
+                                    <GroupBox Header="Частота дискр.">
+                                        <xc:DoubleUpDown Value="{Binding fd, Delay=300, Converter={StaticResource GHz}, FallbackValue=0}" FormatString="0.0# 'ГГц'" Minimum="0.1" Increment="0.1"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Частотн.разр.сп." ToolTip="Частотная разрешающая способность">
+                                        <TextBlock Text="{Binding df, Delay=300, Converter={StaticResource GHz}, StringFormat={}{0:0.##}ГГц}" HorizontalAlignment="Center"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Размер выборки">
+                                        <xc:IntegerUpDown Value="{Binding Nd, Delay=300}" Minimum="2"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Разрядность">
+                                        <xc:IntegerUpDown Value="{Binding n, Delay=300}" Minimum="1" Maximum="32"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Динам.диап." ToolTip="Максимальная амплитуда АЦП">
+                                        <xc:DoubleUpDown Value="{Binding ADCmaxAmplitude, Delay=300}" Minimum="0.1" Increment="0.1" FormatString="0.# 'В'"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Джиттер" Visibility="Hidden">
+                                        <xc:DoubleUpDown Value="{Binding tj, Delay=300, Converter={l:MultiplyConverter 1e9}}" Minimum="0" Maximum="1" Increment="0.1"/>
+                                    </GroupBox>
+                                </UniformGrid>
+                            </GroupBox>
+                        </DockPanel>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
             <GridSplitter Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="4" Background="Transparent" Cursor="SizeWE" />

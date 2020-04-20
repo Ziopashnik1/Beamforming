@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ADC.cs" />
+    <Compile Include="AmplitudeDestributions\AmplitudeDestribution.cs" />
     <Compile Include="Functions\AmplitudeSignalFunction.cs" />
     <Compile Include="Functions\CombyneSignalFunction.cs" />
     <Compile Include="Functions\CosSignal.cs" />
@@ -145,6 +146,7 @@
       <Name>DSP.Lib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Antennas;
+using BeamService.AmplitudeDestributions;
 using BeamService.Digital;
 using BeamService.Functions;
 using DSP.Lib;
@@ -24,6 +25,20 @@ namespace BeamForming
 {
     internal class MainWindow3ViewModel : ViewModel
     {
+        public IReadOnlyCollection<AmplitudeDestribution> KnownAmplitudeDestributions { get; } = new AmplitudeDestribution[]
+        {
+            new Uniform(), 
+            new CosOnPedestal(), 
+        };
+
+        private AmplitudeDestribution _AmplitudeDestribution;
+
+        public AmplitudeDestribution AmplitudeDestribution
+        {
+            get => _AmplitudeDestribution;
+            set => Set(ref _AmplitudeDestribution, value);
+        }
+
         private ADC _ADC;
 
         public ADC ADC
