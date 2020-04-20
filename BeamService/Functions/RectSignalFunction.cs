@@ -1,4 +1,6 @@
-﻿namespace BeamService.Functions
+﻿using System;
+
+namespace BeamService.Functions
 {
     public class RectSignalFunction : AmplitudeSignalFunction
     {
@@ -32,5 +34,24 @@
         }
     }
 
+    public class RadioSignalFunction : RectSignalFunction
+    {
+        private double _f0 = 5e9;
 
+        public double f0
+        {
+            get => _f0;
+            set => Set(ref _f0, value);
+        }
+
+        public RadioSignalFunction() { }
+
+        public RadioSignalFunction(double Tau, double Period, double f0) : base(Tau, Period) => _f0 = f0;
+
+        #region Overrides of RectSignalFunction
+
+        public override double Value(double t) => base.Value(t) * Math.Sin(2 * Math.PI * t * _f0);
+
+        #endregion
+    }
 }

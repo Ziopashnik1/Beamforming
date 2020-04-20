@@ -90,13 +90,13 @@
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
-                                    
+
                                     <DataTemplate DataType="{x:Type functions:SinSignal}">
                                         <StackPanel Orientation="Horizontal">
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
-                                            <TextBlock Margin="3,0">* t + </TextBlock>
+                                            <TextBlock Margin="3,0">* t +</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0">))</TextBlock>
                                         </StackPanel>
@@ -107,7 +107,7 @@
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0,0,0">* Cos(2*pi *(</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
-                                            <TextBlock Margin="3,0">* t + </TextBlock>
+                                            <TextBlock Margin="3,0">* t +</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0">))</TextBlock>
                                         </StackPanel>
@@ -118,6 +118,44 @@
                                             <TextBlock>Амплитуда:</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                         </StackPanel>
+                                    </DataTemplate>
+
+                                    <DataTemplate DataType="{x:Type functions:RandomSignal}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock>Шум:</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+
+                                    <DataTemplate DataType="{x:Type functions:LFM}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01" VerticalAlignment="Center"/>
+                                            <TextBlock VerticalAlignment="Center">
+                                                LFM(
+                                                f0:<xc:DoubleUpDown Value="{Binding Frequency, Delay=300}" VerticalAlignment="Center"/>,
+                                                f<Run FontSize="10" Text="max">
+                                                    <Run.TextEffects>
+                                                        <TextEffect PositionCount="3">
+                                                            <TextEffect.Transform>
+                                                                <TranslateTransform Y="-3"/>
+                                                            </TextEffect.Transform>
+                                                        </TextEffect>
+                                                    </Run.TextEffects>
+                                                </Run>:
+                                                <xc:DoubleUpDown Value="{Binding MaxFrequency, Delay=300}" VerticalAlignment="Center"/>,
+                                                T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}" VerticalAlignment="Center"/>)
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+
+                                    <DataTemplate DataType="{x:Type functions:RadioSignalFunction}">
+                                        <TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
+                                            * Radio(t,
+                                            tau:<xc:DoubleUpDown Value="{Binding Tau, Delay=300}"/>,
+                                            T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}"/>,
+                                            f0:<xc:DoubleUpDown Value="{Binding f0, Delay=300}" FormatString="F2"/>)
+                                        </TextBlock>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type functions:RectSignalFunction}">
@@ -152,7 +190,16 @@
                                                                 <TextBlock Text="cos"/>
                                                             </DataTemplate>
                                                             <DataTemplate DataType="{x:Type functions:RandomSignal}">
-                                                                <TextBlock Text="rnd"/>
+                                                                <TextBlock Text="Шум"/>
+                                                            </DataTemplate>
+                                                            <DataTemplate DataType="{x:Type functions:RectSignalFunction}">
+                                                                <TextBlock Text="Прямоугольный имп."/>
+                                                            </DataTemplate>
+                                                            <DataTemplate DataType="{x:Type functions:RadioSignalFunction}">
+                                                                <TextBlock Text="Радио имп."/>
+                                                            </DataTemplate>
+                                                            <DataTemplate DataType="{x:Type functions:LFM}">
+                                                                <TextBlock Text="ЛЧМ"/>
                                                             </DataTemplate>
                                                         </Decorator.Resources>
                                                         <ComboBox SelectedItem="{Binding Signal, Delay=300}" 
@@ -261,7 +308,7 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <StackPanel>
-                            <TextBlock Text="{Binding OutSignalI.Power, StringFormat=Мощность:{0:f3}}"/>
+                            <!--<TextBlock Text="{Binding OutSignalI.Power, StringFormat=Мощность:{0:f3}}"/>-->
                             <TextBlock Text="{Binding SNR, StringFormat=SNR:{0:f3}db}"/>
                         </StackPanel>
                         <oxy:Plot Grid.Row="1">
