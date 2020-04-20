@@ -31,12 +31,28 @@ namespace BeamForming
             new CosOnPedestal(), 
         };
 
-        private AmplitudeDestribution _AmplitudeDestribution;
+        private AmplitudeDestribution _AmplitudeDestributionX = new Uniform();
 
-        public AmplitudeDestribution AmplitudeDestribution
+        public AmplitudeDestribution AmplitudeDestributionX
         {
-            get => _AmplitudeDestribution;
-            set => Set(ref _AmplitudeDestribution, value);
+            get => _AmplitudeDestributionX;
+            set
+            {
+                if(!Set(ref _AmplitudeDestributionX, value)) return;
+                ComputeOutputSignalAsync();
+            }
+        }
+
+        private AmplitudeDestribution _AmplitudeDestributionY = new Uniform();
+
+        public AmplitudeDestribution AmplitudeDestributionY
+        {
+            get => _AmplitudeDestributionY;
+            set
+            {
+                if (!Set(ref _AmplitudeDestributionY, value)) return;
+                ComputeOutputSignalAsync();
+            }
         }
 
         private ADC _ADC;
@@ -60,6 +76,7 @@ namespace BeamForming
             set
             {
                 if (!Set(ref _AntennaItem, value ?? throw new ArgumentNullException(nameof(value)))) return;
+                foreach (var antenna in Antenna) antenna.Element = value;
                 ComputeOutputSignalAsync();
             }
         }
@@ -560,25 +577,14 @@ namespace BeamForming
 
                 var radio_scene = Sources;
 
+                var destribution_x = _AmplitudeDestributionX.GetDestribution(
+                    Antenna.Average(item => item.LocationX),
+                    Antenna.Max(item => item.LocationX) - Antenna.Min(item => item.LocationX));
+                var destribution_y = _AmplitudeDestributionY.GetDestribution(
+                    Antenna.Average(item => item.LocationY),
+                    Antenna.Max(item => item.LocationY) - Antenna.Min(item => item.LocationY));
 
-                var signal = Antenna.GetSignal(radio_scene);
-
-                //var s0 = radio_scene.FirstOrDefault(s => !(s.Signal is RandomSignal))?.Signal;
-
-                //if (s0 is null)
-                //    SNR = double.NaN;
-                //else
-                //{
-                //    var sum = 0d;
-                //    var N = Antenna.ElementsCount;
-                //    for (var i = 0; i < signal.Count; i++)
-                //    {
-                //        var v = s0.Value(signal[i].t) - signal[i].Value / N;
-                //        sum += v * v;
-                //    }
-
-                //    SNR = -10 * Math.Log10(sum);
-                //}
+                var signal = Antenna.GetSignal(radio_scene, destribution_x, destribution_y);
 
                 await Application.Current.Dispatcher;
                 OnPropertyChanged(nameof(SNR));
@@ -598,11 +604,7 @@ namespace BeamForming
                 for (var thetta = thetta_min; thetta <= thetta_max; thetta += d_thetta)
                 {
                     cancel.ThrowIfCancellationRequested();
-                    var v1 = Antenna.GetSignal(radio_scene.Rotate(-30, 0, AngleType.Deg));
-                    //var v2 = Antenna.GetSignal(radio_scene);
-                    //var v3 = Antenna.GetSignal(radio_scene.Rotate(-30, -90, AngleType.Deg));
-
-                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(-thetta, -phi, AngleType.Deg));
+                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(-thetta, -phi, AngleType.Deg), destribution_x, destribution_y);
                     pattern.Add(new PatternValue
                     {
                         Angle = thetta,

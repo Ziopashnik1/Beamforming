@@ -99,7 +99,6 @@ namespace Antennas
         [NotNull]
         public Expression<Func<SpaceAngle, double, Complex>> GetPatternExpression()
         {
-            Contract.Ensures(Contract.Result<LambdaExpression>() != null);
             var a = "Angle".ParameterOf(typeof(SpaceAngle));
             var f = "f".ParameterOf(typeof(double));
             var body = GetPatternExpressionBody(a, f);
@@ -107,10 +106,6 @@ namespace Antennas
         }
 
         [NotNull]
-        public override string ToString()
-        {
-            Contract.Ensures(Contract.Result<string>() != null);
-            return GetType().Name;
-        }    
+        public override string ToString() => GetType().Name;
     }
 }

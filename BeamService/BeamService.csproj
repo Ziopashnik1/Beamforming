@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="ADC.cs" />
     <Compile Include="AmplitudeDestributions\AmplitudeDestribution.cs" />
+    <Compile Include="Digital\DigitalAntennaItem.cs" />
     <Compile Include="Functions\AmplitudeSignalFunction.cs" />
     <Compile Include="Functions\CombyneSignalFunction.cs" />
     <Compile Include="Functions\CosSignal.cs" />

@@ -13,6 +13,8 @@ namespace BeamService.AmplitudeDestributions
         /// <param name="x">Относительное положение точки в апертуры (на краях апертуры = 0.5)</param>
         /// <returns></returns>
         public abstract double Value(double x);
+
+        public Func<double, double> GetDestribution(double ApertureCenter, double ApertureLength) => x => Value((x - ApertureCenter) / ApertureLength);
     }
 
     public class Uniform : AmplitudeDestribution
@@ -28,7 +30,7 @@ namespace BeamService.AmplitudeDestributions
 
     public class CosOnPedestal : AmplitudeDestribution
     {
-        private double _Delta;
+        private double _Delta = 0.5;
 
         public double Delta
         {

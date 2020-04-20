@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Antennas;
+using BeamService.AmplitudeDestributions;
 using BeamService.Digital;
 using DSP.Lib;
 using MathService;
@@ -11,45 +12,7 @@ using MathService.Vectors;
 
 namespace BeamService
 {
-    public class DigitalAntennaItem : AntennaItem
-    {
-        public ADC ADC { get; }
-
-        public DigitalFilter Filter { get; set; }
-
-        public DigitalAntennaItem(
-            Antennas.Antenna antenna,
-            Vector3D location,
-            SpaceAngle angle,
-            Complex k,
-            ADC ADC,
-            DigitalFilter filter)
-            : base(antenna, location, angle, k)
-        {
-            this.ADC = ADC;
-            Filter = filter;
-        }
-
-        public DigitalSignal GetSignal(RadioScene Scene, int SamplesCount)
-        {
-            var antenna_location = Location;
-
-            AnalogSignalSource analog_result = null;
-            foreach (var signal in Scene)
-            {
-                var signal_angle = signal.Angle;
-                var delta_t = antenna_location.GetProjectionTo(signal_angle) / Consts.SpeedOfLigth;
-
-                analog_result += new AnalogSignalSource(t => signal.Signal.Value(t - delta_t));
-            }
-
-            var result = ADC.GetDigitalSignal(analog_result, SamplesCount);
-
-            return Filter?.Filter(result) ?? result;
-        }
-    }
-
-    public class DigitalAntennaArray2 : Antennas.Antenna, IEnumerable<DigitalAntennaItem>, INotifyCollectionChanged
+    public class DigitalAntennaArray2 : Antenna, IEnumerable<DigitalAntennaItem>, INotifyCollectionChanged
     {
         #region Implementation of INotifyCollectionChanged
 
@@ -72,15 +35,15 @@ namespace BeamService
 
         public DigitalAntennaArray2(int SamplesCount) => _SamplesCount = SamplesCount;
 
-        public (DigitalSignal I, DigitalSignal Q) GetSignal(RadioScene Scene)
+        public (DigitalSignal I, DigitalSignal Q) GetSignal(RadioScene Scene, Func<double, double> Ax = null, Func<double, double> Ay = null)
         {
-            var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount));
+            var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount, Ax, Ay));
             if(BeamForming is null) throw new InvalidOperationException("Отсутствует диаграммообразующая схема");
             return BeamForming.GetSignal(signals.ToArray());
         }
 
         public DigitalAntennaItem Add(
-            Antennas.Antenna antenna, 
+            Antenna antenna, 
             Vector3D location,
             SpaceAngle angle,
             Complex K, 
@@ -94,7 +57,7 @@ namespace BeamService
         }
 
         public DigitalAntennaItem Add(
-            Antennas.Antenna antenna,
+            Antenna antenna,
             Vector3D location, 
             ADC ADC)
         {

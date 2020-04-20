@@ -10,7 +10,7 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:functions="clr-namespace:BeamService.Functions;assembly=BeamService"
         Title="MainWindow3" 
-        Height="486" Width="800">
+        Height="537.638" Width="800">
     <Window.DataContext>
         <l:MainWindow3ViewModel/>
     </Window.DataContext>
@@ -272,13 +272,18 @@
                                               SelectedIndex="0"
                                               ItemsSource="{Binding DataContext.KnownAntennaItems, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                     </GroupBox>
-                                    <GroupBox Header="Ампл. распр.">
-                                        <ComboBox SelectedItem="{Binding AmplitudeDestribution, Delay=300}" 
-                                              SelectedIndex="0"
-                                              ItemsSource="{Binding DataContext.KnownAmplitudeDestributions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
-                                    </GroupBox>
                                     <GroupBox Header="Нормаировать ДН">
                                         <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Ампл. распр. OX">
+                                        <ComboBox SelectedItem="{Binding AmplitudeDestributionX, Delay=300}" 
+                                                  SelectedIndex="0"
+                                                  ItemsSource="{Binding DataContext.KnownAmplitudeDestributions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                    </GroupBox>
+                                    <GroupBox Header="Ампл. распр. OY">
+                                        <ComboBox SelectedItem="{Binding AmplitudeDestributionX, Delay=300}" 
+                                                  SelectedIndex="0"
+                                                  ItemsSource="{Binding DataContext.KnownAmplitudeDestributions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                     </GroupBox>
                                 </UniformGrid>
                             </GroupBox>
