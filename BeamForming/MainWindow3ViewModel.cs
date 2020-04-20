@@ -51,6 +51,14 @@ namespace BeamForming
             }
         }
 
+        public IReadOnlyCollection<Antenna> KnownAntennaItems { get; } = new Antenna[]
+        {
+            new UniformAntenna(), 
+            new Dipole(),
+            new Guigens(), 
+            new Vibrator(),
+        };
+
         private int _Nx = 8;
 
         public int Nx

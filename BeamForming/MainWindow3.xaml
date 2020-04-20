@@ -203,6 +203,7 @@
                                                             </DataTemplate>
                                                         </Decorator.Resources>
                                                         <ComboBox SelectedItem="{Binding Signal, Delay=300}" 
+                                                                  SelectedIndex="0"
                                                                   ItemsSource="{Binding DataContext.KnownFunctions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                                     </Decorator>
                                                     <ContentControl Content="{Binding Signal}"/>
@@ -266,8 +267,12 @@
                                     </StackPanel>
                                 </GroupBox>
                                 <GroupBox Header="ДН эл-та">
-                                    <ComboBox SelectedItem="{Binding Element, Delay=300}" 
-                                              ItemsSource="{Binding DataContext.KnownAntennaElements, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                    <ComboBox SelectedItem="{Binding AntennaItem, Delay=300}" 
+                                              ItemsSource="{Binding DataContext.KnownAntennaItems, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                </GroupBox> 
+                                <GroupBox Header="Ампл. распр.">
+                                    <ComboBox SelectedItem="{Binding AmplitudeDestribution, Delay=300}" 
+                                              ItemsSource="{Binding DataContext.KnownAmplitudeDestributions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                 </GroupBox>
                                 <GroupBox Header="Нормаировать ДН">
                                     <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
