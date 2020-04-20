@@ -65,13 +65,9 @@
   <ItemGroup>
     <Compile Include="ADC.cs" />
     <Compile Include="Functions\AmplitudeSignalFunction.cs" />
-    <Compile Include="Antenna.cs" />
     <Compile Include="Functions\CombyneSignalFunction.cs" />
-    <Compile Include="Cos2Element.cs" />
-    <Compile Include="CosElement.cs" />
     <Compile Include="Functions\CosSignal.cs" />
     <Compile Include="Functions\DiffSignalFunction.cs" />
-    <Compile Include="DigitalAntennaArray.cs" />
     <Compile Include="Digital\BeamForming.cs" />
     <Compile Include="Digital\DigitalAntennaArray2.cs" />
     <Compile Include="Functions\LFM.cs" />
@@ -83,7 +79,6 @@
     <Compile Include="Extensions\TaskEx.cs" />
     <Compile Include="Extensions\YieldAsyncAwaitable.cs" />
     <Compile Include="FourierMatrix.cs" />
-    <Compile Include="GuigensElement.cs" />
     <Compile Include="Functions\HarmonicSignalFunction.cs" />
     <Compile Include="IAntenna.cs" />
     <Compile Include="Functions\LamdaSignalFunction.cs" />
@@ -119,8 +114,6 @@
     <Compile Include="SpaceSignal.cs" />
     <Compile Include="SpectrumSample.cs" />
     <Compile Include="Functions\SummSignalFunction.cs" />
-    <Compile Include="Uniform.cs" />
-    <Compile Include="Vibrator.cs" />
     <Compile Include="ViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
