@@ -450,7 +450,7 @@ namespace BeamForming
                 new CosSignal(1, 1e9),
                 new RandomSignal(),
                 new LFM(1e9, 2e9, 60e-9, 0),
-                new RectSignalFunction(60e-9, 120e-9),
+                new RectSignalFunction(5e-10, 1e-9),
             };
 
         public ICommand AddNewSourceCommand { get; }

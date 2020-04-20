@@ -2,8 +2,8 @@
 {
     public class RectSignalFunction : AmplitudeSignalFunction
     {
-        private double _Period = 5e-9;
-        private double _Tau = 2.5e-9;
+        private double _Period = 1e-9;
+        private double _Tau = 5e-10;
 
         public double Period
         {
@@ -28,7 +28,7 @@
         public override double Value(double t)
         {
             t = t % Period + (t < 0 ? Period : 0);
-            return Amplitude * (t.Equals(Tau) || t.Equals(0d) ? 0.5 : (0 < t && t < Tau ? 1 : 0));
+            return Amplitude * ((t.Equals(Tau) || t.Equals(0d) ? 0.5 : (0 < t && t < Tau ? 1 : 0)) - 0.5);
         }
     }
 

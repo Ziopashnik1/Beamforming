@@ -123,7 +123,9 @@
                                     <DataTemplate DataType="{x:Type functions:RectSignalFunction}">
                                         <TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
-                                            * Rect(t, tau:<TextBlock Text="{Binding Tau, Delay=300}"/>, T:<TextBlock Text="{Binding Period}"/>)
+                                            * Rect(t,
+                                            tau:<xc:DoubleUpDown Value="{Binding Tau, Delay=300}"/>,
+                                            T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}"/>)
                                         </TextBlock>
                                     </DataTemplate>
 
