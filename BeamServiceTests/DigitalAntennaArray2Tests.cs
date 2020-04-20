@@ -61,7 +61,7 @@ namespace BeamServiceTests
             const double beam_angle_phi = 0;
             beam_forming.PhasingАngle = new SpaceAngle(beam_angle_thetta, beam_angle_phi, AngleType.Deg);
 
-            var signal = antenna_array.GetSignal(radio_scene);
+            var (signal, _) = antenna_array.GetSignal(radio_scene);
 
             var s0 = adc.GetDigitalSignal(new AnalogSignalSource(t => s.Value(t)), samples_count);
             var p0 = s0.GetTotalPower();

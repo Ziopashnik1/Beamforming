@@ -47,7 +47,7 @@ namespace Antenna.Console
             antenna_array.BeamForming = beam_forming;
 
             beam_forming.PhasingАngle = new SpaceAngle(30, 30, AngleType.Deg);
-            var signal = antenna_array.GetSignal(radio_scene);
+            var (signal, _) = antenna_array.GetSignal(radio_scene);
 
             var spectrum = signal.GetSpectrum();
         }
