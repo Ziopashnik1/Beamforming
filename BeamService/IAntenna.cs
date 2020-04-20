@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using MathService;
+﻿using MathService;
 
 namespace BeamService
 {

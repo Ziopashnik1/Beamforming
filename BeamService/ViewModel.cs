@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-namespace BeamService
+﻿namespace BeamService
 {
     //public abstract class ViewModel : INotifyPropertyChanged
     //{

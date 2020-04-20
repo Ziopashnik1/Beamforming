@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Windows.Data;
 using MathService;
 using MathService.Annotations;
 using MathService.Values;

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Antennas;
-using BeamService;
 using DSP.Lib;
-using DSP.Lib.Service;
-using MathService.Vectors;
 
 namespace DSP.TestConsole
 {

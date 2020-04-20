@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,7 +17,6 @@ using MathService;
 using MathService.Vectors;
 using MathService.ViewModels;
 using Antenna = Antennas.Antenna;
-using IAntenna = Antennas.IAntenna;
 using PatternValue = BeamService.PatternValue;
 using Vibrator = Antennas.Vibrator;
 
