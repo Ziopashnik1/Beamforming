@@ -30,7 +30,7 @@ namespace BeamService
 
         public RadioScene Rotate(SpaceAngle Angle)
         {
-            return new RadioScene(this.Select(signal => new SpaceSignal { Signal = signal.Signal, Angle = signal.Angle + Angle }));
+            return new RadioScene(this.Select(signal => new SpaceSignal { Signal = signal.Signal, Angle = signal.Angle.Rotate_PhiThetta(Angle) }));
         }
     }
 }

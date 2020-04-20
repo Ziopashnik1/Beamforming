@@ -156,23 +156,9 @@ namespace BeamForming
 
         [DependencyOn(nameof(Nx)), DependencyOn(nameof(dx))]
         public double AperturaLengthX => _dx * _Nx;
-        //{
-        //    get
-        //    {
-        //        Antenna.Select(item => item.LocationX).GetMinMax(v => v, out var min, out var max);
-        //        return max - min;
-        //    }
-        //}
 
         [DependencyOn(nameof(Ny)), DependencyOn(nameof(dy))]
         public double AperturaLengthY => _dy * _Ny;
-        //{
-        //    get
-        //    {
-        //        Antenna.Select(item => item.LocationY).GetMinMax(v => v, out var min, out var max);
-        //        return max - min;
-        //    }
-        //}
 
         #region th0 : double - Угол отклонения луча ДН по углу места
 
@@ -183,7 +169,12 @@ namespace BeamForming
         public double th0
         {
             get => _th0;
-            set => Set(ref _th0, value);
+            set
+            {
+                if(!Set(ref _th0, value)) return;
+                UpdateBeamforming();
+                ComputeOutputSignalAsync();
+            }
         }
 
         #endregion
@@ -197,7 +188,12 @@ namespace BeamForming
         public double phi0
         {
             get => _phi0;
-            set => Set(ref _phi0, value);
+            set
+            {
+                if(!Set(ref _phi0, value)) return;
+                UpdateBeamforming();
+                ComputeOutputSignalAsync();
+            }
         }
 
         #endregion
@@ -492,7 +488,10 @@ namespace BeamForming
 
         private void UpdateBeamforming()
         {
-            Antenna.BeamForming = new MatrixBeamForming(Antenna.Select(item => item.Location).ToArray(), _Nd, _ADC.Fd);
+            Antenna.BeamForming = new MatrixBeamForming(Antenna.Select(item => item.Location).ToArray(), _Nd, _ADC.Fd)
+            {
+                PhasingАngle = new SpaceAngle(th0, phi0)
+            };
         }
 
         private void AddNewCommandExecuted(object Obj) => Sources.Add(new SpaceSignal { Signal = new SinSignal(1, 1e9) });
@@ -577,7 +576,11 @@ namespace BeamForming
                 for (var thetta = thetta_min; thetta <= thetta_max; thetta += d_thetta)
                 {
                     cancel.ThrowIfCancellationRequested();
-                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(thetta, phi, AngleType.Deg));
+                    var v1 = Antenna.GetSignal(radio_scene.Rotate(-30, 0, AngleType.Deg));
+                    //var v2 = Antenna.GetSignal(radio_scene);
+                    //var v3 = Antenna.GetSignal(radio_scene.Rotate(-30, -90, AngleType.Deg));
+
+                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(-thetta, -phi, AngleType.Deg));
                     pattern.Add(new PatternValue
                     {
                         Angle = thetta,

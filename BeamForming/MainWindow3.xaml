@@ -132,8 +132,12 @@
                                             <Grid Margin="3">
                                                 <StackPanel>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="Угол" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                        <TextBlock Text="Тета:" VerticalAlignment="Center" Margin="0,0,3,0"/>
                                                         <xc:DoubleUpDown Value="{Binding Thetta, Delay=300, Converter={StaticResource InDeg}}" Increment="0.1"  
+                                                                         FormatString="0.0"
+                                                                         Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
+                                                        <TextBlock Text="Фи:" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                                                        <xc:DoubleUpDown Value="{Binding Phi, Delay=300, Converter={StaticResource InDeg}}" Increment="0.1"  
                                                                          FormatString="0.0"
                                                                          Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
                                                     </StackPanel>
@@ -174,13 +178,6 @@
                                     </DataTemplate>
                                 </DockPanel.Resources>
                                 <Button DockPanel.Dock="Top"  Content="Добавить источник" Command="{Binding AddNewSourceCommand}"/>
-                                <!--<ListBox ItemsSource="{Binding Sources}" Name="SourcesList" SelectedIndex="0">
-                                    <ListBox.ItemContainerStyle>
-                                        <Style TargetType="ListBoxItem">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                        </Style>
-                                    </ListBox.ItemContainerStyle>
-                                </ListBox>-->
                                 <ItemsControl ItemsSource="{Binding Sources}" Focusable="True"/>
                             </DockPanel>
                         </GroupBox>

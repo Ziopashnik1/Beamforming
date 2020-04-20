@@ -35,15 +35,16 @@ namespace BeamService
         {
             var antenna_location = Location;
 
-            DigitalSignal result = null;
+            AnalogSignalSource analog_result = null;
             foreach (var signal in Scene)
             {
                 var signal_angle = signal.Angle;
                 var delta_t = antenna_location.GetProjectionTo(signal_angle) / Consts.SpeedOfLigth;
 
-                var analog_signal_source = new AnalogSignalSource(t => signal.Signal.Value(t - delta_t));
-                result += ADC.GetDigitalSignal(analog_signal_source, SamplesCount);
+                analog_result += new AnalogSignalSource(t => signal.Signal.Value(t - delta_t));
             }
+
+            var result = ADC.GetDigitalSignal(analog_result, SamplesCount);
 
             return Filter?.Filter(result) ?? result;
         }
