@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using JetBrains.Annotations;
+using MathCore.Annotations;
 
 namespace DSP.Lib
 {

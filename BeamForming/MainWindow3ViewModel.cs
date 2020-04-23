@@ -9,14 +9,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Antennas;
 using BeamService.AmplitudeDestributions;
 using BeamService.Digital;
 using BeamService.Functions;
 using DSP.Lib;
-using MathService;
-using MathService.Vectors;
-using MathService.ViewModels;
+using MathCore;
+using MathCore.Vectors;
+using MathCore.ViewModels;
 using Antenna = Antennas.Antenna;
 using PatternValue = BeamService.PatternValue;
 using Vibrator = Antennas.Vibrator;
@@ -592,22 +593,22 @@ namespace BeamForming
                 OutSignalI = signal.I;
                 OutSignalQ = signal.Q;
 
-                const double thetta_min = -90;
-                const double thetta_max = 90;
-                const double d_thetta = 0.5;
-                const int beam_samples_count = (int)((thetta_max - thetta_min) / d_thetta) + 1;
+                const double theta_min = -90;
+                const double theta_max = 90;
+                const double d_theta = 0.5;
+                const int beam_samples_count = (int)((theta_max - theta_min) / d_theta) + 1;
                 var pattern = new List<PatternValue>(beam_samples_count);
 
                 await TaskEx.YieldAsync();
 
                 var phi = _Phi;
-                for (var thetta = thetta_min; thetta <= thetta_max; thetta += d_thetta)
+                for (var theta = theta_min; theta <= theta_max; theta += d_theta)
                 {
                     cancel.ThrowIfCancellationRequested();
-                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(-thetta, -phi, AngleType.Deg), destribution_x, destribution_y);
+                    var (i, q) = Antenna.GetSignal(radio_scene.Rotate(-theta, -phi, AngleType.Deg), destribution_x, destribution_y);
                     pattern.Add(new PatternValue
                     {
-                        Angle = thetta,
+                        Angle = theta,
                         Value = i.GetTotalPower() + q.GetTotalPower()
                     });
 

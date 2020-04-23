@@ -1,4 +1,4 @@
-﻿using MathService;
+﻿using MathCore;
 
 namespace BeamService
 {

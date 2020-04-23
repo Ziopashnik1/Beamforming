@@ -2,8 +2,8 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using BeamService.Functions;
-using MathService;
-using MathService.Vectors;
+using MathCore;
+using MathCore.Vectors;
 
 namespace BeamService
 {
@@ -19,18 +19,18 @@ namespace BeamService
             return space_signal;
         }
 
-        public SpaceSignal Add(double Thetta, double Phi, SignalFunction signal)
+        public SpaceSignal Add(double Theta, double Phi, SignalFunction signal)
         {
-            var space_signal = new SpaceSignal { Thetta = Thetta, Phi = Phi, Signal = signal };
+            var space_signal = new SpaceSignal { Theta = Theta, Phi = Phi, Signal = signal };
             Add(space_signal);
             return space_signal;
         }
 
-        public RadioScene Rotate(double Thetta, double Phi = 0, AngleType type = AngleType.Rad) => Rotate(new SpaceAngle(Thetta, Phi, type));
+        public RadioScene Rotate(double Theta, double Phi = 0, AngleType type = AngleType.Rad) => Rotate(new SpaceAngle(Theta, Phi, type));
 
         public RadioScene Rotate(SpaceAngle Angle)
         {
-            return new RadioScene(this.Select(signal => new SpaceSignal { Signal = signal.Signal, Angle = signal.Angle.Rotate_PhiThetta(Angle) }));
+            return new RadioScene(this.Select(signal => new SpaceSignal { Signal = signal.Signal, Angle = signal.Angle.RotatePhiTheta(Angle) }));
         }
     }
 }

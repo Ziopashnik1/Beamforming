@@ -6,9 +6,9 @@
         xmlns:l="clr-namespace:BeamForming"
         xmlns:b="clr-namespace:BeamService;assembly=BeamService"
         xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:functions="clr-namespace:BeamService.Functions;assembly=BeamService"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
         Title="MainWindow3" 
         Height="537.638" Width="800">
     <Window.DataContext>
@@ -61,7 +61,7 @@
                                 <DataTemplate DataType="{x:Type b:SpaceSignal}">
                                     <StackPanel>
                                         <GroupBox Header="Угол падения" Style="{StaticResource ParameterGroup}">
-                                            <xc:DoubleUpDown Value="{Binding Thetta, Converter={StaticResource InDeg}}" Increment="0.1"  
+                                            <xc:DoubleUpDown Value="{Binding Theta, Converter={StaticResource InDeg}}" Increment="0.1"  
                                                              FormatString="0.0"
                                                              Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
                                         </GroupBox>
@@ -173,7 +173,7 @@
                                                 <StackPanel>
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="Тета:" VerticalAlignment="Center" Margin="0,0,3,0"/>
-                                                        <xc:DoubleUpDown Value="{Binding Thetta, Delay=300, Converter={StaticResource InDeg}}" Increment="0.1"  
+                                                        <xc:DoubleUpDown Value="{Binding Theta, Delay=300, Converter={StaticResource InDeg}}" Increment="0.1"  
                                                                          FormatString="0.0"
                                                                          Minimum="-360" Maximum="360" ClipValueToMinMax="True"/>
                                                         <TextBlock Text="Фи:" VerticalAlignment="Center" Margin="0,0,3,0"/>
@@ -212,7 +212,7 @@
                                                         Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
                                                         Command="{Binding DataContext.RemoveSourceCommand, RelativeSource={RelativeSource AncestorType=DockPanel}}"
                                                         CommandParameter="{Binding}">
-                                                    <fa:ImageAwesome Height="13" Icon="TimesCircle" Foreground="Red"/>
+                                                    <fa:ImageAwesome Height="13" Icon="Regular_TimesCircle" Foreground="Red"/>
                                                     <Button.Style>
                                                         <Style TargetType="Button">
                                                             <Style.Triggers>
@@ -250,7 +250,7 @@
                                     <GroupBox Header="dy" >
                                         <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
                                     </GroupBox>
-                                    <GroupBox Header="Thetta0">
+                                    <GroupBox Header="Theta0">
                                         <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
                                     </GroupBox>
                                     <GroupBox Header="Phi">

@@ -1,5 +1,5 @@
 ﻿using System;
-using MathService;
+using MathCore;
 
 namespace BeamService
 {

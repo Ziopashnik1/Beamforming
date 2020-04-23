@@ -1,4 +1,4 @@
-﻿using MathService.ViewModels;
+﻿using MathCore.ViewModels;
 
 namespace BeamService.Functions
 {

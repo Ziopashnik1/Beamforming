@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using JetBrains.Annotations;
+using MathCore.Annotations;
 
 namespace DSP.Lib
 {
@@ -18,7 +18,7 @@ namespace DSP.Lib
         {
             if (signal is null) throw new ArgumentNullException(nameof(signal));
             var N = signal.Length;
-            if(N == 0) return new Complex[0];
+            if(N == 0) return Array.Empty<Complex>();
 
             var spectrum = new Complex[N];
             var w = -2 * Math.PI / N;
@@ -41,7 +41,7 @@ namespace DSP.Lib
         {
             if (spectrum is null) throw new ArgumentNullException(nameof(spectrum));
             var N = spectrum.Length;
-            if (N == 0) return new double[0];
+            if (N == 0) return Array.Empty<double>();
 
             var signal = new double[N];
 
@@ -62,7 +62,7 @@ namespace DSP.Lib
         {
             if (spectrum is null) throw new ArgumentNullException(nameof(spectrum));
             var N = spectrum.Length;
-            if (N == 0) return new Complex[0];
+            if (N == 0) return Array.Empty<Complex>();
 
             var signal = new Complex[N];
 

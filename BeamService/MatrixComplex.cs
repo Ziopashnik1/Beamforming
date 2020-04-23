@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using MathService;
+using MathCore;
 
 namespace BeamService
 {

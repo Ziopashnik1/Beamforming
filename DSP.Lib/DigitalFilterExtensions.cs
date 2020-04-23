@@ -1,5 +1,5 @@
 ﻿using System;
-using JetBrains.Annotations;
+using MathCore.Annotations;
 
 namespace DSP.Lib
 {
