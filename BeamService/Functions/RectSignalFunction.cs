@@ -4,8 +4,9 @@ namespace BeamService.Functions
 {
     public class RectSignalFunction : AmplitudeSignalFunction
     {
-        private double _Period = 1e-9;
+        private double _Period = 1;
         private double _Tau = 5e-10;
+        private double _q = 0.5;
 
         public double Period
         {
@@ -13,24 +14,32 @@ namespace BeamService.Functions
             set => Set(ref _Period, value);
         }
 
-        public double Tau
+        public double q
         {
-            get => _Tau;
-            set => Set(ref _Tau, value);
+            get => _q;
+            set
+            {
+                if (Set(ref _q, value))
+                    OnPropertyChanged(nameof(Tau));
+            }
         }
+
+        public double Tau => _Period * _q;
 
         public RectSignalFunction() { }
 
-        public RectSignalFunction(double Tau, double Period)
+        public RectSignalFunction(double Period, double q)
         {
             _Period = Period;
-            _Tau = Tau;
+            _q = q;
         }
 
         public override double Value(double t)
         {
-            t = t % Period + (t < 0 ? Period : 0);
-            return Amplitude * ((t.Equals(Tau) || t.Equals(0d) ? 0.5 : 0 < t && t < Tau ? 1 : 0) - 0.5);
+            var period = _Period * 1e-9;
+            var tau = Tau * 1e-9;
+            t = t % period + (t < 0 ? period : 0);
+            return Amplitude * ((t.Equals(tau) || t.Equals(0d) ? 0.5 : 0 < t && t < tau ? 1 : 0) - 0.5);
         }
     }
 
@@ -46,12 +55,8 @@ namespace BeamService.Functions
 
         public RadioSignalFunction() { }
 
-        public RadioSignalFunction(double Tau, double Period, double f0) : base(Tau, Period) => _f0 = f0;
+        public RadioSignalFunction(double Period, double q, double f0) : base(Period, q) => _f0 = f0;
 
-        #region Overrides of RectSignalFunction
-
-        public override double Value(double t) => base.Value(t) * Math.Sin(2 * Math.PI * t * _f0);
-
-        #endregion
+        public override double Value(double t) => (base.Value(t) + 0.5) * Math.Sin(2 * Math.PI * t * _f0 * 1e9);
     }
 }

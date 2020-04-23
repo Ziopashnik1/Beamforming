@@ -83,7 +83,7 @@
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="xc:DoubleUpDown">
-                                                            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                                            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, StringFormat=0.0#}"/>
                                                         </ControlTemplate>
                                                     </Setter.Value>
                                                 </Setter>
@@ -95,7 +95,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
+                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
                                             <TextBlock Margin="3,0">* t +</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0">))</TextBlock>
@@ -106,7 +106,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0,0,0">* Cos(2*pi *(</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1"/>
+                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
                                             <TextBlock Margin="3,0">* t +</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.#" Increment="0.1"/>
                                             <TextBlock Margin="3,0">))</TextBlock>
@@ -142,8 +142,8 @@
                                                         </TextEffect>
                                                     </Run.TextEffects>
                                                 </Run>:
-                                                <xc:DoubleUpDown Value="{Binding MaxFrequency, Delay=300}" VerticalAlignment="Center"/>,
-                                                T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}" VerticalAlignment="Center"/>)
+                                                <xc:DoubleUpDown Value="{Binding MaxFrequency, Delay=300}" VerticalAlignment="Center" Minimum="0"/>,
+                                                T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}" VerticalAlignment="Center" Minimum="0"/>)
                                             </TextBlock>
                                         </StackPanel>
                                     </DataTemplate>
@@ -152,9 +152,9 @@
                                         <TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                             * Radio(t,
-                                            tau:<xc:DoubleUpDown Value="{Binding Tau, Delay=300}"/>,
-                                            T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}"/>,
-                                            f0:<xc:DoubleUpDown Value="{Binding f0, Delay=300}" FormatString="F2"/>)
+                                            q:<xc:DoubleUpDown Value="{Binding q, Delay=300}" Minimum="0" Increment="0.05" FormatString="0.0#"/>,
+                                            T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}" Minimum="0" Increment="0.1" FormatString="0.0#"/>,
+                                            f0:<xc:DoubleUpDown Value="{Binding f0, Delay=300}" FormatString="F2" Minimum="0" Increment="0.1"/>)
                                         </TextBlock>
                                     </DataTemplate>
 
@@ -162,8 +162,8 @@
                                         <TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                             * Rect(t,
-                                            tau:<xc:DoubleUpDown Value="{Binding Tau, Delay=300}"/>,
-                                            T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}"/>)
+                                            q:<xc:DoubleUpDown Value="{Binding q, Delay=300}" Minimum="0" Increment="0.05" FormatString="0.0#"/>,
+                                            T:<xc:DoubleUpDown Value="{Binding Period, Delay=300, StringFormat=0.0#}" Minimum="0" Increment="0.1" FormatString="0.0#"/>)
                                         </TextBlock>
                                     </DataTemplate>
 
