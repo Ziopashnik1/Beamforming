@@ -2,8 +2,8 @@
 using Antennas;
 using BeamService.AmplitudeDestributions;
 using DSP.Lib;
-using MathService;
-using MathService.Vectors;
+using MathCore;
+using MathCore.Vectors;
 
 namespace BeamService
 {
@@ -34,7 +34,7 @@ namespace BeamService
             foreach (var signal in Scene)
             {
                 var signal_angle = signal.Angle;
-                var delta_t = antenna_location.GetProjectionTo(signal_angle) / Consts.SpeedOfLigth;
+                var delta_t = antenna_location.GetProjectionTo(signal_angle) / Consts.SpeedOfLight;
 
                 var A = (Ax?.Invoke(antenna_location.X) ?? 1) * (Ay?.Invoke(antenna_location.Y) ?? 1);
                 var F = Element.Pattern(signal_angle, 1).Abs;

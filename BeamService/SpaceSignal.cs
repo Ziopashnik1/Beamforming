@@ -1,21 +1,21 @@
 ﻿using System;
 using System.ComponentModel;
 using BeamService.Functions;
-using MathService.Vectors;
-using MathService.ViewModels;
+using MathCore.Vectors;
+using MathCore.ViewModels;
 
 namespace BeamService
 {
     public class SpaceSignal : ViewModel
     {
-        private double _Thetta;
+        private double _Theta;
         private double _Phi;
         private SignalFunction _Signal;
 
-        public double Thetta
+        public double Theta
         {
-            get => _Thetta;
-            set => SetValue(ref _Thetta, value).Update(nameof(Angle));
+            get => _Theta;
+            set => SetValue(ref _Theta, value).Update(nameof(Angle));
         }
 
         public double Phi
@@ -26,10 +26,10 @@ namespace BeamService
 
         public SpaceAngle Angle
         {
-            get => new SpaceAngle(_Thetta, _Phi);
+            get => new SpaceAngle(_Theta, _Phi);
             set
             {
-                Thetta = value.ThettaRad;
+                Theta = value.ThetaRad;
                 Phi = value.PhiRad;
             }
         }
@@ -46,9 +46,9 @@ namespace BeamService
             }
         }
 
-        public void Deconstruct(out double thetta, out Func<double, double> signal)
+        public void Deconstruct(out double theta, out Func<double, double> signal)
         {
-            thetta = Thetta;
+            theta = Theta;
             signal = Signal.Value;
         }
 

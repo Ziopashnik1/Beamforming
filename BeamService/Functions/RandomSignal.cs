@@ -19,7 +19,7 @@ namespace BeamService.Functions
 
         public RandomSignal() : this(0.01) { }
 
-        public RandomSignal(double Amplitude) : base(Amplitude) => f_RandomSamples = f_Random.NormalVector(SamplesCount);
+        public RandomSignal(double Amplitude) : base(Amplitude) => f_RandomSamples = f_Random.NextNormal(SamplesCount);
 
         public override double Value(double t) => f_RandomSamples[f_Random.Next(SamplesCount)] * Amplitude + f_Mu;
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 using DSP.Lib;
-using MathService.ViewModels;
+using MathCore.ViewModels;
 // ReSharper disable InconsistentNaming
 
 namespace BeamService

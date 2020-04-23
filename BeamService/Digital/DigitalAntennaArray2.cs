@@ -7,8 +7,8 @@ using Antennas;
 using BeamService.AmplitudeDestributions;
 using BeamService.Digital;
 using DSP.Lib;
-using MathService;
-using MathService.Vectors;
+using MathCore;
+using MathCore.Vectors;
 
 namespace BeamService
 {

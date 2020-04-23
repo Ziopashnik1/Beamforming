@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MathService;
+using MathCore;
 
 namespace BeamService
 {

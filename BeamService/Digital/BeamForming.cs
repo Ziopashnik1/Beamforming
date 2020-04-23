@@ -1,7 +1,7 @@
 ﻿using System;
 using DSP.Lib;
-using MathService;
-using MathService.Vectors;
+using MathCore;
+using MathCore.Vectors;
 
 namespace BeamService.Digital
 {
@@ -20,7 +20,7 @@ namespace BeamService.Digital
         private readonly MatrixComplex _Wt_inv;
         private MatrixComplex _PhasingMatrix;
         private const double pi2 = Consts.pi2;
-        private const double c = Consts.SpeedOfLigth;
+        private const double c = Consts.SpeedOfLight;
         private SpaceAngle _PhasingАngle;
 
         public SpaceAngle PhasingАngle
