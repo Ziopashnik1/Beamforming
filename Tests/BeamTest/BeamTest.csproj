@@ -9,8 +9,4 @@
     <PackageReference Include="MathCore" Version="0.0.22.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>

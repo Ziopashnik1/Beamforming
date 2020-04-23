@@ -13,8 +13,4 @@
     <ProjectReference Include="..\Service\AntennaLib\AntennaLib.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>
