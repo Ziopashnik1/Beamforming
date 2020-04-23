@@ -49,9 +49,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DigitalAntennaArray_Tests.cs" />
@@ -62,14 +59,6 @@
     <ProjectReference Include="..\AntennaLib\AntennaLib.csproj">
       <Project>{39C2F4B5-2C8E-49F8-90D7-EB2546A5F363}</Project>
       <Name>AntennaLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BeamService\BeamService.csproj">
-      <Project>{ccc78748-4795-4404-b374-791547a6cd91}</Project>
-      <Name>BeamService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DSP.Lib\DSP.Lib.csproj">
-      <Project>{FF5B9AD2-57E9-443D-A91F-DA90A672298C}</Project>
-      <Name>DSP.Lib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

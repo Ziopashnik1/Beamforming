@@ -11,8 +11,6 @@ using MathService.Vectors;
 namespace Antennas
 {
     /// <summary>Антенный элемент</summary>
-    [DefaultProperty("Element")]
-    [System.Windows.Markup.ContentProperty("Element")]
     public class AntennaItem : Antenna
     {
         private const double c_ToRad = Math.PI / 180;

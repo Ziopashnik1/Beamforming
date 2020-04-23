@@ -34,18 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations, Version=2019.1.1.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <HintPath>..\packages\JetBrains.Annotations.2019.1.1\lib\net20\JetBrains.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="MathService">
       <HintPath>..\lib\MathService.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -58,20 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AntennaLib\AntennaLib.csproj">
       <Project>{39c2f4b5-2c8e-49f8-90d7-eb2546a5f363}</Project>
       <Name>AntennaLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BeamService\BeamService.csproj">
-      <Project>{CCC78748-4795-4404-B374-791547A6CD91}</Project>
-      <Name>BeamService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DSP.Lib\DSP.Lib.csproj">
-      <Project>{ff5b9ad2-57e9-443d-a91f-da90a672298c}</Project>
-      <Name>DSP.Lib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
