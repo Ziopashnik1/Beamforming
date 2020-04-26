@@ -79,6 +79,19 @@
                                     <Style TargetType="{x:Type xc:DoubleUpDown}">
                                         <Setter Property="Focusable" Value="True"/>
                                         <Style.Triggers>
+                                            <!--<MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="IsMouseOver" Value="false"/>
+                                                    <Condition Property="IsFocused" Value="false"/>
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="xc:DoubleUpDown">
+                                                            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, StringFormat=0.0#}"/>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </MultiTrigger>-->
                                             <Trigger Property="IsMouseOver" Value="False">
                                                 <Setter Property="Template">
                                                     <Setter.Value>
@@ -93,7 +106,7 @@
 
                                     <DataTemplate DataType="{x:Type functions:SinSignal}">
                                         <StackPanel Orientation="Horizontal">
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.000000000#" Increment="0.0000000001"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e3"/>
                                             <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
                                             <TextBlock Margin="3,0">* t +</TextBlock>
@@ -104,7 +117,7 @@
 
                                     <DataTemplate DataType="{x:Type functions:CosSignal}">
                                         <StackPanel Orientation="Horizontal">
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e3"/>
                                             <TextBlock Margin="3,0,0,0">* Cos(2*pi *(</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
                                             <TextBlock Margin="3,0">* t +</TextBlock>
@@ -120,7 +133,7 @@
                                         </StackPanel>
                                     </DataTemplate>
 
-                                    <DataTemplate DataType="{x:Type functions:RandomSignal}">
+                                    <DataTemplate DataType="{x:Type functions:NormalRandomSignal}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock>Шум:</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
@@ -189,7 +202,7 @@
                                                             <DataTemplate DataType="{x:Type functions:CosSignal}">
                                                                 <TextBlock Text="cos"/>
                                                             </DataTemplate>
-                                                            <DataTemplate DataType="{x:Type functions:RandomSignal}">
+                                                            <DataTemplate DataType="{x:Type functions:NormalRandomSignal}">
                                                                 <TextBlock Text="Шум"/>
                                                             </DataTemplate>
                                                             <DataTemplate DataType="{x:Type functions:RectSignalFunction}">
@@ -326,39 +339,66 @@
             <GridSplitter Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="4" Background="Transparent" Cursor="SizeWE" />
             <TabControl Grid.Column="1">
                 <TabItem Header="Сигналы">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <StackPanel>
-                            <!--<TextBlock Text="{Binding OutSignalI.Power, StringFormat=Мощность:{0:f3}}"/>-->
-                            <TextBlock Text="{Binding SNR, StringFormat=SNR:{0:f3}db}"/>
-                        </StackPanel>
-                        <oxy:Plot Grid.Row="1">
-                            <oxy:Plot.Axes>
-                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" 
+                    <TabControl TabStripPlacement="Bottom">
+                        <TabItem Header="На выходе ЦДО">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <StackPanel>
+                                    <!--<TextBlock Text="{Binding OutSignalI.Power, StringFormat=Мощность:{0:f3}}"/>-->
+                                    <TextBlock Text="{Binding SNR, StringFormat=SNR:{0:f3}db}"/>
+                                </StackPanel>
+                                <oxy:Plot Grid.Row="1">
+                                    <oxy:Plot.Axes>
+                                        <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" 
                                                 />
-                                <oxy:LinearAxis Position="Bottom" 
+                                        <oxy:LinearAxis Position="Bottom" 
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
-                            </oxy:Plot.Axes>
-                            <oxy:LineSeries Color="Red" 
+                                    </oxy:Plot.Axes>
+                                    <oxy:LineSeries Color="Red" 
                                             ItemsSource="{Binding OutSignalValuesI}" 
                                             DataFieldX="X" 
                                             DataFieldY="Y" 
                                             CanTrackerInterpolatePoints="False"
                                             LineLegendPosition="Start"
                                             MarkerType="Circle"/>
-                            <oxy:LineSeries Color="Blue" 
+                                    <oxy:LineSeries Color="Blue" 
                                             ItemsSource="{Binding OutSignalValuesQ}" 
                                             DataFieldX="X" 
                                             DataFieldY="Y" 
                                             CanTrackerInterpolatePoints="False"
                                             LineLegendPosition="Start"
                                             MarkerType="Circle"/>
-                        </oxy:Plot>
-                    </Grid>
+                                </oxy:Plot>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="На входе АЦП">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <oxy:Plot Grid.Row="1">
+                                    <oxy:Plot.Axes>
+                                        <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"/>
+                                        <oxy:LinearAxis Position="Bottom" 
+                                                MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
+                                                AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
+                                    </oxy:Plot.Axes>
+                                    <oxy:LineSeries Color="Red" 
+                                            ItemsSource="{Binding InputSignalValues}" 
+                                            DataFieldX="X" 
+                                            DataFieldY="Y" 
+                                            CanTrackerInterpolatePoints="False"
+                                            LineLegendPosition="Start"
+                                            MarkerType="Circle"/>
+                                </oxy:Plot>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
                 <TabItem Header="Диаграмма">
                     <Grid>

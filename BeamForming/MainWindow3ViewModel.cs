@@ -413,6 +413,30 @@ namespace BeamForming
             }
         }
 
+        private DigitalSignal _InputSignal;
+
+        public DigitalSignal InputSignal
+        {
+            get => _InputSignal;
+            private set
+            {
+                if (!Set(ref _InputSignal, value)) return;
+
+                var values = new ObservableCollection<DataPoint>();
+                values.Clear();
+                if (value is null) return;
+
+                var dt = value.dt * 1e9;
+                for (var i = 0; i < value.SamplesCount; i++)
+                    values.Add(new DataPoint
+                    {
+                        X = dt * i,
+                        Y = value[i]
+                    });
+                InputSignalValues = values;
+            }
+        }
+
         public class DataPoint
         {
             public double X { get; set; }
@@ -433,6 +457,14 @@ namespace BeamForming
         {
             get => _OutSignalValuesQ;
             set => Set(ref _OutSignalValuesQ, value);
+        }
+
+        private ObservableCollection<DataPoint> _InputSignalValues = new ObservableCollection<DataPoint>();
+
+        public ObservableCollection<DataPoint> InputSignalValues
+        {
+            get => _InputSignalValues;
+            set => Set(ref _InputSignalValues, value);
         }
 
         public RadioScene Sources { get; } = new RadioScene();
@@ -495,22 +527,12 @@ namespace BeamForming
 
         public double SNR { get; private set; }
 
-        //public IEnumerable<IAntenna> KnownAntennaElements => new IAntenna[]
-        //{
-        //    _AntennaItem,
-        //    new Uniform(),
-        //    new CosElement(),
-        //    new Cos2Element(),
-        //    new GuigensElement(),
-        //    new Vibrator()
-        //};
-
         public IEnumerable<SignalFunction> KnownFunctions =>
             new SignalFunction[]
             {
                 new SinSignal(1, 1e9),
                 new CosSignal(1, 1e9),
-                new RandomSignal(),
+                new NormalRandomSignal(),
                 new LFM(1e9, 2e9, 60e-9, 0),
                 new RectSignalFunction(1, 0.5),
                 new RadioSignalFunction(1, 0.5, 5),
@@ -608,12 +630,15 @@ namespace BeamForming
                     Antenna.Average(item => item.LocationY),
                     Antenna.Max(item => item.LocationY) - Antenna.Min(item => item.LocationY));
 
-                var signal = Antenna.GetSignal(radio_scene, destribution_x, destribution_y);
+                var input_signal = Antenna.First().GetSignal(radio_scene, Antenna.SamplesCount);
+
+                var out_signal = Antenna.GetSignal(radio_scene, destribution_x, destribution_y);
 
                 await Application.Current.Dispatcher;
                 OnPropertyChanged(nameof(SNR));
 
-                (OutSignalI, OutSignalQ) = signal;
+                InputSignal = input_signal;
+                (OutSignalI, OutSignalQ) = out_signal;
 
                 const double theta_min = -90;
                 const double theta_max = 90;

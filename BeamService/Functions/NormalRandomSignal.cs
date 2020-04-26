@@ -2,7 +2,7 @@
 
 namespace BeamService.Functions
 {
-    public class RandomSignal : AmplitudeSignalFunction
+    public class NormalRandomSignal : AmplitudeSignalFunction
     {
         private const int SamplesCount = 1024;
 
@@ -17,9 +17,9 @@ namespace BeamService.Functions
             set => Set(ref f_Mu, value);
         }
 
-        public RandomSignal() : this(0.01) { }
+        public NormalRandomSignal() : this(0.01) { }
 
-        public RandomSignal(double Amplitude) : base(Amplitude) => f_RandomSamples = f_Random.NextNormal(SamplesCount);
+        public NormalRandomSignal(double Amplitude) : base(Amplitude) => f_RandomSamples = f_Random.NextNormal(SamplesCount);
 
         public override double Value(double t) => f_RandomSamples[f_Random.Next(SamplesCount)] * Amplitude + f_Mu;
     }

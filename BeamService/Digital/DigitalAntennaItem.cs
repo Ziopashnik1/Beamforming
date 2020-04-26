@@ -26,7 +26,7 @@ namespace BeamService
             Filter = filter;
         }
 
-        public DigitalSignal GetSignal(RadioScene Scene, int SamplesCount, Func<double, double> Ax, Func<double, double> Ay)
+        public DigitalSignal GetSignal(RadioScene Scene, int SamplesCount, Func<double, double> Ax = null, Func<double, double> Ay = null)
         {
             var antenna_location = Location;
 
