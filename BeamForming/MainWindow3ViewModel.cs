@@ -302,6 +302,7 @@ namespace BeamForming
                 if (!Set(ref _n, value)) return;
 
                 _ADC.N = value;
+                OnPropertyChanged(nameof(UminADC));
 
                 ComputeOutputSignalAsync();
             }
@@ -335,6 +336,7 @@ namespace BeamForming
             {
                 if (value <= 0) throw new ArgumentOutOfRangeException(nameof(value), value, "Максимальная амплитуда АЦП должна быть больше 0");
                 if (!Set(ref _AdCmaxAmplitude, value)) return;
+                OnPropertyChanged(nameof(UminADC));
 
                 _ADC.MaxValue = value;
 
@@ -343,6 +345,8 @@ namespace BeamForming
         }
 
         #endregion
+
+        public double UminADC => _ADC.D;
 
         private DigitalSignal _OutSignalI;
         private DigitalSignal _OutSignalQ;

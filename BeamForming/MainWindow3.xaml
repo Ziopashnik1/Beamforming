@@ -93,7 +93,7 @@
 
                                     <DataTemplate DataType="{x:Type functions:SinSignal}">
                                         <StackPanel Orientation="Horizontal">
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.#" Increment="0.1"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.000000000#" Increment="0.0000000001"/>
                                             <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
                                             <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
                                             <TextBlock Margin="3,0">* t +</TextBlock>
@@ -301,8 +301,11 @@
                                     <GroupBox Header="Разрядность">
                                         <xc:IntegerUpDown Value="{Binding n, Delay=300}" Minimum="1" Maximum="32"/>
                                     </GroupBox>
-                                    <GroupBox Header="Динам.диап." ToolTip="Максимальная амплитуда АЦП">
+                                    <GroupBox Header="Ампл. АЦП" ToolTip="Максимальная амплитуда АЦП">
                                         <xc:DoubleUpDown Value="{Binding ADCmaxAmplitude, Delay=300}" Minimum="0.1" Increment="0.1" FormatString="0.# 'В'"/>
+                                    </GroupBox> 
+                                    <GroupBox Header="Цена разр. АЦП" ToolTip="Разрешающая способность АЦП">
+                                        <TextBlock Text="{Binding UminADC, StringFormat=e3}" />
                                     </GroupBox>
                                     <GroupBox Header="Джиттер" Visibility="Hidden">
                                         <xc:DoubleUpDown Value="{Binding tj, Delay=300, Converter={l:MultiplyConverter 1e9}}" Minimum="0" Maximum="1" Increment="0.1"/>
