@@ -31,7 +31,15 @@ namespace BeamService
             set => Set(ref _SamplesCount, value);
         }
 
-        public BeamForming BeamForming { get; set; }
+        private double _AnalogAmpl = 1;
+
+        public double AnalogAmpl
+        {
+            get => _AnalogAmpl;
+            set => Set(ref _AnalogAmpl, value);
+        }
+
+    public BeamForming BeamForming { get; set; }
 
         public DigitalAntennaArray2(int SamplesCount) => _SamplesCount = SamplesCount;
 
@@ -39,7 +47,7 @@ namespace BeamService
         {
             var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount, Ax, Ay));
             if(BeamForming is null) throw new InvalidOperationException("Отсутствует диаграммообразующая схема");
-            return BeamForming.GetSignal(signals.ToArray());
+            return BeamForming.GetSignal(Math.Abs(_AnalogAmpl - 1) < 0.001 ? signals.ToArray() : signals.Select(s => s * _AnalogAmpl).ToArray());
         }
 
         public DigitalAntennaItem Add(

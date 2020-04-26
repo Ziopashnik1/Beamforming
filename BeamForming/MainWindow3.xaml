@@ -256,13 +256,13 @@
                                     <GroupBox Header="Phi">
                                         <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
                                     </GroupBox>
-                                    <GroupBox Header="Размер апертуры X">
+                                    <GroupBox Header="Размер  X">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding AperturaLengthX, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </GroupBox>
 
-                                    <GroupBox Header="Размер апертуры Y">
+                                    <GroupBox Header="Размер Y">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding AperturaLengthY, Delay=300, StringFormat={}{0:0.##}м}" VerticalAlignment="Center"/>
                                         </StackPanel>
@@ -284,6 +284,13 @@
                                         <ComboBox SelectedItem="{Binding AmplitudeDestributionX, Delay=300}" 
                                                   SelectedIndex="0"
                                                   ItemsSource="{Binding DataContext.KnownAmplitudeDestributions, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
+                                    </GroupBox>
+                                </UniformGrid>
+                            </GroupBox>
+                            <GroupBox Header="Аналоговая часть" DockPanel.Dock="Top">
+                                <UniformGrid Columns="2">
+                                    <GroupBox Header="К-т. усил. ППМ" ToolTip="{Binding Antenna.AnalogAmpl, StringFormat=e2}">
+                                        <xc:DoubleUpDown Value="{Binding AnalogAmpl, Delay=300}" FormatString="0.0# дБ" Minimum="0" Maximum="100" ClipValueToMinMax="True" Increment="0.5"/>
                                     </GroupBox>
                                 </UniformGrid>
                             </GroupBox>

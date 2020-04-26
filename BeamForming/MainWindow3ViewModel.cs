@@ -28,8 +28,8 @@ namespace BeamForming
     {
         public IReadOnlyCollection<AmplitudeDestribution> KnownAmplitudeDestributions { get; } = new AmplitudeDestribution[]
         {
-            new Uniform(), 
-            new CosOnPedestal(), 
+            new Uniform(),
+            new CosOnPedestal(),
         };
 
         private AmplitudeDestribution _AmplitudeDestributionX = new Uniform();
@@ -39,7 +39,7 @@ namespace BeamForming
             get => _AmplitudeDestributionX;
             set
             {
-                if(!Set(ref _AmplitudeDestributionX, value)) return;
+                if (!Set(ref _AmplitudeDestributionX, value)) return;
                 ComputeOutputSignalAsync();
             }
         }
@@ -63,7 +63,7 @@ namespace BeamForming
             get => _ADC;
             set
             {
-                if(!Set(ref _ADC, value ?? throw new ArgumentNullException(nameof(value)))) return;
+                if (!Set(ref _ADC, value ?? throw new ArgumentNullException(nameof(value)))) return;
                 UpdateBeamforming();
                 ComputeOutputSignalAsync();
             }
@@ -84,9 +84,9 @@ namespace BeamForming
 
         public IReadOnlyCollection<Antenna> KnownAntennaItems { get; } = new Antenna[]
         {
-            new UniformAntenna(), 
+            new UniformAntenna(),
             new Dipole(),
-            new Guigens(), 
+            new Guigens(),
             new Vibrator(),
         };
 
@@ -210,7 +210,7 @@ namespace BeamForming
             get => _th0;
             set
             {
-                if(!Set(ref _th0, value)) return;
+                if (!Set(ref _th0, value)) return;
                 UpdateBeamforming();
                 ComputeOutputSignalAsync();
             }
@@ -229,7 +229,7 @@ namespace BeamForming
             get => _phi0;
             set
             {
-                if(!Set(ref _phi0, value)) return;
+                if (!Set(ref _phi0, value)) return;
                 UpdateBeamforming();
                 ComputeOutputSignalAsync();
             }
@@ -347,6 +347,25 @@ namespace BeamForming
         #endregion
 
         public double UminADC => _ADC.D;
+
+        #region AnalogAmpl : double - Коэффициент усиаления аналоговой части
+
+        private double _AnalogAmpl;
+
+        ///<summary>Коэффициент усиаления аналоговой части</summary>
+        public double AnalogAmpl
+        {
+            get => _AnalogAmpl;
+            set
+            {
+                if (!Set(ref _AnalogAmpl, value)) return;
+                Antenna.AnalogAmpl = Math.Pow(10, value / 10);
+
+                ComputeOutputSignalAsync();
+            }
+        }
+
+        #endregion
 
         private DigitalSignal _OutSignalI;
         private DigitalSignal _OutSignalQ;
@@ -494,7 +513,7 @@ namespace BeamForming
                 new RandomSignal(),
                 new LFM(1e9, 2e9, 60e-9, 0),
                 new RectSignalFunction(1, 0.5),
-                new RadioSignalFunction(1, 0.5, 5), 
+                new RadioSignalFunction(1, 0.5, 5),
             };
 
         public ICommand AddNewSourceCommand { get; }
@@ -594,8 +613,7 @@ namespace BeamForming
                 await Application.Current.Dispatcher;
                 OnPropertyChanged(nameof(SNR));
 
-                OutSignalI = signal.I;
-                OutSignalQ = signal.Q;
+                (OutSignalI, OutSignalQ) = signal;
 
                 const double theta_min = -90;
                 const double theta_max = 90;
