@@ -346,14 +346,13 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
-                                <StackPanel>
-                                    <!--<TextBlock Text="{Binding OutSignalI.Power, StringFormat=Мощность:{0:f3}}"/>-->
-                                    <TextBlock Text="{Binding SNR, StringFormat=SNR:{0:f3}db}"/>
-                                </StackPanel>
+                                <DockPanel LastChildFill="False">
+                                    <xc:DoubleUpDown DockPanel.Dock="Left" ClipValueToMinMax="True" Minimum="{Binding TotallySignalTimeMin}"/>
+                                    <xc:DoubleUpDown DockPanel.Dock="Right" ClipValueToMinMax="True" Maximum="{Binding TotallySignalTimeMax}"/>
+                                </DockPanel>
                                 <oxy:Plot Grid.Row="1">
                                     <oxy:Plot.Axes>
-                                        <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" 
-                                                />
+                                        <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dot" />
                                         <oxy:LinearAxis Position="Bottom" 
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />

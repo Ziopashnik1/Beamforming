@@ -437,6 +437,34 @@ namespace BeamForming
             }
         }
 
+        #region TotallySignalTimeMin : double - Минимальное время сигнала
+
+        ///<summary>Минимальное время сигнала</summary>
+        private double _TotallySignalTimeMin;
+
+        ///<summary>Минимальное время сигнала</summary>
+        public double TotallySignalTimeMin
+        {
+            get => _TotallySignalTimeMin;
+            private set => Set(ref _TotallySignalTimeMin, value);
+        }
+
+        #endregion
+
+        #region TotallySignalTimeMax : double - Максимальное время сигнала
+
+        ///<summary>Максимальное время сигнала</summary>
+        private double _TotallySignalTimeMax;
+
+        ///<summary>Максимальное время сигнала</summary>
+        public double TotallySignalTimeMax
+        {
+            get => _TotallySignalTimeMax;
+            private set => Set(ref _TotallySignalTimeMax, value);
+        }
+
+        #endregion
+
         public class DataPoint
         {
             public double X { get; set; }
@@ -639,6 +667,9 @@ namespace BeamForming
 
                 InputSignal = input_signal;
                 (OutSignalI, OutSignalQ) = out_signal;
+
+                TotallySignalTimeMin = OutSignalValuesI[0].X;
+                TotallySignalTimeMax = OutSignalValuesI[^1].X;
 
                 const double theta_min = -90;
                 const double theta_max = 90;
