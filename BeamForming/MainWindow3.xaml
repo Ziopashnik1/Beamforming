@@ -106,22 +106,22 @@
 
                                     <DataTemplate DataType="{x:Type functions:SinSignal}">
                                         <StackPanel Orientation="Horizontal">
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e3"/>
-                                            <TextBlock Margin="3,0,0,0">* Sin(2*pi *(</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
-                                            <TextBlock Margin="3,0">* t +</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.#" Increment="0.1"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e2" Increment="0.0000001"/>
+                                            <TextBlock Margin="3,0,0,0">В * Sin(2*pi *(</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.0# 'ГГц'" Increment="0.1" Minimum="0"/>
+                                            <TextBlock Margin="3,0">ГГц * t +</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                             <TextBlock Margin="3,0">))</TextBlock>
                                         </StackPanel>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type functions:CosSignal}">
                                         <StackPanel Orientation="Horizontal">
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e3"/>
-                                            <TextBlock Margin="3,0,0,0">* Cos(2*pi *(</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.#" Increment="0.1" Minimum="0"/>
-                                            <TextBlock Margin="3,0">* t +</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.#" Increment="0.1"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e2" Increment="0.0000001"/>
+                                            <TextBlock Margin="3,0,0,0">В * Cos(2*pi *(</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Frequency, Delay=300, Converter={StaticResource GHz}}" FormatString="0.0# 'ГГц'" Increment="0.1" Minimum="0"/>
+                                            <TextBlock Margin="3,0">ГГц * t +</TextBlock>
+                                            <xc:DoubleUpDown Value="{Binding Phase, Delay=300}" FormatString="0.0#" Increment="0.01"/>
                                             <TextBlock Margin="3,0">))</TextBlock>
                                         </StackPanel>
                                     </DataTemplate>
@@ -129,20 +129,20 @@
                                     <DataTemplate DataType="{x:Type functions:AmplitudeSignalFunction}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock>Амплитуда:</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0# 'В'" Increment="0.01"/>
                                         </StackPanel>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type functions:NormalRandomSignal}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock>Шум:</TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e2" Increment="0.0000001"/>
                                         </StackPanel>
                                     </DataTemplate>
 
                                     <DataTemplate DataType="{x:Type functions:LFM}">
                                         <StackPanel Orientation="Horizontal">
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01" VerticalAlignment="Center"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e2" Increment="0.01" VerticalAlignment="Center"/>
                                             <TextBlock VerticalAlignment="Center">
                                                 LFM(
                                                 f0:<xc:DoubleUpDown Value="{Binding Frequency, Delay=300}" VerticalAlignment="Center"/>,
@@ -163,7 +163,7 @@
 
                                     <DataTemplate DataType="{x:Type functions:RadioSignalFunction}">
                                         <TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="e2" Increment="0.01"/>
                                             * Radio(t,
                                             q:<xc:DoubleUpDown Value="{Binding q, Delay=300}" Minimum="0" Increment="0.05" FormatString="0.0#"/>,
                                             T:<xc:DoubleUpDown Value="{Binding Period, Delay=300}" Minimum="0" Increment="0.1" FormatString="0.0#"/>,
@@ -173,7 +173,7 @@
 
                                     <DataTemplate DataType="{x:Type functions:RectSignalFunction}">
                                         <TextBlock>
-                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0#" Increment="0.01"/>
+                                            <xc:DoubleUpDown Value="{Binding Amplitude, Delay=300}" FormatString="0.0# 'В'" Increment="0.01"/>
                                             * Rect(t,
                                             q:<xc:DoubleUpDown Value="{Binding q, Delay=300}" Minimum="0" Increment="0.05" FormatString="0.0#"/>,
                                             T:<xc:DoubleUpDown Value="{Binding Period, Delay=300, StringFormat=0.0#}" Minimum="0" Increment="0.1" FormatString="0.0#"/>)
@@ -255,19 +255,19 @@
                                         <xc:IntegerUpDown Value="{Binding Nx, Delay=300}" Minimum="1" Maximum="1024"/>
                                     </GroupBox>
                                     <GroupBox Header="dx" >
-                                        <xc:DoubleUpDown Value="{Binding dx, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                        <xc:DoubleUpDown Value="{Binding dx, Delay=300}" FormatString="0.0000# 'м'" Minimum="0.0001" Increment="0.001"/>
                                     </GroupBox>
                                     <GroupBox Header="Ny" >
                                         <xc:IntegerUpDown Value="{Binding Ny, Delay=300}" Minimum="1" Maximum="1024"/>
                                     </GroupBox>
                                     <GroupBox Header="dy" >
-                                        <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.00# 'м'" Minimum="0.001" Increment="0.01"/>
+                                        <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.0000# 'м'" Minimum="0.0001" Increment="0.001"/>
                                     </GroupBox>
                                     <GroupBox Header="Theta0">
-                                        <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                        <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}"  FormatString="0.# '°'" Minimum="-360" Maximum="360" Increment="0.1"/>
                                     </GroupBox>
                                     <GroupBox Header="Phi">
-                                        <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" Minimum="-360" Maximum="360" Increment="0.1"/>
+                                        <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" FormatString="0.# '°'" Minimum="-360" Maximum="360" Increment="0.1"/>
                                     </GroupBox>
                                     <GroupBox Header="Размер  X">
                                         <StackPanel Orientation="Horizontal">
@@ -303,7 +303,7 @@
                             <GroupBox Header="Аналоговая часть" DockPanel.Dock="Top">
                                 <UniformGrid Columns="2">
                                     <GroupBox Header="К-т. усил. ППМ" ToolTip="{Binding Antenna.AnalogAmpl, StringFormat=e2}">
-                                        <xc:DoubleUpDown Value="{Binding AnalogAmpl, Delay=300}" FormatString="0.0# дБ" Minimum="0" Maximum="100" ClipValueToMinMax="True" Increment="0.5"/>
+                                        <xc:DoubleUpDown Value="{Binding AnalogAmpl, Delay=300}" FormatString="0.# 'дБ'" Minimum="0" Maximum="100" ClipValueToMinMax="True" Increment="0.5"/>
                                     </GroupBox>
                                 </UniformGrid>
                             </GroupBox>
@@ -356,7 +356,7 @@
                                         <oxy:LinearAxis Position="Bottom" 
                                                 MajorGridlineStyle="Dash" MinorGridlineStyle="Dot"
                                                 AxislineColor="Black" AxislineThickness="1" AxislineStyle="Solid" Unit="нс" />
-                                    </oxy:Plot.Axes>
+                                    </oxy:Plot.Axes>                                                                          
                                     <oxy:LineSeries Color="Red" 
                                             ItemsSource="{Binding OutSignalValuesI}" 
                                             DataFieldX="X" 

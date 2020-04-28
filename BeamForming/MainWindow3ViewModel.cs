@@ -90,7 +90,7 @@ namespace BeamForming
             new Vibrator(),
         };
 
-        private int _Nx = 8;
+        private int _Nx = 10;
 
         public int Nx
         {
@@ -121,7 +121,7 @@ namespace BeamForming
             }
         }
 
-        private int _Ny = 8;
+        private int _Ny = 10;
         public int Ny
         {
             get => _Ny;
@@ -151,7 +151,7 @@ namespace BeamForming
             }
         }
 
-        private double _dx = 0.15;
+        private double _dx = 0.03;
         public double dx
         {
             get => _dx;
@@ -172,7 +172,7 @@ namespace BeamForming
             }
         }
 
-        private double _dy = 0.15;
+        private double _dy = 0.03;
         public double dy
         {
             get => _dy;
@@ -558,9 +558,9 @@ namespace BeamForming
         public IEnumerable<SignalFunction> KnownFunctions =>
             new SignalFunction[]
             {
-                new SinSignal(1, 1e9),
-                new CosSignal(1, 1e9),
-                new NormalRandomSignal(),
+                new SinSignal(1.5e-7, 5e9),
+                new CosSignal(1.5e-7, 5e9),
+                new NormalRandomSignal(1.2e-7),
                 new LFM(1e9, 2e9, 60e-9, 0),
                 new RectSignalFunction(1, 0.5),
                 new RadioSignalFunction(1, 0.5, 5),
@@ -572,13 +572,13 @@ namespace BeamForming
 
         public MainWindow3ViewModel()
         {
-            _Nd = 16;
+            _Nd = 50;
             var antenna = new DigitalAntennaArray2(_Nd);
 
             _AntennaItem = new UniformAntenna();
-            const double fd = 8e9; // Hz
+            const double fd = 20e9; // Hz
             _fd = fd;
-            const double max_amplidude = 5;
+            const double max_amplidude = 1.5;
             _AdCmaxAmplitude = max_amplidude;
             _ADC = new ADC(_n, _fd, _AdCmaxAmplitude);
             for (var ix = 0; ix < _Nx; ix++)
@@ -596,7 +596,9 @@ namespace BeamForming
             Sources.CollectionChanged += OnRadioSceneChanged;
             antenna.PropertyChanged += OnAntennaPaarmeterChanged;
 
-            Sources.Add(new SpaceSignal { Signal = new SinSignal(1, 1e9) });
+            Sources.Add(new SpaceSignal { Signal = new SinSignal(1.5e-7, 5e9) });
+
+            AnalogAmpl = 55;
         }
 
         private void UpdateBeamforming()
@@ -658,7 +660,7 @@ namespace BeamForming
                     Antenna.Average(item => item.LocationY),
                     Antenna.Max(item => item.LocationY) - Antenna.Min(item => item.LocationY));
 
-                var input_signal = Antenna.First().GetSignal(radio_scene, Antenna.SamplesCount);
+                var input_signal = Antenna.First().GetSignal(radio_scene, Antenna.SamplesCount, Antenna.AnalogAmpl);
 
                 var out_signal = Antenna.GetSignal(radio_scene, destribution_x, destribution_y);
 

@@ -45,9 +45,9 @@ namespace BeamService
 
         public (DigitalSignal I, DigitalSignal Q) GetSignal(RadioScene Scene, Func<double, double> Ax = null, Func<double, double> Ay = null)
         {
-            var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount, Ax, Ay));
+            var signals = _Items.Select(AntennaItem => AntennaItem.GetSignal(Scene, _SamplesCount, _AnalogAmpl, Ax, Ay));
             if(BeamForming is null) throw new InvalidOperationException("Отсутствует диаграммообразующая схема");
-            return BeamForming.GetSignal(Math.Abs(_AnalogAmpl - 1) < 0.001 ? signals.ToArray() : signals.Select(s => s * _AnalogAmpl).ToArray());
+            return BeamForming.GetSignal(signals.ToArray());
         }
 
         public DigitalAntennaItem Add(
