@@ -18,6 +18,7 @@ using DSP.Lib;
 using MathCore;
 using MathCore.Vectors;
 using MathCore.ViewModels;
+using MathCore.WPF.Commands;
 using Antenna = Antennas.Antenna;
 using PatternValue = BeamService.PatternValue;
 using Vibrator = Antennas.Vibrator;
@@ -570,6 +571,10 @@ namespace BeamForming
 
         public ICommand RemoveSourceCommand { get; }
 
+        public ICommand AbortComputingCommand { get; }
+
+        public ICommand RefreshDataResultsCommand { get; }
+
         public MainWindow3ViewModel()
         {
             _Nd = 50;
@@ -591,8 +596,11 @@ namespace BeamForming
             Antenna = antenna;
             UpdateBeamforming();
 
-            AddNewSourceCommand = new LamdaCommand(AddNewCommandExecuted);
+            AddNewSourceCommand = new LamdaCommand(AddNewCommandExecuted, o => true);
             RemoveSourceCommand = new LamdaCommand(RemoveSourceCommandExecuted, p => p is SpaceSignal source && Sources.Contains(source));
+            AbortComputingCommand = new LambdaCommand(OnAbortComputingCommandExecuted, () => true);
+            RefreshDataResultsCommand = new LambdaCommand(OnRefreshDataResultsCommandExecuted, () => true);
+
             Sources.CollectionChanged += OnRadioSceneChanged;
             antenna.PropertyChanged += OnAntennaPaarmeterChanged;
 
@@ -600,6 +608,10 @@ namespace BeamForming
 
             AnalogAmpl = 55;
         }
+
+        private void OnAbortComputingCommandExecuted() => _ComputeOutputSignalCancellation?.Cancel();
+
+        private void OnRefreshDataResultsCommandExecuted() => ComputeOutputSignalAsync();
 
         private void UpdateBeamforming()
         {

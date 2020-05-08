@@ -23,10 +23,22 @@
     </Window.Resources>
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
-            <StackPanel Orientation="Horizontal">
-                <ProgressBar Width="120" Height="10" Value="{Binding PatternCalculationProgress}" Maximum="1"/>
-                <TextBlock Text="{Binding PatternCalculationProgress, StringFormat={}{0:p2}}" Margin="3,0,0,0"/>
-            </StackPanel>
+            <StatusBarItem>
+                <UniformGrid Rows="1">
+                    <Button Margin="1,0" Command="{Binding RefreshDataResultsCommand}">
+                        <fa:ImageAwesome Icon="Regular_PlayCircle" Height="12" Foreground="DarkBlue"/>
+                    </Button>
+                    <Button Margin="1,0" Command="{Binding AbortComputingCommand}">
+                        <fa:ImageAwesome Icon="Solid_TimesCircle" Height="12" Foreground="Red"/>
+                    </Button>
+                </UniformGrid>
+            </StatusBarItem>
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <ProgressBar Width="120" Height="10" Value="{Binding PatternCalculationProgress}" Maximum="1"/>
+                    <TextBlock Text="{Binding PatternCalculationProgress, StringFormat={}{0:p2}}" Margin="3,0,0,0"/>
+                </StackPanel> 
+            </StatusBarItem>   
         </StatusBar>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -96,7 +108,7 @@
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="xc:DoubleUpDown">
-                                                            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}, StringFormat=0.0#}"/>
+                                                            <TextBlock Text="{Binding Value, RelativeSource={RelativeSource TemplatedParent}}"/>
                                                         </ControlTemplate>
                                                     </Setter.Value>
                                                 </Setter>
