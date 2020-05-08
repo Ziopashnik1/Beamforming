@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BeamServiceTests
 {
     [TestClass]
-    public class DigitalAntennaArray2Tests
+    public class DigitalAntennaArrayTests
     {
         [TestMethod]
         public void Matrix_Beamforming_With_LFM_Signal()
@@ -31,7 +31,7 @@ namespace BeamServiceTests
             const double dy = 0.15; // m
             const int samples_count = 960;
 
-            var antenna_array = new DigitalAntennaArray2(samples_count);
+            var antenna_array = new DigitalAntennaArray(samples_count);
 
             for (var ix = 0; ix < antennas_count_x; ix++)
                 for (var iy = 0; iy < antennas_count_y; iy++)
@@ -89,7 +89,7 @@ namespace BeamServiceTests
             const double dy = 0.15; // m
             const int samples_count = 128;
 
-            var antenna_array = new DigitalAntennaArray2(samples_count);
+            var antenna_array = new DigitalAntennaArray(samples_count);
 
             for (var ix = 0; ix < antennas_count_x; ix++)
                 for (var iy = 0; iy < antennas_count_y; iy++)

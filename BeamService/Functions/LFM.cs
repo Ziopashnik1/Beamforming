@@ -28,19 +28,14 @@ namespace BeamService.Functions
             _Period = Period;
         }
 
-        #region Overrides of SignalFunction
-
         public override double Value(double t)
         {
-            t = t % Period + (t < 0 ? Period : 0);
-            //var t0 = t % _Period;
-            //if (t < 0) t0 += _Period;
+            t %= _Period;
+            if (t < 0) t += _Period;
 
             return _Amplitude * Math.Sin(2 * Math.PI * F(t) * t + _Phase);
         }
 
         private double F(double t) => _Frequency + t * (_MaxFrequency - _Frequency) / _Period;
-
-        #endregion
     }
 }

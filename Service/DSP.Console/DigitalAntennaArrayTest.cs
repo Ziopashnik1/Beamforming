@@ -7,7 +7,7 @@ using MathCore.Vectors;
 
 namespace DSP.TestConsole
 {
-    static class DigitalAntennaArray2Test
+    static class DigitalAntennaArrayTest
     {
         public static void Test()
         {
@@ -21,7 +21,7 @@ namespace DSP.TestConsole
             const double dx = 0.137; // m
             var antenna_array = Enumerable.Repeat(antenna_item, antennas_count)
                 .Aggregate(
-                    new DigitalAntennaArray2(16),
+                    new DigitalAntennaArray(16),
                     (array, item, i) =>
                     {
                         array.Add(item, new Vector3D(i * dx), adc);

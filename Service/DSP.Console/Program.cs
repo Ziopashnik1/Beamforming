@@ -9,7 +9,7 @@ namespace DSP.TestConsole
     {
         private static void Main(string[] args)
         {
-            DigitalAntennaArray2Test.Test();
+            DigitalAntennaArrayTest.Test();
 
 
             return;

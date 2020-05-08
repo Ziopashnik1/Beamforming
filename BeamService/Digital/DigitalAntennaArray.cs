@@ -12,7 +12,7 @@ using MathCore.Vectors;
 
 namespace BeamService
 {
-    public class DigitalAntennaArray2 : Antenna, IEnumerable<DigitalAntennaItem>, INotifyCollectionChanged
+    public class DigitalAntennaArray : Antenna, IEnumerable<DigitalAntennaItem>, INotifyCollectionChanged
     {
         #region Implementation of INotifyCollectionChanged
 
@@ -41,7 +41,7 @@ namespace BeamService
 
     public BeamForming BeamForming { get; set; }
 
-        public DigitalAntennaArray2(int SamplesCount) => _SamplesCount = SamplesCount;
+        public DigitalAntennaArray(int SamplesCount) => _SamplesCount = SamplesCount;
 
         public (DigitalSignal I, DigitalSignal Q) GetSignal(RadioScene Scene, Func<double, double> Ax = null, Func<double, double> Ay = null)
         {

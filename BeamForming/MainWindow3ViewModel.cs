@@ -498,7 +498,7 @@ namespace BeamForming
 
         public RadioScene Sources { get; } = new RadioScene();
 
-        public DigitalAntennaArray2 Antenna { get; }
+        public DigitalAntennaArray Antenna { get; }
 
         private PatternValue[] _Pattern;
 
@@ -578,7 +578,7 @@ namespace BeamForming
         public MainWindow3ViewModel()
         {
             _Nd = 50;
-            var antenna = new DigitalAntennaArray2(_Nd);
+            var antenna = new DigitalAntennaArray(_Nd);
 
             _AntennaItem = new UniformAntenna();
             const double fd = 20e9; // Hz
