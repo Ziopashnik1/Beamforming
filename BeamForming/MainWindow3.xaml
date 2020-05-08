@@ -9,7 +9,7 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:functions="clr-namespace:BeamService.Functions;assembly=BeamService"
         xmlns:fa="http://schemas.fontawesome.com/icons/"
-        Title="MainWindow3" 
+        Title="ЦАР" 
         Height="537.638" Width="800">
     <Window.DataContext>
         <l:MainWindow3ViewModel/>
