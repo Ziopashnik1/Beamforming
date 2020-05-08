@@ -285,7 +285,7 @@
                                               SelectedIndex="0"
                                               ItemsSource="{Binding DataContext.KnownAntennaItems, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                     </GroupBox>
-                                    <GroupBox Header="Нормаировать ДН">
+                                    <GroupBox Header="Нормировать ДН">
                                         <CheckBox Content="Номировать" VerticalAlignment="Center" IsChecked="{Binding DataContext.NormPattern, RelativeSource={RelativeSource AncestorType=TabControl}}"/>
                                     </GroupBox>
                                     <GroupBox Header="Ампл. распр. OX">
