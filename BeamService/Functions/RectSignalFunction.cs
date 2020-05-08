@@ -38,8 +38,12 @@ namespace BeamService.Functions
         {
             var period = _Period * 1e-9;
             var tau = Tau * 1e-9;
-            t = t % period + (t < 0 ? period : 0);
-            return Amplitude * ((t.Equals(tau) || t.Equals(0d) ? 0.5 : 0 < t && t < tau ? 1 : 0) - 0.5);
+            t %= period;
+            if (t < 0) t += period;
+            //return Amplitude * ((t.Equals(tau) || t.Equals(0d) ? 0.5 : 0 < t && t < tau ? 1 : 0) - 0.5);
+            if (t.Equals(tau) || t.Equals(0d)) return 0;
+            if (t < tau) return Amplitude * 0.5;
+            return -Amplitude * 0.5;
         }
     }
 
@@ -57,6 +61,6 @@ namespace BeamService.Functions
 
         public RadioSignalFunction(double Period, double q, double f0) : base(Period, q) => _f0 = f0;
 
-        public override double Value(double t) => (base.Value(t) + 0.5) * Math.Sin(2 * Math.PI * t * _f0 * 1e9);
+        public override double Value(double t) => (base.Value(t) + 0.5 * Amplitude) * Math.Sin(2 * Math.PI * t * _f0 * 1e9);
     }
 }
