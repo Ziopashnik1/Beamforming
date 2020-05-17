@@ -66,8 +66,6 @@ namespace BeamService.Digital
             {
                 samples_i[i] = q[0, i].Re;
                 samples_q[i] = q[0, i].Im;
-                //if(Math.Abs(q[0, i].Im) > 1e-10)
-                //    throw new InvalidOperationException("Ошибка преобразования - получен комплексный результат");
             }
             return (new DigitalSignal(1 / _fd, samples_i), new DigitalSignal(1 / _fd, samples_q));
         }

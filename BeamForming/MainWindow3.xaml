@@ -263,10 +263,10 @@
                                     <GroupBox Header="dy" >
                                         <xc:DoubleUpDown Value="{Binding dy, Delay=300}" FormatString="0.0000# 'м'" Minimum="0.0001" Increment="0.001"/>
                                     </GroupBox>
-                                    <GroupBox Header="Theta0">
+                                    <GroupBox Header="θ0">
                                         <xc:DoubleUpDown Value="{Binding th0, Delay=300, Converter={StaticResource InDeg}}"  FormatString="0.# '°'" Minimum="-360" Maximum="360" Increment="0.1"/>
                                     </GroupBox>
-                                    <GroupBox Header="Phi">
+                                    <GroupBox Header="φ0">
                                         <xc:DoubleUpDown Value="{Binding phi0, Delay=300, Converter={StaticResource InDeg}}" FormatString="0.# '°'" Minimum="-360" Maximum="360" Increment="0.1"/>
                                     </GroupBox>
                                     <GroupBox Header="Размер  X">

@@ -1,4 +1,87 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BeamService.DigitalAntennaArray">
+    <Position X="5.25" Y="1" Width="3.25" />
+    <Members>
+      <Method Name="Add" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Events" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAEBAAABAAAAAAhAAQAAAAAIQGAAAACABAAAI=</HashCode>
+      <FileName>Digital\DigitalAntennaArray.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.21" />
+  </Class>
+  <Class Name="Antennas.Antenna">
+    <Position X="2.25" Y="1" Width="2.75" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="BeamService.Digital.BeamForming">
+    <Position X="13.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Digital\BeamForming.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.Digital.MatrixBeamForming">
+    <Position X="13" Y="2.25" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <InheritanceLine Type="BeamService.Digital.BeamForming" FixedFromPoint="true">
+      <Path>
+        <Point X="14.375" Y="2.103" />
+        <Point X="14.375" Y="2.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AACAAAUAAAAAAALAAAAAAABQAEBAAICCAAAAAAEAABA=</HashCode>
+      <FileName>Digital\BeamForming.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.AmplitudeDestributions.Uniform">
+    <Position X="5" Y="5.5" Width="1.5" />
+    <InheritanceLine Type="BeamService.AmplitudeDestributions.AmplitudeDestribution" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="4.5" Y="5.312" />
+        <Point X="5.75" Y="5.312" />
+        <Point X="5.75" Y="5.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>AmplitudeDestributions\AmplitudeDestribution.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.AmplitudeDestributions.CosOnPedestal">
+    <Position X="7" Y="5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <InheritanceLine Type="BeamService.AmplitudeDestributions.AmplitudeDestribution" FixedFromPoint="true">
+      <Path>
+        <Point X="4.5" Y="4.938" />
+        <Point X="6.76" Y="4.938" />
+        <Point X="6.76" Y="5.876" />
+        <Point X="7" Y="5.876" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAAAAEAAAAAAIAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>AmplitudeDestributions\AmplitudeDestribution.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BeamService.AmplitudeDestributions.AmplitudeDestribution">
+    <Position X="2.75" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>AmplitudeDestributions\AmplitudeDestribution.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

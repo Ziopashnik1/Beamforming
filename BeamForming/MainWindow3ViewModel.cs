@@ -606,7 +606,7 @@ namespace BeamForming
 
             Sources.Add(new SpaceSignal { Signal = new SinSignal(1.5e-7, 5e9) });
 
-            AnalogAmpl = 55;
+            AnalogAmpl = 30;
         }
 
         private void OnAbortComputingCommandExecuted() => _ComputeOutputSignalCancellation?.Cancel();
